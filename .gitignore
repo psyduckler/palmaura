@@ -1,0 +1,39 @@
+# macOS
+.DS_Store
+
+# Xcode
+DerivedData/
+build/
+*.xcuserdata/
+*.xcuserstate
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Package.resolved
+
+# Node/Vercel
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.vercel/
+dist/
+.next/
+
+# Env/secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+
+# Hermes/local artifacts
+.hermes/
