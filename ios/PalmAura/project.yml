@@ -37,5 +37,12 @@ targets:
     platform: iOS
     sources:
       - PalmAuraTests
+    info:
+      path: PalmAuraTests/Info.plist
+      properties:
+        CFBundleIdentifier: app.palmaura.PalmAuraTests
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
     dependencies:
       - target: PalmAura

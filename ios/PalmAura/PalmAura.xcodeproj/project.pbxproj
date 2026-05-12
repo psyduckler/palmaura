@@ -53,6 +53,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		055BDCC8D1CC9A05842EB2C0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		07C6DA2991F59AA384A35613 /* PalmReadingResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PalmReadingResponse.swift; sourceTree = "<group>"; };
 		1720F2B3C55DB463CFA88037 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		1C5F47F16EFFADB47F8F39B7 /* DisclaimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisclaimerView.swift; sourceTree = "<group>"; };
@@ -108,6 +109,7 @@
 			children = (
 				79E369BE5EFD310427760B72 /* ContractEncodingTests.swift */,
 				41EDB47AB8DE4AE6BDE1794A /* ImagePreprocessorTests.swift */,
+				055BDCC8D1CC9A05842EB2C0 /* Info.plist */,
 				A8F12EF70C3329DD05F7A2BF /* PalmReadingResponseTests.swift */,
 			);
 			path = PalmAuraTests;
@@ -363,6 +365,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = PalmAuraTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -445,6 +449,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = PalmAuraTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

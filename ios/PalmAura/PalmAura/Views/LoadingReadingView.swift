@@ -25,8 +25,8 @@ struct LoadingReadingView: View {
                     .font(.title3.weight(.semibold))
                     .multilineTextAlignment(.center)
                     .contentTransition(.opacity)
-                if let errorMessage {
-                    Text(errorMessage).foregroundStyle(.yellow).multilineTextAlignment(.center)
+                if let currentErrorMessage = errorMessage {
+                    Text(currentErrorMessage).foregroundStyle(.yellow).multilineTextAlignment(.center)
                     Button("Try again") { errorMessage = nil; Task { await generate() } }.buttonStyle(.borderedProminent)
                 }
             }
