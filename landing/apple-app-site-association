@@ -1,0 +1,9 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [{
+      "appID": "TEAMID.app.palmaura.PalmAura",
+      "paths": ["/r/*", "/reading/*"]
+    }]
+  }
+}

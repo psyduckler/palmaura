@@ -1,0 +1,19 @@
+{
+  "name": "palmaura-backend",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "dev": "vercel dev",
+    "deploy": "vercel deploy --prod"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "latest",
+    "@upstash/redis": "latest",
+    "zod": "latest"
+  },
+  "devDependencies": {
+    "typescript": "latest",
+    "vercel": "latest"
+  }
+}

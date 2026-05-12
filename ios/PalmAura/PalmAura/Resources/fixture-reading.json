@@ -1,0 +1,47 @@
+{
+  "status": "ok",
+  "readingId": "fixture-1",
+  "title": "The Violet Wanderer",
+  "oneLineSummary": "Your palm suggests a season of quiet momentum and intuitive choices.",
+  "auraColor": "violet",
+  "archetype": "The Wanderer",
+  "shareCards": [
+    {
+      "format": "aura",
+      "title": "Violet Aura",
+      "body": "Your palm suggests intuition, depth, and a quiet pull toward your next threshold.",
+      "accentColor": "#C084FC",
+      "theme": "violet"
+    },
+    {
+      "format": "archetype",
+      "title": "The Wanderer",
+      "body": "You move through uncertainty by collecting signs others overlook.",
+      "accentColor": "#F6D27A",
+      "theme": "gold"
+    },
+    {
+      "format": "thirty_day",
+      "title": "30-Day Theme",
+      "body": "Choose the door that feels peaceful, not the one that only looks impressive.",
+      "accentColor": "#67E8F9",
+      "theme": "water"
+    }
+  ],
+  "report": {
+    "aura": "Your palm carries a violet tone: reflective, sensitive, and quietly magnetic. It suggests a person who notices patterns before they are ready to explain them.",
+    "heartLine": "The heart line points to a deep need for sincerity in connection. You may be entering a period where vague bonds feel less satisfying than honest ones.",
+    "headLine": "The head line suggests intuitive analysis: you do not only think through decisions, you feel the shape of them first.",
+    "lifeLine": "The life line symbolizes steady renewal. This is not about force; it is about returning to the rituals that keep you clear.",
+    "fateLine": "The fate line appears as a question rather than a command. Your path may be shaped by one choice you have been delaying.",
+    "currentSeason": "This season invites discernment. Keep what gives energy, release what only performs well from the outside.",
+    "guidance": "Move slowly enough to hear the first honest answer inside you.",
+    "ritual": "Tonight, write down one decision and circle the option that makes your body relax."
+  },
+  "nextReadingHook": {
+    "focus": "love",
+    "teaser": "Your heart line hints at a deeper pattern in connection\u2026"
+  },
+  "entertainmentDisclaimer": "PalmAura readings are symbolic entertainment and self-reflection only.",
+  "createdAt": "2026-05-12T00:00:00.000Z"
+}

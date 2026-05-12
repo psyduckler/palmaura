@@ -1,0 +1,568 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		030D46DF6271BAA4DF23851B /* ImagePreprocessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41EDB47AB8DE4AE6BDE1794A /* ImagePreprocessorTests.swift */; };
+		07A83962107C25616D3BE37E /* Analytics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95FA5568901DC7C8816D062D /* Analytics.swift */; };
+		08667B571912BDFD50085CF2 /* ContractEncodingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79E369BE5EFD310427760B72 /* ContractEncodingTests.swift */; };
+		187D0E00897DDC1B3085BE31 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8C96DF93E0D366B5956611DF /* Assets.xcassets */; };
+		21874DE111D16DA3530052E3 /* ImagePreprocessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFCBE931255201250AB14F3 /* ImagePreprocessor.swift */; };
+		2D217A09A92BB28AB083D748 /* ShareOptionsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5B070BAFB11FD7738871EDD /* ShareOptionsSheet.swift */; };
+		2EF4B1FBF50468A0AEED94B5 /* InstagramStorySharer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21401A4B8D5A2FA34B980923 /* InstagramStorySharer.swift */; };
+		3308DE1307B3BA9EA22019FA /* mystical-loading-phrases.json in Resources */ = {isa = PBXBuildFile; fileRef = CF5515FDAB1E983707B4048E /* mystical-loading-phrases.json */; };
+		3463A8BE7451E02E956ECC77 /* fixture-reading.json in Resources */ = {isa = PBXBuildFile; fileRef = 3EA3030A239CC168858A7FB1 /* fixture-reading.json */; };
+		34A3268B240FAD0478B8E003 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1720F2B3C55DB463CFA88037 /* OnboardingView.swift */; };
+		34F540A6845C77E51F5FC1B6 /* DisclaimerFooter.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5533A4E194C59E70AAEB91 /* DisclaimerFooter.swift */; };
+		3CD97D1741E5D321363AFF36 /* ShareCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D400ADEFA4588D8827BBF27 /* ShareCardView.swift */; };
+		3D45B7B1F05F43D3E108A302 /* PalmCaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DDCED82A71521A213F06E6 /* PalmCaptureView.swift */; };
+		41CEBCA976CE95ECF50C237A /* ReadingResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A41B56D51D9821A8B4B23968 /* ReadingResultView.swift */; };
+		5A77ECA6AD6625356C5B96B3 /* MysticalBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF3731CAD3AD996E58CC0A3 /* MysticalBackground.swift */; };
+		674273DBEEC0A3FA777615B3 /* PalmReadingResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07C6DA2991F59AA384A35613 /* PalmReadingResponse.swift */; };
+		6C313972967FFBB35306AEFF /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF5C572506FA73A211D1CA8 /* AppConfig.swift */; };
+		720AB8F41FFB22399CC37088 /* ShareCardRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FFEF4A235A1EC34F6E0E966 /* ShareCardRenderer.swift */; };
+		77BD5402B0D6A6B7FF53446E /* LastReadingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A2ADE4F8F44064BAEFC283B /* LastReadingStore.swift */; };
+		7E4C63D11530E3201F11604D /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B0C5BE3E3495A05B0C96241 /* SettingsView.swift */; };
+		8344956A9658C9F4485A03BF /* DeviceID.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C06DC0387CF6DC2E0AACD6D /* DeviceID.swift */; };
+		8D50F07DD6B82B0D51B8AAEB /* PalmAuraApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC72B8E2100B1B2DD7EA7CFC /* PalmAuraApp.swift */; };
+		9374AAD4BFA0CFD0D4FC4408 /* QuestionChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF171689593C3A75D33838B1 /* QuestionChip.swift */; };
+		9638472F6319110026869817 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4A129AC7D423AB7C763818B /* RootView.swift */; };
+		9B12F1B8A902BF37CDB077E7 /* PalmReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 921B79429690999985EEFBC4 /* PalmReviewView.swift */; };
+		9BF18F45D246D5D3062FF1C1 /* LoadingReadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D79B762F892E4853A54A9DE0 /* LoadingReadingView.swift */; };
+		9D6BDBCB7BA69AA1DBE83C2F /* DisclaimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C5F47F16EFFADB47F8F39B7 /* DisclaimerView.swift */; };
+		AAE395E4BA2C684F8242AAD5 /* PrimaryButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7AD4A8F83C798CAA69A7FBC /* PrimaryButton.swift */; };
+		BAD1044A75BAF5E83C811256 /* OnboardingAnswers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F92274F1EDA7CCF79E21D328 /* OnboardingAnswers.swift */; };
+		C7DFB3AD1F35D2A413B12254 /* PalmReadingRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E996AE0FD915DD66131A862 /* PalmReadingRequest.swift */; };
+		D32EAA649C580D334F478138 /* ReadingAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = FABCD888475E0BB7F499D2A5 /* ReadingAPIClient.swift */; };
+		E3D09EC24C2B30CFC8E50737 /* PalmReadingResponseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8F12EF70C3329DD05F7A2BF /* PalmReadingResponseTests.swift */; };
+		E96415D53D66F337A7166AFF /* BrandConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = D88CA57CAEA60AA44CD51585 /* BrandConfig.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		5BA1E2157E46A2B834D29B36 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2C927B4976D9F9A4E2C27B1B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8855DC3ADF5914668EB2A9E2;
+			remoteInfo = PalmAura;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		07C6DA2991F59AA384A35613 /* PalmReadingResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PalmReadingResponse.swift; sourceTree = "<group>"; };
+		1720F2B3C55DB463CFA88037 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		1C5F47F16EFFADB47F8F39B7 /* DisclaimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisclaimerView.swift; sourceTree = "<group>"; };
+		21401A4B8D5A2FA34B980923 /* InstagramStorySharer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstagramStorySharer.swift; sourceTree = "<group>"; };
+		2308674E5D6BD47EB98C18E9 /* PalmAuraTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = PalmAuraTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		2E996AE0FD915DD66131A862 /* PalmReadingRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PalmReadingRequest.swift; sourceTree = "<group>"; };
+		3A2ADE4F8F44064BAEFC283B /* LastReadingStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LastReadingStore.swift; sourceTree = "<group>"; };
+		3CF5C572506FA73A211D1CA8 /* AppConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfig.swift; sourceTree = "<group>"; };
+		3EA3030A239CC168858A7FB1 /* fixture-reading.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "fixture-reading.json"; sourceTree = "<group>"; };
+		41EDB47AB8DE4AE6BDE1794A /* ImagePreprocessorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePreprocessorTests.swift; sourceTree = "<group>"; };
+		4D400ADEFA4588D8827BBF27 /* ShareCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareCardView.swift; sourceTree = "<group>"; };
+		5FFEF4A235A1EC34F6E0E966 /* ShareCardRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareCardRenderer.swift; sourceTree = "<group>"; };
+		73EC45A5DD04CAB833323617 /* PalmAura.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = PalmAura.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		79E369BE5EFD310427760B72 /* ContractEncodingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContractEncodingTests.swift; sourceTree = "<group>"; };
+		8C96DF93E0D366B5956611DF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		921B79429690999985EEFBC4 /* PalmReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PalmReviewView.swift; sourceTree = "<group>"; };
+		95FA5568901DC7C8816D062D /* Analytics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Analytics.swift; sourceTree = "<group>"; };
+		9B0C5BE3E3495A05B0C96241 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		9C06DC0387CF6DC2E0AACD6D /* DeviceID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceID.swift; sourceTree = "<group>"; };
+		A41B56D51D9821A8B4B23968 /* ReadingResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingResultView.swift; sourceTree = "<group>"; };
+		A4A129AC7D423AB7C763818B /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		A8F12EF70C3329DD05F7A2BF /* PalmReadingResponseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PalmReadingResponseTests.swift; sourceTree = "<group>"; };
+		AC72B8E2100B1B2DD7EA7CFC /* PalmAuraApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PalmAuraApp.swift; sourceTree = "<group>"; };
+		AFEB3CB059CC4EBA570D575F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		CF5515FDAB1E983707B4048E /* mystical-loading-phrases.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "mystical-loading-phrases.json"; sourceTree = "<group>"; };
+		D5B070BAFB11FD7738871EDD /* ShareOptionsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareOptionsSheet.swift; sourceTree = "<group>"; };
+		D79B762F892E4853A54A9DE0 /* LoadingReadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingReadingView.swift; sourceTree = "<group>"; };
+		D88CA57CAEA60AA44CD51585 /* BrandConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrandConfig.swift; sourceTree = "<group>"; };
+		D8DDCED82A71521A213F06E6 /* PalmCaptureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PalmCaptureView.swift; sourceTree = "<group>"; };
+		DA5533A4E194C59E70AAEB91 /* DisclaimerFooter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisclaimerFooter.swift; sourceTree = "<group>"; };
+		DCFCBE931255201250AB14F3 /* ImagePreprocessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePreprocessor.swift; sourceTree = "<group>"; };
+		E7AD4A8F83C798CAA69A7FBC /* PrimaryButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryButton.swift; sourceTree = "<group>"; };
+		EAF3731CAD3AD996E58CC0A3 /* MysticalBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MysticalBackground.swift; sourceTree = "<group>"; };
+		F92274F1EDA7CCF79E21D328 /* OnboardingAnswers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingAnswers.swift; sourceTree = "<group>"; };
+		FABCD888475E0BB7F499D2A5 /* ReadingAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingAPIClient.swift; sourceTree = "<group>"; };
+		FF171689593C3A75D33838B1 /* QuestionChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestionChip.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		053D13272C984FF8893ABF9E /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				DA5533A4E194C59E70AAEB91 /* DisclaimerFooter.swift */,
+				EAF3731CAD3AD996E58CC0A3 /* MysticalBackground.swift */,
+				E7AD4A8F83C798CAA69A7FBC /* PrimaryButton.swift */,
+				FF171689593C3A75D33838B1 /* QuestionChip.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		19C049F72226332363CC8D9B /* PalmAuraTests */ = {
+			isa = PBXGroup;
+			children = (
+				79E369BE5EFD310427760B72 /* ContractEncodingTests.swift */,
+				41EDB47AB8DE4AE6BDE1794A /* ImagePreprocessorTests.swift */,
+				A8F12EF70C3329DD05F7A2BF /* PalmReadingResponseTests.swift */,
+			);
+			path = PalmAuraTests;
+			sourceTree = "<group>";
+		};
+		5992C9FE0A6A01F188662E5A = {
+			isa = PBXGroup;
+			children = (
+				DBF6C3BC7707097603D136E3 /* PalmAura */,
+				19C049F72226332363CC8D9B /* PalmAuraTests */,
+				BD10582C1B130B087B8C7ABE /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		8149F5811E847A0BEBE7A21C /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				1C5F47F16EFFADB47F8F39B7 /* DisclaimerView.swift */,
+				D79B762F892E4853A54A9DE0 /* LoadingReadingView.swift */,
+				1720F2B3C55DB463CFA88037 /* OnboardingView.swift */,
+				D8DDCED82A71521A213F06E6 /* PalmCaptureView.swift */,
+				921B79429690999985EEFBC4 /* PalmReviewView.swift */,
+				A41B56D51D9821A8B4B23968 /* ReadingResultView.swift */,
+				A4A129AC7D423AB7C763818B /* RootView.swift */,
+				9B0C5BE3E3495A05B0C96241 /* SettingsView.swift */,
+				4D400ADEFA4588D8827BBF27 /* ShareCardView.swift */,
+				D5B070BAFB11FD7738871EDD /* ShareOptionsSheet.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		8DD64C0D4024A28355E4684E /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				F92274F1EDA7CCF79E21D328 /* OnboardingAnswers.swift */,
+				2E996AE0FD915DD66131A862 /* PalmReadingRequest.swift */,
+				07C6DA2991F59AA384A35613 /* PalmReadingResponse.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		968A35C9BC86A2966FC61F04 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				3EA3030A239CC168858A7FB1 /* fixture-reading.json */,
+				CF5515FDAB1E983707B4048E /* mystical-loading-phrases.json */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		BD10582C1B130B087B8C7ABE /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				73EC45A5DD04CAB833323617 /* PalmAura.app */,
+				2308674E5D6BD47EB98C18E9 /* PalmAuraTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		DBF6C3BC7707097603D136E3 /* PalmAura */ = {
+			isa = PBXGroup;
+			children = (
+				3CF5C572506FA73A211D1CA8 /* AppConfig.swift */,
+				8C96DF93E0D366B5956611DF /* Assets.xcassets */,
+				D88CA57CAEA60AA44CD51585 /* BrandConfig.swift */,
+				AFEB3CB059CC4EBA570D575F /* Info.plist */,
+				AC72B8E2100B1B2DD7EA7CFC /* PalmAuraApp.swift */,
+				053D13272C984FF8893ABF9E /* Components */,
+				8DD64C0D4024A28355E4684E /* Models */,
+				968A35C9BC86A2966FC61F04 /* Resources */,
+				FDFF2820848B9BEEE0CCD16A /* Services */,
+				8149F5811E847A0BEBE7A21C /* Views */,
+			);
+			path = PalmAura;
+			sourceTree = "<group>";
+		};
+		FDFF2820848B9BEEE0CCD16A /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				95FA5568901DC7C8816D062D /* Analytics.swift */,
+				9C06DC0387CF6DC2E0AACD6D /* DeviceID.swift */,
+				DCFCBE931255201250AB14F3 /* ImagePreprocessor.swift */,
+				21401A4B8D5A2FA34B980923 /* InstagramStorySharer.swift */,
+				3A2ADE4F8F44064BAEFC283B /* LastReadingStore.swift */,
+				FABCD888475E0BB7F499D2A5 /* ReadingAPIClient.swift */,
+				5FFEF4A235A1EC34F6E0E966 /* ShareCardRenderer.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		8855DC3ADF5914668EB2A9E2 /* PalmAura */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F4463936D1F1D016EA02AF4F /* Build configuration list for PBXNativeTarget "PalmAura" */;
+			buildPhases = (
+				50948D3393D1F7A9F2D3EBA9 /* Sources */,
+				054C293EFFA8376D77C13671 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PalmAura;
+			packageProductDependencies = (
+			);
+			productName = PalmAura;
+			productReference = 73EC45A5DD04CAB833323617 /* PalmAura.app */;
+			productType = "com.apple.product-type.application";
+		};
+		CA668086B82A4CF3ECC6C6BD /* PalmAuraTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0A27BAF4D09E3396D374CE54 /* Build configuration list for PBXNativeTarget "PalmAuraTests" */;
+			buildPhases = (
+				0924505B8CFC86D588F35147 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				36267675258E06E3CD7418BB /* PBXTargetDependency */,
+			);
+			name = PalmAuraTests;
+			packageProductDependencies = (
+			);
+			productName = PalmAuraTests;
+			productReference = 2308674E5D6BD47EB98C18E9 /* PalmAuraTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		2C927B4976D9F9A4E2C27B1B /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					8855DC3ADF5914668EB2A9E2 = {
+						DevelopmentTeam = "";
+					};
+					CA668086B82A4CF3ECC6C6BD = {
+						DevelopmentTeam = "";
+					};
+				};
+			};
+			buildConfigurationList = B9BD21E97A06006C2443C5C6 /* Build configuration list for PBXProject "PalmAura" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 5992C9FE0A6A01F188662E5A;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = BD10582C1B130B087B8C7ABE /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				8855DC3ADF5914668EB2A9E2 /* PalmAura */,
+				CA668086B82A4CF3ECC6C6BD /* PalmAuraTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		054C293EFFA8376D77C13671 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				187D0E00897DDC1B3085BE31 /* Assets.xcassets in Resources */,
+				3463A8BE7451E02E956ECC77 /* fixture-reading.json in Resources */,
+				3308DE1307B3BA9EA22019FA /* mystical-loading-phrases.json in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		0924505B8CFC86D588F35147 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				08667B571912BDFD50085CF2 /* ContractEncodingTests.swift in Sources */,
+				030D46DF6271BAA4DF23851B /* ImagePreprocessorTests.swift in Sources */,
+				E3D09EC24C2B30CFC8E50737 /* PalmReadingResponseTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		50948D3393D1F7A9F2D3EBA9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				07A83962107C25616D3BE37E /* Analytics.swift in Sources */,
+				6C313972967FFBB35306AEFF /* AppConfig.swift in Sources */,
+				E96415D53D66F337A7166AFF /* BrandConfig.swift in Sources */,
+				8344956A9658C9F4485A03BF /* DeviceID.swift in Sources */,
+				34F540A6845C77E51F5FC1B6 /* DisclaimerFooter.swift in Sources */,
+				9D6BDBCB7BA69AA1DBE83C2F /* DisclaimerView.swift in Sources */,
+				21874DE111D16DA3530052E3 /* ImagePreprocessor.swift in Sources */,
+				2EF4B1FBF50468A0AEED94B5 /* InstagramStorySharer.swift in Sources */,
+				77BD5402B0D6A6B7FF53446E /* LastReadingStore.swift in Sources */,
+				9BF18F45D246D5D3062FF1C1 /* LoadingReadingView.swift in Sources */,
+				5A77ECA6AD6625356C5B96B3 /* MysticalBackground.swift in Sources */,
+				BAD1044A75BAF5E83C811256 /* OnboardingAnswers.swift in Sources */,
+				34A3268B240FAD0478B8E003 /* OnboardingView.swift in Sources */,
+				8D50F07DD6B82B0D51B8AAEB /* PalmAuraApp.swift in Sources */,
+				3D45B7B1F05F43D3E108A302 /* PalmCaptureView.swift in Sources */,
+				C7DFB3AD1F35D2A413B12254 /* PalmReadingRequest.swift in Sources */,
+				674273DBEEC0A3FA777615B3 /* PalmReadingResponse.swift in Sources */,
+				9B12F1B8A902BF37CDB077E7 /* PalmReviewView.swift in Sources */,
+				AAE395E4BA2C684F8242AAD5 /* PrimaryButton.swift in Sources */,
+				9374AAD4BFA0CFD0D4FC4408 /* QuestionChip.swift in Sources */,
+				D32EAA649C580D334F478138 /* ReadingAPIClient.swift in Sources */,
+				41CEBCA976CE95ECF50C237A /* ReadingResultView.swift in Sources */,
+				9638472F6319110026869817 /* RootView.swift in Sources */,
+				7E4C63D11530E3201F11604D /* SettingsView.swift in Sources */,
+				720AB8F41FFB22399CC37088 /* ShareCardRenderer.swift in Sources */,
+				3CD97D1741E5D321363AFF36 /* ShareCardView.swift in Sources */,
+				2D217A09A92BB28AB083D748 /* ShareOptionsSheet.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		36267675258E06E3CD7418BB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8855DC3ADF5914668EB2A9E2 /* PalmAura */;
+			targetProxy = 5BA1E2157E46A2B834D29B36 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		0046786748E7A92A0D1C368F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = PalmAura/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = app.palmaura.PalmAura;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		286680845F305F14CF4E3246 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = app.palmaura.PalmAuraTests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PalmAura.app/PalmAura";
+			};
+			name = Debug;
+		};
+		58DDECB42660613E9D37A0D3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 0.1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		903DB1685EABFCA78D10F0E7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = app.palmaura.PalmAuraTests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PalmAura.app/PalmAura";
+			};
+			name = Release;
+		};
+		9456BC6568CC0BF74C811D13 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = PalmAura/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = app.palmaura.PalmAura;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		9FA943C741BB7A4D7725CA92 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 0.1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		0A27BAF4D09E3396D374CE54 /* Build configuration list for PBXNativeTarget "PalmAuraTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				286680845F305F14CF4E3246 /* Debug */,
+				903DB1685EABFCA78D10F0E7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		B9BD21E97A06006C2443C5C6 /* Build configuration list for PBXProject "PalmAura" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				58DDECB42660613E9D37A0D3 /* Debug */,
+				9FA943C741BB7A4D7725CA92 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		F4463936D1F1D016EA02AF4F /* Build configuration list for PBXNativeTarget "PalmAura" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0046786748E7A92A0D1C368F /* Debug */,
+				9456BC6568CC0BF74C811D13 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 2C927B4976D9F9A4E2C27B1B /* Project object */;
+}

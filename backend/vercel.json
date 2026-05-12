@@ -1,0 +1,6 @@
+{
+  "functions": {
+    "api/read.ts": { "runtime": "nodejs22.x", "maxDuration": 30 },
+    "api/health.ts": { "runtime": "nodejs22.x" }
+  }
+}
