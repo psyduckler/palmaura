@@ -17,13 +17,14 @@ build/
 .swiftpm/
 Package.resolved
 
-# Node/Vercel
+# Node/Cloudflare
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 .vercel/
+.wrangler/
 dist/
 .next/
 

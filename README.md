@@ -8,7 +8,7 @@ PalmAura is a placeholder-named native iOS app for symbolic palm readings, built
 - Forced entertainment-only disclaimer
 - Three-question ritual onboarding
 - Palm photo capture/import
-- Vercel `/api/read` backend proxy
+- Cloudflare Worker `/api/read` backend proxy with KV rate limiting
 - Multimodal AI palm validation + structured reading
 - 9:16 share cards for Instagram/TikTok
 - No PalmAura server-side palm image storage

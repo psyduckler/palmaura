@@ -1,0 +1,18 @@
+name = "palmaura-api"
+main = "src/index.ts"
+compatibility_date = "2026-05-01"
+workers_dev = true
+
+[vars]
+PUBLIC_APP_NAME = "PalmAura"
+PUBLIC_APP_DOMAIN = "palmaura.app"
+PUBLIC_APP_HANDLE = "@PalmAuraApp"
+ANTHROPIC_MODEL = "claude-sonnet-4-5-20250929"
+
+# Fill ids after running:
+#   npx wrangler kv namespace create RATE_LIMIT_KV
+#   npx wrangler kv namespace create RATE_LIMIT_KV --preview
+[[kv_namespaces]]
+binding = "RATE_LIMIT_KV"
+id = "552e97c0fc564bf8abbffaab53a929ef"
+preview_id = "c964b6823e9b4e38a0a42f5741d58883"

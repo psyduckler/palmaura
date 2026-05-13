@@ -12,7 +12,7 @@
 - Domain placeholder: `https://palmaura.app`
 - Share watermark placeholder: `@PalmAuraApp`
 - iOS only, native SwiftUI
-- Vercel backend, single API endpoint
+- Cloudflare Worker backend, single API endpoint
 - Anthropic multimodal model first, model name configured via env var
 - No accounts
 - No palm image storage by PalmAura
@@ -83,11 +83,11 @@ SwiftUI iOS app
   ├─ result UI
   └─ SwiftUI ImageRenderer share cards
         ↓ HTTPS JSON
-Vercel
+Cloudflare Worker
   ├─ /api/health
   └─ /api/read
         ├─ validate request with Zod
-        ├─ rate limit by IDFV using Upstash Redis
+        ├─ rate limit by IDFV using Cloudflare KV
         ├─ call Anthropic multimodal model with forced tool/schema output
         ├─ validate response
         └─ return structured JSON
@@ -153,7 +153,7 @@ palm-aura/
       read.ts
     package.json
     tsconfig.json
-    vercel.json
+    wrangler.toml
     README.md
   landing/
     index.html
@@ -348,7 +348,7 @@ Read this palm if it is a clear human palm. If not, return the appropriate statu
 
 - Repo exists and is committed.
 - README states this is an entertainment-only palm-reading app.
-- `.gitignore` excludes `.env*`, `.vercel`, `node_modules`, `DerivedData`, `.DS_Store`, Xcode user data.
+- `.gitignore` excludes `.env*`, `.vercel`, `.wrangler`, `node_modules`, `DerivedData`, `.DS_Store`, Xcode user data.
 - Copy guardrails document lists banned claim categories.
 
 ---
@@ -639,14 +639,14 @@ Use `UIPasteboard` with `com.instagram.sharedSticker.backgroundImage`, then open
 
 ---
 
-### Task 10 — Vercel backend skeleton
+### Task 10 — Cloudflare Worker backend skeleton
 
 **Objective:** Create backend with health endpoint and TypeScript setup.
 
 **Files:**
 - Create: `backend/package.json`
 - Create: `backend/tsconfig.json`
-- Create: `backend/vercel.json`
+- Create: `backend/wrangler.toml`
 - Create: `backend/api/health.ts`
 - Create: `backend/api/read.ts`
 
@@ -654,7 +654,7 @@ Use `UIPasteboard` with `com.instagram.sharedSticker.backgroundImage`, then open
 
 ```bash
 npm install @anthropic-ai/sdk zod @upstash/redis
-npm install -D typescript vercel
+npm install -D typescript wrangler @cloudflare/workers-types
 ```
 
 **Env vars:**
@@ -662,8 +662,8 @@ npm install -D typescript vercel
 ```bash
 ANTHROPIC_API_KEY=
 ANTHROPIC_MODEL=
-UPSTASH_REDIS_REST_URL=
-UPSTASH_REDIS_REST_TOKEN=
+# Cloudflare KV binding in wrangler.toml:
+# RATE_LIMIT_KV
 PUBLIC_APP_NAME=PalmAura
 PUBLIC_APP_DOMAIN=palmaura.app
 PUBLIC_SOCIAL_HANDLE=@PalmAuraApp
@@ -939,7 +939,7 @@ Expected: matches only in guardrails/disclaimers explaining what the app does no
 
 ### Day 2 — backend + ship
 
-1. Task 10: Vercel backend skeleton
+1. Task 10: Cloudflare Worker backend skeleton
 2. Task 11: `/api/read` live model + rate limit
 3. Task 12: iOS live backend wiring
 4. Task 13: analytics/Sentry optional hooks
@@ -957,7 +957,7 @@ Expected: matches only in guardrails/disclaimers explaining what the app does no
 |---|---|
 | Instagram Stories deep link fails | Ship Save to Camera Roll + generic Share. Add IG direct share in v1.1. |
 | Anthropic model/schema/tool use issues | Return strict JSON via text and parse/validate, or switch provider behind `generateReading()`. |
-| Vercel Edge SDK incompatibility | Use Vercel Node runtime for `/api/read`. Keep same API contract. |
+| Cloudflare Worker Anthropic SDK/runtime incompatibility | Use direct Anthropic Messages API `fetch` from the Worker. Keep same API contract. |
 | Images too large | Drop to 768px longest edge and JPEG quality 0.6. |
 | App Store concern about fortune telling | Strengthen entertainment-only framing, modernize wellness copy, add non-palm rejection screenshots if needed. |
 | Backend latency high | Keep 8s min loading but cap at 30s; reduce image size; shorten output tokens. |
