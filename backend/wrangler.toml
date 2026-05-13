@@ -7,7 +7,7 @@ workers_dev = true
 PUBLIC_APP_NAME = "PalmAura"
 PUBLIC_APP_DOMAIN = "palmaura.app"
 PUBLIC_APP_HANDLE = "@PalmAuraApp"
-ANTHROPIC_MODEL = "claude-sonnet-4-5-20250929"
+ANTHROPIC_MODEL = "claude-haiku-4-5-20251001"
 
 # Fill ids after running:
 #   npx wrangler kv namespace create RATE_LIMIT_KV

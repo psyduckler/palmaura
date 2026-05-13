@@ -19,7 +19,7 @@ final class ReadingAPIClient {
         var urlRequest = URLRequest(url: AppConfig.readingAPIBaseURL.appending(path: "/api/read"))
         urlRequest.httpMethod = "POST"
         urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        urlRequest.timeoutInterval = 30
+        urlRequest.timeoutInterval = 75
         urlRequest.httpBody = try JSONEncoder().encode(request)
 
         let (data, response) = try await URLSession.shared.data(for: urlRequest)

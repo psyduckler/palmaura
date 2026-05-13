@@ -227,7 +227,7 @@ function buildUserPrompt(env: Env, data: ReadingRequest): string {
 
 async function generateReading(env: Env, data: ReadingRequest): Promise<Reading> {
   if (!env.ANTHROPIC_API_KEY) throw new Error('ANTHROPIC_API_KEY missing');
-  const model = env.ANTHROPIC_MODEL ?? 'claude-sonnet-4-5-20250929';
+  const model = env.ANTHROPIC_MODEL ?? 'claude-haiku-4-5-20251001';
 
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
