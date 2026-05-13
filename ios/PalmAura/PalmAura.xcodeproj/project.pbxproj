@@ -28,6 +28,7 @@
 		77BD5402B0D6A6B7FF53446E /* LastReadingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A2ADE4F8F44064BAEFC283B /* LastReadingStore.swift */; };
 		7E4C63D11530E3201F11604D /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B0C5BE3E3495A05B0C96241 /* SettingsView.swift */; };
 		8344956A9658C9F4485A03BF /* DeviceID.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C06DC0387CF6DC2E0AACD6D /* DeviceID.swift */; };
+		8CD385499F66694F521FD919 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3193FD2E96A138F069661D1F /* PrivacyInfo.xcprivacy */; };
 		8D50F07DD6B82B0D51B8AAEB /* PalmAuraApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC72B8E2100B1B2DD7EA7CFC /* PalmAuraApp.swift */; };
 		9374AAD4BFA0CFD0D4FC4408 /* QuestionChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF171689593C3A75D33838B1 /* QuestionChip.swift */; };
 		9638472F6319110026869817 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4A129AC7D423AB7C763818B /* RootView.swift */; };
@@ -60,6 +61,7 @@
 		21401A4B8D5A2FA34B980923 /* InstagramStorySharer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstagramStorySharer.swift; sourceTree = "<group>"; };
 		2308674E5D6BD47EB98C18E9 /* PalmAuraTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = PalmAuraTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2E996AE0FD915DD66131A862 /* PalmReadingRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PalmReadingRequest.swift; sourceTree = "<group>"; };
+		3193FD2E96A138F069661D1F /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		3A2ADE4F8F44064BAEFC283B /* LastReadingStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LastReadingStore.swift; sourceTree = "<group>"; };
 		3CF5C572506FA73A211D1CA8 /* AppConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfig.swift; sourceTree = "<group>"; };
 		3EA3030A239CC168858A7FB1 /* fixture-reading.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "fixture-reading.json"; sourceTree = "<group>"; };
@@ -177,6 +179,7 @@
 				D88CA57CAEA60AA44CD51585 /* BrandConfig.swift */,
 				AFEB3CB059CC4EBA570D575F /* Info.plist */,
 				AC72B8E2100B1B2DD7EA7CFC /* PalmAuraApp.swift */,
+				3193FD2E96A138F069661D1F /* PrivacyInfo.xcprivacy */,
 				053D13272C984FF8893ABF9E /* Components */,
 				8DD64C0D4024A28355E4684E /* Models */,
 				968A35C9BC86A2966FC61F04 /* Resources */,
@@ -249,10 +252,10 @@
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
 					8855DC3ADF5914668EB2A9E2 = {
-						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
 					};
 					CA668086B82A4CF3ECC6C6BD = {
-						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
 					};
 				};
 			};
@@ -282,6 +285,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				187D0E00897DDC1B3085BE31 /* Assets.xcassets in Resources */,
+				8CD385499F66694F521FD919 /* PrivacyInfo.xcprivacy in Resources */,
 				3463A8BE7451E02E956ECC77 /* fixture-reading.json in Resources */,
 				3308DE1307B3BA9EA22019FA /* mystical-loading-phrases.json in Resources */,
 			);
@@ -355,7 +359,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = app.palmaura.PalmAura;
+				PRODUCT_BUNDLE_IDENTIFIER = com.zonted.palmaura;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -372,7 +376,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = app.palmaura.PalmAuraTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.zonted.PalmAuraTests;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PalmAura.app/PalmAura";
@@ -412,10 +416,10 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = "";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -456,7 +460,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = app.palmaura.PalmAuraTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.zonted.PalmAuraTests;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PalmAura.app/PalmAura";
@@ -473,7 +477,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = app.palmaura.PalmAura;
+				PRODUCT_BUNDLE_IDENTIFIER = com.zonted.palmaura;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -512,10 +516,10 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = "";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
