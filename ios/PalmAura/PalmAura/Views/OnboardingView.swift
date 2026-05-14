@@ -1,65 +1,62 @@
 import SwiftUI
 
+/// A single-screen, one-time onboarding that collects birthday + gender +
+/// dominant hand together. Replaces the previous 3-step version while
+/// preserving the existing `ReadingPersonalization` model, `PersonalizationStore`,
+/// and analytics event names.
 struct OnboardingView: View {
     @State private var answers = OnboardingAnswers.default
-    @State private var step = 0
-    @State private var showCapture = false
     @State private var birthMonth: Int = Calendar.current.component(.month, from: Date())
     @State private var birthDay: Int = Calendar.current.component(.day, from: Date())
     @State private var birthYear = Calendar.current.component(.year, from: Date()) - 30
-
-    private let totalSteps = 3
+    @State private var showCapture = false
 
     var body: some View {
         ZStack {
             DarkScreenBackground()
-            VStack(spacing: 22) {
-                ScreenHeader(
-                    eyebrow: "PalmAura",
-                    back: step > 0,
-                    onBack: { withAnimation(.easeInOut(duration: 0.22)) { step = max(0, step - 1) } }
-                )
-                .padding(.horizontal, -24)
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 22) {
+                    ScreenHeader(eyebrow: "PalmAura")
+                        .padding(.horizontal, -24)
 
-                VStack(alignment: .leading, spacing: 12) {
-                    Text(currentStep.eyebrow)
-                        .font(DesignSystem.FontToken.caps(10))
-                        .tracking(DesignSystem.Tracking.caps)
-                        .textCase(.uppercase)
-                        .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.78))
-                    Text(currentStep.title)
-                        .font(DesignSystem.FontToken.display(44))
-                        .foregroundStyle(DesignSystem.ColorToken.textPrimary)
-                        .minimumScaleFactor(0.72)
-                    Text(currentStep.subtitle)
-                        .font(DesignSystem.FontToken.body(18, italic: true))
-                        .foregroundStyle(DesignSystem.ColorToken.textSecondary)
-                        .lineSpacing(3)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
+                    intro
 
-                ScrollView(showsIndicators: false) {
-                    LazyVStack(spacing: 14) {
-                        switch step {
-                        case 0: birthdayStep
-                        case 1: genderStep
-                        default: dominantHandStep
-                        }
+                    section(numeral: "I",
+                            eyebrow: "FOR YOUR COSMIC SEASON",
+                            title: "When did you arrive?",
+                            rationale: "Your sun sign and life rhythm anchor the reading to the season you were born into.") {
+                        birthdayPickers
                     }
-                    .padding(.vertical, 4)
+
+                    section(numeral: "II",
+                            eyebrow: "FOR THE CURRENT YOU CARRY",
+                            title: "How do you carry your energy?",
+                            rationale: "Different currents pass through the hand. We use this only to shape the voice.") {
+                        genderGrid
+                    }
+
+                    section(numeral: "III",
+                            eyebrow: "FOR YOUR ACTIVE PATH",
+                            title: "Which is your dominant hand?",
+                            rationale: "Your dominant hand carries your active path. The other holds older patterns.") {
+                        handednessGrid
+                    }
+
+                    privacyFootnote
+
+                    GoldButton(title: "Read My Palm  ›") { advanceOrFinish() }
+                        .opacity(canContinue ? 1 : 0.45)
+                        .disabled(!canContinue)
+
+                    Text("ONE TIME ONLY · EDIT IN SETTINGS")
+                        .font(DesignSystem.FontToken.caps(8.5))
+                        .tracking(2.5)
+                        .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.45))
+
+                    DisclaimerFoot()
                 }
-
-                GoldButton(title: step == totalSteps - 1 ? "Read My Palm ›" : "Continue ›") {
-                    advanceOrFinish()
-                }
-                .opacity(canContinueCurrentStep ? 1 : 0.45)
-                .disabled(!canContinueCurrentStep)
-
-                StepPips(total: totalSteps, index: step)
-
-                DisclaimerFoot()
+                .padding(24)
             }
-            .padding(24)
         }
         .navigationBarBackButtonHidden(true)
         .onAppear(perform: preloadSavedPersonalization)
@@ -68,97 +65,194 @@ struct OnboardingView: View {
         }
     }
 
-    private var currentStep: OnboardingStepCopy {
-        switch step {
-        case 0:
-            return OnboardingStepCopy(eyebrow: "Step 1 of 3", title: "When did you arrive?", subtitle: "Your full birthday keeps the reading age-aware and symbolically timed. Saved locally on this device.")
-        case 1:
-            return OnboardingStepCopy(eyebrow: "Step 2 of 3", title: "Choose your profile", subtitle: "Gender is used only as saved reading context. Pick what fits, or skip by preference.")
-        default:
-            return OnboardingStepCopy(eyebrow: "Step 3 of 3", title: "Your dominant hand", subtitle: "Dominant hands show active choices and the path you are shaping now.")
-        }
-    }
+    // MARK: - Intro
 
-    private var birthdayStep: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("Birthday")
+    private var intro: some View {
+        VStack(spacing: 8) {
+            Text("·  BEFORE THE LINES SPEAK  ·")
                 .font(DesignSystem.FontToken.caps(10))
                 .tracking(DesignSystem.Tracking.caps)
-                .foregroundStyle(DesignSystem.ColorToken.textTertiary)
-            Text("Month, day, and year are required once. You can clear or edit them later in Settings.")
-                .font(DesignSystem.FontToken.body(14))
+                .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.7))
+
+            VStack(spacing: 2) {
+                Text("Three answers,")
+                    .font(DesignSystem.FontToken.display(34))
+                    .foregroundStyle(DesignSystem.ColorToken.textPrimary)
+                Text("before the hand opens.")
+                    .font(DesignSystem.FontToken.display(34, italic: true))
+                    .foregroundStyle(DesignSystem.ColorToken.goldCream)
+            }
+            .multilineTextAlignment(.center)
+
+            Text("The lines on your hand exist inside a wider sky. These three things tune the reading to you.")
+                .font(DesignSystem.FontToken.body(15, italic: true))
                 .foregroundStyle(DesignSystem.ColorToken.textSecondary)
+                .multilineTextAlignment(.center)
+                .lineSpacing(2)
+                .padding(.horizontal, 8)
+                .padding(.top, 2)
+        }
+        .frame(maxWidth: .infinity)
+    }
 
-            HStack(spacing: 12) {
+    // MARK: - Section primitive
+
+    @ViewBuilder
+    private func section<Content: View>(numeral: String, eyebrow: String, title: String, rationale: String, @ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                Text("\(numeral).")
+                    .font(DesignSystem.FontToken.display(18, italic: true))
+                    .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.6))
+                Text(eyebrow)
+                    .font(DesignSystem.FontToken.caps(9))
+                    .tracking(DesignSystem.Tracking.caps)
+                    .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.78))
+            }
+
+            Text(title)
+                .font(DesignSystem.FontToken.display(24))
+                .foregroundStyle(DesignSystem.ColorToken.textPrimary)
+
+            Text(rationale)
+                .font(DesignSystem.FontToken.body(13, italic: true))
+                .foregroundStyle(DesignSystem.ColorToken.textSecondary)
+                .lineSpacing(2)
+
+            content()
+                .padding(.top, 4)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(16)
+        .background(DesignSystem.ColorToken.surfaceSoft)
+        .overlay(
+            RoundedRectangle(cornerRadius: DesignSystem.Radius.cardLg, style: .continuous)
+                .stroke(DesignSystem.ColorToken.borderSoft, lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.Radius.cardLg, style: .continuous))
+    }
+
+    // MARK: - Birthday (Section I)
+
+    private var birthdayPickers: some View {
+        HStack(spacing: 8) {
+            pickerCell(label: "MONTH", value: monthName(birthMonth)) {
                 Picker("Month", selection: $birthMonth) {
-                    ForEach(1...12, id: \.self) { month in
-                        Text(monthName(month)).tag(month)
-                    }
+                    ForEach(1...12, id: \.self) { Text(monthName($0)).tag($0) }
                 }
-                .pickerStyle(.wheel)
-                .frame(maxWidth: .infinity, minHeight: 120, maxHeight: 150)
-                .clipped()
-
+            }
+            pickerCell(label: "DAY", value: "\(birthDay)") {
                 Picker("Day", selection: $birthDay) {
-                    ForEach(1...maxDayForSelectedMonth, id: \.self) { day in
-                        Text("\(day)").tag(day)
+                    ForEach(1...maxDayForSelectedMonth, id: \.self) { Text("\($0)").tag($0) }
+                }
+            }
+            pickerCell(label: "YEAR", value: "\(birthYear)") {
+                Picker("Year", selection: $birthYear) {
+                    ForEach((1900...Calendar.current.component(.year, from: Date())).reversed(), id: \.self) {
+                        Text("\($0)").tag($0)
                     }
                 }
-                .pickerStyle(.wheel)
-                .frame(maxWidth: .infinity, minHeight: 120, maxHeight: 150)
-                .clipped()
             }
-
-            Picker("Year", selection: $birthYear) {
-                ForEach((1900...Calendar.current.component(.year, from: Date())).reversed(), id: \.self) { year in
-                    Text("\(year)").tag(year)
-                }
-            }
-            .pickerStyle(.wheel)
-            .frame(maxHeight: 130)
-            .clipped()
         }
         .onAppear(perform: updateBirthdayContext)
         .onChange(of: birthMonth) { _, _ in normalizeBirthdaySelection() }
         .onChange(of: birthDay) { _, _ in updateBirthdayContext() }
         .onChange(of: birthYear) { _, _ in normalizeBirthdaySelection() }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(16)
-        .background(DesignSystem.ColorToken.surfaceSoft)
-        .overlay(RoundedRectangle(cornerRadius: DesignSystem.Radius.cardLg).stroke(DesignSystem.ColorToken.borderSoft, lineWidth: 1))
-        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.Radius.cardLg, style: .continuous))
     }
 
-    private var genderStep: some View {
-        VStack(spacing: 12) {
+    private func pickerCell<P: View>(label: String, value: String, @ViewBuilder picker: () -> P) -> some View {
+        Menu {
+            picker().pickerStyle(.inline)
+        } label: {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(label)
+                    .font(DesignSystem.FontToken.caps(7.5))
+                    .tracking(1.8)
+                    .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.55))
+                Text(value)
+                    .font(DesignSystem.FontToken.display(18))
+                    .foregroundStyle(DesignSystem.ColorToken.textPrimary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.vertical, 10)
+            .padding(.horizontal, 12)
+            .background(DesignSystem.ColorToken.goldCream.opacity(0.08))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .stroke(DesignSystem.ColorToken.goldCream.opacity(0.4), lineWidth: 1)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Gender (Section II)
+
+    private var genderGrid: some View {
+        let columns = [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)]
+        return LazyVGrid(columns: columns, spacing: 8) {
             ForEach(Gender.allCases) { gender in
-                OnboardingChoiceCard(title: gender.displayName, subtitle: gender.subtitle, icon: gender.icon, isSelected: answers.personalization?.gender == gender) {
+                GlyphChip(
+                    glyph: gender.icon,
+                    title: gender.displayName,
+                    subtitle: nil,
+                    selected: answers.personalization?.gender == gender
+                ) {
                     ensurePersonalization()
                     answers.personalization?.gender = gender
-                    advanceOrFinish()
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
                 }
             }
         }
     }
 
-    private var dominantHandStep: some View {
-        VStack(spacing: 12) {
-            ForEach(Handedness.allCases) { handedness in
-                OnboardingChoiceCard(title: handedness.displayName, subtitle: handedness.subtitle, icon: handedness.icon, isSelected: answers.personalization?.handedness == handedness) {
+    // MARK: - Dominant hand (Section III)
+
+    private var handednessGrid: some View {
+        let columns = [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)]
+        return LazyVGrid(columns: columns, spacing: 8) {
+            ForEach(Handedness.allCases) { hand in
+                GlyphChip(
+                    glyph: hand.icon,
+                    title: hand.shortTitle,
+                    subtitle: hand.poeticLabel,
+                    selected: answers.personalization?.handedness == hand
+                ) {
                     ensurePersonalization()
-                    answers.personalization?.handedness = handedness
-                    advanceOrFinish()
+                    answers.personalization?.handedness = hand
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
                 }
             }
         }
     }
 
-    private var canContinueCurrentStep: Bool {
-        switch step {
-        case 0: return true
-        case 1: return answers.personalization?.gender != nil
-        default: return answers.personalization?.handedness != nil
+    // MARK: - Privacy footnote
+
+    private var privacyFootnote: some View {
+        HStack(spacing: 10) {
+            Text("🜍")
+                .font(DesignSystem.FontToken.display(18))
+                .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.75))
+            Text("Saved only on your device. We never share or sell these answers — they shape every future reading.")
+                .font(DesignSystem.FontToken.body(12.5, italic: true))
+                .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.78))
+                .lineSpacing(2)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(14)
+        .background(DesignSystem.ColorToken.goldCream.opacity(0.05))
+        .overlay(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .stroke(DesignSystem.ColorToken.goldCream.opacity(0.22), lineWidth: 0.5)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+    }
+
+    // MARK: - Validation
+
+    private var canContinue: Bool {
+        answers.personalization?.gender != nil &&
+        answers.personalization?.handedness != nil
     }
 
     private var maxDayForSelectedMonth: Int {
@@ -170,24 +264,23 @@ struct OnboardingView: View {
         return calendar.range(of: .day, in: .month, for: date)?.count ?? 31
     }
 
+    // MARK: - State helpers
+
     private func advanceOrFinish() {
+        guard canContinue else { return }
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
         updateBirthdayContext()
-        guard canContinueCurrentStep else { return }
-        if step < totalSteps - 1 {
-            withAnimation(.easeInOut(duration: 0.25)) { step += 1 }
-        } else {
-            let personalization = answers.personalization?.withoutQuestion
-            answers.personalization = personalization
-            PersonalizationStore.save(personalization)
-            Analytics.shared.track("onboarding_completed", properties: [
-                "genderProvided": String(personalization?.gender != nil),
-                "dominantHandProvided": String(personalization?.handedness != nil),
-                "birthdayProvided": String(personalization?.birthDate != nil),
-                "birthYearProvided": String(personalization?.birthDate != nil)
-            ])
-            showCapture = true
-        }
+        let personalization = answers.personalization?.withoutQuestion
+        answers.personalization = personalization
+        PersonalizationStore.save(personalization)
+        Analytics.shared.track("onboarding_completed", properties: [
+            "genderProvided": String(personalization?.gender != nil),
+            "dominantHandProvided": String(personalization?.handedness != nil),
+            "birthdayProvided": String(personalization?.birthDate != nil),
+            "birthYearProvided": String(personalization?.birthDate != nil),
+            "combinedScreen": "true"
+        ])
+        showCapture = true
     }
 
     private func preloadSavedPersonalization() {
@@ -202,6 +295,7 @@ struct OnboardingView: View {
             birthDay = birthDate.day
             birthYear = birthDate.year
         }
+        updateBirthdayContext()
     }
 
     private func ensurePersonalization() {
@@ -219,44 +313,60 @@ struct OnboardingView: View {
     }
 
     private func monthName(_ month: Int) -> String {
-        Calendar.current.monthSymbols[month - 1]
+        Calendar.current.shortMonthSymbols[month - 1]
     }
 }
 
-private struct OnboardingStepCopy {
-    let eyebrow: String
-    let title: String
-    let subtitle: String
-}
+// MARK: - GlyphChip (compact glyph + title + optional subtitle)
 
-private struct OnboardingChoiceCard: View {
+private struct GlyphChip: View {
+    let glyph: String
     let title: String
-    let subtitle: String
-    let icon: String
-    let isSelected: Bool
+    let subtitle: String?
+    let selected: Bool
     let action: () -> Void
 
     var body: some View {
-        ChoiceCard(glyph: icon, title: title, subtitle: subtitle, selected: isSelected, action: action)
+        Button(action: action) {
+            VStack(spacing: 4) {
+                Text(glyph)
+                    .font(DesignSystem.FontToken.display(22))
+                    .foregroundStyle(DesignSystem.ColorToken.goldCream)
+                Text(title)
+                    .font(DesignSystem.FontToken.display(14))
+                    .foregroundStyle(DesignSystem.ColorToken.textPrimary)
+                    .multilineTextAlignment(.center)
+                if let subtitle {
+                    Text(subtitle)
+                        .font(DesignSystem.FontToken.body(11, italic: true))
+                        .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.6))
+                        .multilineTextAlignment(.center)
+                }
+            }
+            .frame(maxWidth: .infinity, minHeight: subtitle != nil ? 86 : 70)
+            .padding(.vertical, 10)
+            .padding(.horizontal, 6)
+            .background(DesignSystem.ColorToken.goldCream.opacity(selected ? 0.16 : 0.06))
+            .overlay(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .stroke(DesignSystem.ColorToken.goldCream.opacity(selected ? 0.7 : 0.22), lineWidth: 1)
+            )
+            .shadow(color: DesignSystem.ColorToken.goldCream.opacity(selected ? 0.18 : 0), radius: 18)
+            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        }
+        .buttonStyle(.plain)
     }
 }
+
+// MARK: - Gender + Handedness glyph/subtitle helpers (private to this file)
 
 private extension Gender {
     var icon: String {
         switch self {
         case .woman: return "♀"
         case .man: return "♂"
-        case .nonBinary: return "✦"
-        case .preferNotToSay: return "☽"
-        }
-    }
-
-    var subtitle: String {
-        switch self {
-        case .woman: return "Saved locally as reading context."
-        case .man: return "Saved locally as reading context."
-        case .nonBinary: return "Saved locally as reading context."
-        case .preferNotToSay: return "No gendered lens will be used."
+        case .nonBinary: return "☿"
+        case .preferNotToSay: return "✦"
         }
     }
 }
@@ -269,12 +379,20 @@ private extension Handedness {
         case .ambidextrous: return "☿"
         }
     }
-
-    var subtitle: String {
+    /// Short single-word title (the existing `displayName` is "Left-handed"
+    /// which is too long for a 3-up chip grid).
+    var shortTitle: String {
         switch self {
-        case .left: return "Your left hand is your active path."
-        case .right: return "Your right hand is your active path."
-        case .ambidextrous: return "Both hands share the active path."
+        case .left: return "Left"
+        case .right: return "Right"
+        case .ambidextrous: return "Both"
+        }
+    }
+    var poeticLabel: String {
+        switch self {
+        case .left: return "the moon-side"
+        case .right: return "the sun-side"
+        case .ambidextrous: return "both currents"
         }
     }
 }

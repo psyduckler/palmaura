@@ -17,65 +17,209 @@ struct ReadingResultView: View {
 
     var body: some View {
         ZStack {
-            MysticalBackground()
+            DarkScreenBackground()
             ScrollView {
-                VStack(alignment: .leading, spacing: 24) {
-                    HStack { Spacer(); NavigationLink("⚙︎") { SettingsView() }.font(.title2) }
-                    Text(reading.title).font(.custom("Georgia", size: 44).weight(.bold))
-                    Text(reading.oneLineSummary).font(.title3).foregroundStyle(.white.opacity(0.82))
-                    Text(reading.archetype).font(.headline).foregroundStyle(.yellow)
+                VStack(alignment: .leading, spacing: 22) {
+                    ScreenHeader(eyebrow: "Your Reading", back: true)
+                        .padding(.horizontal, -DesignSystem.Spacing.lg)
+
+                    // Title block
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text(MoonPhaseProvider.currentCode + "  ·  " + romanDate())
+                            .font(DesignSystem.FontToken.caps(9))
+                            .tracking(DesignSystem.Tracking.caps)
+                            .foregroundStyle(DesignSystem.ColorToken.textTertiary)
+                        Text(reading.title)
+                            .font(DesignSystem.FontToken.display(42))
+                            .foregroundStyle(DesignSystem.ColorToken.textPrimary)
+                            .lineSpacing(2)
+                        Text(reading.oneLineSummary)
+                            .font(DesignSystem.FontToken.body(18, italic: true))
+                            .foregroundStyle(DesignSystem.ColorToken.textSecondary)
+                            .lineSpacing(3)
+                        archetypeChip
+                            .padding(.top, 2)
+                    }
+
+                    // Palm map preview (if photo)
                     if let bundle, bundle.hasPhoto {
                         NavigationLink { PalmMapView(bundle: bundle) } label: {
-                            HStack(spacing: 14) {
-                                PalmCanvasView(photoURL: bundle.photoURL, lineSet: bundle.lineSet, auraColor: bundle.auraColor, ignitionProgress: 1, renderingMode: bundle.shouldUsePreciseLines ? .preciseLines : .softGlow)
-                                    .frame(width: 110, height: 150)
-                                VStack(alignment: .leading, spacing: 6) {
-                                    Text("Palm Map").font(.headline).foregroundStyle(.yellow)
-                                    Text("Browse heart, head, life, and fate on your actual palm.").font(.footnote).foregroundStyle(.white.opacity(0.72))
+                            mapPreview(bundle: bundle)
+                        }
+                        .buttonStyle(.plain)
+                    }
+
+                    // Share cards horizontal
+                    if !(bundle?.augmentedShareCards.isEmpty ?? reading.shareCards.isEmpty) {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("KEEPSAKE CARDS")
+                                .font(DesignSystem.FontToken.caps(9))
+                                .tracking(DesignSystem.Tracking.caps)
+                                .foregroundStyle(DesignSystem.ColorToken.textTertiary)
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: 14) {
+                                    ForEach(bundle?.augmentedShareCards ?? reading.shareCards) { card in
+                                        ShareCardView(card: card, summary: reading.oneLineSummary)
+                                            .frame(width: 180, height: 320)
+                                            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.Radius.cardLg, style: .continuous))
+                                            .shadow(color: .black.opacity(0.4), radius: 18, y: 10)
+                                            .onTapGesture {
+                                                selectedCard = card
+                                                Analytics.shared.track("share_card_tapped", properties: ["format": card.format.rawValue])
+                                            }
+                                    }
                                 }
-                                Spacer()
-                                Image(systemName: "chevron.right").foregroundStyle(.white.opacity(0.5))
-                            }
-                            .padding(14)
-                            .background(.white.opacity(0.08))
-                            .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
-                        }
-                    }
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 16) {
-                            ForEach(bundle?.augmentedShareCards ?? reading.shareCards) { card in
-                                ShareCardView(card: card, summary: reading.oneLineSummary)
-                                    .frame(width: 180, height: 320)
-                                    .clipShape(RoundedRectangle(cornerRadius: 24))
-                                    .onTapGesture { selectedCard = card; Analytics.shared.track("share_card_tapped", properties: ["format": card.format.rawValue]) }
+                                .padding(.vertical, 4)
                             }
                         }
                     }
-                    report("Aura", reading.report.aura)
-                    report("Heart Line", reading.report.heartLine)
-                    report("Head Line", reading.report.headLine)
-                    report("Life Line", reading.report.lifeLine)
-                    report("Fate Line", reading.report.fateLine)
-                    report("Current Season", reading.report.currentSeason)
-                    report("Guidance", reading.report.guidance)
-                    report("Ritual", reading.report.ritual)
-                    NavigationLink("Try another reading") { OnboardingView() }.buttonStyle(.borderedProminent)
-                    DisclaimerFooter()
-                }.padding(24)
+
+                    // Chapters
+                    chapter(glyph: "✦", title: "Aura", body: reading.report.aura)
+                    chapter(glyph: "♥", title: "Heart Line", body: reading.report.heartLine)
+                    chapter(glyph: "☿", title: "Head Line", body: reading.report.headLine)
+                    chapter(glyph: "♃", title: "Life Line", body: reading.report.lifeLine)
+                    chapter(glyph: "♄", title: "Fate Line", body: reading.report.fateLine)
+                    chapter(glyph: "☉", title: "Current Season", body: reading.report.currentSeason)
+                    chapter(glyph: "☽", title: "Guidance", body: reading.report.guidance)
+                    chapter(glyph: "⚹", title: "Ritual", body: reading.report.ritual)
+
+                    // Footer
+                    VStack(spacing: 12) {
+                        OrnamentRule()
+                        Text(reading.entertainmentDisclaimer)
+                            .font(DesignSystem.FontToken.body(12, italic: true))
+                            .foregroundStyle(DesignSystem.ColorToken.textTertiary)
+                            .multilineTextAlignment(.center)
+                            .lineSpacing(2)
+                            .padding(.horizontal, 16)
+                        NavigationLink { OnboardingView() } label: {
+                            Text("Ask the Palm again")
+                                .font(DesignSystem.FontToken.caps(11))
+                                .tracking(4)
+                                .textCase(.uppercase)
+                                .foregroundStyle(DesignSystem.ColorToken.skyDeep)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 15)
+                                .background(Capsule().fill(DesignSystem.ColorToken.goldCream.opacity(0.94)))
+                                .shadow(color: DesignSystem.ColorToken.goldCream.opacity(0.28), radius: 15)
+                        }
+                        .buttonStyle(.plain)
+                        .padding(.top, 8)
+                    }
+                    .padding(.top, 14)
+                }
+                .padding(DesignSystem.Spacing.lg)
             }
         }
-        .sheet(item: $selectedCard) { card in ShareOptionsSheet(card: card, summary: reading.oneLineSummary, bundle: bundle) }
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            NavigationLink { SettingsView() } label: {
+                Text("☉")
+                    .font(DesignSystem.FontToken.display(18))
+                    .foregroundStyle(DesignSystem.ColorToken.goldCream)
+            }
+        }
+        .sheet(item: $selectedCard) { card in
+            ShareOptionsSheet(card: card, summary: reading.oneLineSummary, bundle: bundle)
+        }
         .onAppear { UINotificationFeedbackGenerator().notificationOccurred(.success) }
     }
 
-    private func report(_ title: String, _ body: String) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(title).font(.custom("Georgia", size: 26).weight(.bold)).foregroundStyle(.yellow.opacity(0.95))
-            Text(body).foregroundStyle(.white.opacity(0.84)).lineSpacing(4)
+    private var archetypeChip: some View {
+        HStack(spacing: 8) {
+            Text("☽")
+                .font(DesignSystem.FontToken.display(14))
+                .foregroundStyle(DesignSystem.ColorToken.goldCream)
+            Text(reading.archetype.uppercased())
+                .font(DesignSystem.FontToken.caps(10))
+                .tracking(3)
+                .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.88))
+        }
+        .padding(.vertical, 7)
+        .padding(.horizontal, 14)
+        .background(Capsule().fill(DesignSystem.ColorToken.goldCream.opacity(0.10)))
+        .overlay(Capsule().stroke(DesignSystem.ColorToken.goldCream.opacity(0.4), lineWidth: 1))
+    }
+
+    private func mapPreview(bundle: ReadingBundle) -> some View {
+        HStack(spacing: 14) {
+            PalmCanvasView(
+                photoURL: bundle.photoURL,
+                lineSet: bundle.lineSet,
+                auraColor: bundle.auraColor,
+                ignitionProgress: 1,
+                renderingMode: bundle.shouldUsePreciseLines ? .preciseLines : .softGlow
+            )
+            .frame(width: 110, height: 150)
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            VStack(alignment: .leading, spacing: 6) {
+                Text("PALM MAP")
+                    .font(DesignSystem.FontToken.caps(9))
+                    .tracking(DesignSystem.Tracking.caps)
+                    .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.78))
+                Text("Tap a line on your hand")
+                    .font(DesignSystem.FontToken.display(20))
+                    .foregroundStyle(DesignSystem.ColorToken.textPrimary)
+                Text("Heart, head, life, and fate — your photograph, mapped.")
+                    .font(DesignSystem.FontToken.body(13, italic: true))
+                    .foregroundStyle(DesignSystem.ColorToken.textSecondary)
+                    .lineLimit(3)
+            }
+            Spacer(minLength: 0)
+            Text("›")
+                .font(DesignSystem.FontToken.display(20))
+                .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.55))
+        }
+        .padding(14)
+        .background(DesignSystem.ColorToken.goldCream.opacity(0.07))
+        .overlay(
+            RoundedRectangle(cornerRadius: DesignSystem.Radius.cardLg, style: .continuous)
+                .stroke(DesignSystem.ColorToken.goldCream.opacity(0.22), lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.Radius.cardLg, style: .continuous))
+    }
+
+    private func chapter(glyph: String, title: String, body: String) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 12) {
+                GlyphCircle(glyph: glyph, size: 36)
+                Text(title.uppercased())
+                    .font(DesignSystem.FontToken.caps(11))
+                    .tracking(3)
+                    .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.88))
+            }
+            Text(body)
+                .font(DesignSystem.FontToken.body(15))
+                .foregroundStyle(DesignSystem.ColorToken.textPrimary.opacity(0.92))
+                .lineSpacing(4)
         }
         .padding(18)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.white.opacity(0.07))
-        .clipShape(RoundedRectangle(cornerRadius: 20))
+        .background(DesignSystem.ColorToken.goldCream.opacity(0.055))
+        .overlay(
+            RoundedRectangle(cornerRadius: DesignSystem.Radius.cardLg, style: .continuous)
+                .stroke(DesignSystem.ColorToken.goldCream.opacity(0.18), lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.Radius.cardLg, style: .continuous))
+    }
+
+    private func romanDate() -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "d MMM"
+        let prefix = formatter.string(from: Date())
+        let year = Calendar.current.component(.year, from: Date())
+        return "\(prefix) · \(roman(year))"
+    }
+
+    private func roman(_ n: Int) -> String {
+        let values = [(1000, "M"), (900, "CM"), (500, "D"), (400, "CD"), (100, "C"), (90, "XC"),
+                      (50, "L"), (40, "XL"), (10, "X"), (9, "IX"), (5, "V"), (4, "IV"), (1, "I")]
+        var num = n
+        var result = ""
+        for (v, s) in values {
+            while num >= v { result += s; num -= v }
+        }
+        return result
     }
 }

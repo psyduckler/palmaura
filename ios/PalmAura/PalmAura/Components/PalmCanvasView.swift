@@ -65,7 +65,15 @@ struct PalmCanvasView: View {
                 Image(uiImage: image).resizable().scaledToFill()
             } else {
                 ZStack {
-                    LinearGradient(colors: [.black, Color.purple.opacity(0.45), .black], startPoint: .topLeading, endPoint: .bottomTrailing)
+                    LinearGradient(
+                        colors: [
+                            DesignSystem.ColorToken.skyDeep,
+                            DesignSystem.ColorToken.skyMulberry.opacity(0.55),
+                            DesignSystem.ColorToken.skyDeep
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
                     PalmAuraMark(style: .capture, size: 120).opacity(0.75)
                 }
             }

@@ -32,6 +32,13 @@ targets:
         NSPhotoLibraryUsageDescription: PalmAura uses your photo library to choose a palm photo for an entertainment-only reading.
         LSApplicationQueriesSchemes:
           - instagram-stories
+        UIAppFonts:
+          - CormorantGaramond.ttf
+          - CormorantGaramond-Italic.ttf
+          - EBGaramond.ttf
+          - EBGaramond-Italic.ttf
+          - Cinzel.ttf
+          - Caveat.ttf
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.zonted.palmaura

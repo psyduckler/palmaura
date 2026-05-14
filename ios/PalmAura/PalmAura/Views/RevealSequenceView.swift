@@ -23,52 +23,44 @@ struct RevealSequenceView: View {
 
     var body: some View {
         ZStack {
-            MysticalBackground()
-            VStack(spacing: 26) {
-                HStack {
-                    Text(isFirstReveal ? "First reveal" : "Your reveal")
-                        .font(.caption.weight(.semibold))
-                        .textCase(.uppercase)
-                        .tracking(1.6)
-                        .foregroundStyle(.yellow.opacity(0.85))
-                    Spacer()
-                    NavigationLink("Full report") { ReadingResultView(bundle: bundle) }
-                        .font(.footnote.weight(.semibold))
-                        .foregroundStyle(.white.opacity(0.82))
-                }
+            DarkScreenBackground()
+            VStack(spacing: 0) {
+                ScreenHeader(
+                    eyebrow: isFirstReveal ? "First Reveal" : "Your Reveal",
+                    back: false,
+                    trailingText: "FULL",
+                    onTrailing: { showFullReport = true }
+                )
 
-                Spacer(minLength: 12)
+                Spacer(minLength: 6)
 
                 revealContent
                     .frame(maxWidth: .infinity)
                     .contentTransition(.opacity)
                     .animation(.easeInOut(duration: 0.28), value: step)
+                    .padding(.horizontal, DesignSystem.Spacing.lg)
 
-                Spacer(minLength: 12)
+                Spacer(minLength: 16)
 
                 if step < lastStep {
-                    Button {
+                    GoldButton(title: nextTitle) {
                         UIImpactFeedbackGenerator(style: .light).impactOccurred()
                         withAnimation { step += 1 }
-                    } label: {
-                        Text(nextTitle)
-                            .font(.headline)
-                            .foregroundStyle(.black)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 16)
-                            .background(LinearGradient(colors: [.yellow, .orange], startPoint: .leading, endPoint: .trailing))
-                            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
                     }
+                    .padding(.horizontal, DesignSystem.Spacing.lg)
                 } else {
                     finalActions
+                        .padding(.horizontal, DesignSystem.Spacing.lg)
                         .onAppear { hasCompletedFirstReveal = true }
                 }
 
                 stepDots
+                    .padding(.top, 16)
+                    .padding(.bottom, 30)
             }
-            .padding(24)
         }
         .navigationBarBackButtonHidden(true)
+        .navigationDestination(isPresented: $showFullReport) { ReadingResultView(bundle: bundle) }
         .sheet(item: $selectedCard) { card in
             ShareOptionsSheet(card: card, summary: reading.oneLineSummary, bundle: bundle)
         }
@@ -78,25 +70,27 @@ struct RevealSequenceView: View {
         }
     }
 
+    @State private var showFullReport = false
+
     @ViewBuilder
     private var revealContent: some View {
         if isFirstReveal {
             switch step {
             case 0:
-                CeremonyPanel(emoji: "✨", eyebrow: "The portal opens", title: reading.title, detail: "Take a breath. Your palm has been translated into an aura snapshot for this moment.")
+                CeremonyPanel(glyph: "✦", eyebrow: "The portal opens", title: reading.title, detail: "Take a breath. Your palm has been translated into an aura snapshot for this moment.")
             case 1:
-                CeremonyPanel(emoji: auraEmoji, eyebrow: "Aura color", title: reading.auraColor.rawValue.capitalized, detail: reading.report.aura)
+                CeremonyPanel(glyph: glyphForAura(reading.auraColor), eyebrow: "Aura color", title: reading.auraColor.rawValue.capitalized, detail: reading.report.aura)
             case 2:
                 PalmIgnitionPanel(bundle: bundle)
             case 3:
-                CeremonyPanel(emoji: "🔮", eyebrow: "Archetype", title: reading.archetype, detail: reading.report.guidance)
+                CeremonyPanel(glyph: "☽", eyebrow: "Archetype", title: reading.archetype, detail: reading.report.guidance)
             default:
                 sharePanel
             }
         } else {
             switch step {
             case 0:
-                CeremonyPanel(emoji: auraEmoji, eyebrow: "Aura snapshot", title: reading.title, detail: reading.oneLineSummary)
+                CeremonyPanel(glyph: glyphForAura(reading.auraColor), eyebrow: "Aura snapshot", title: reading.title, detail: reading.oneLineSummary)
             case 1:
                 PalmIgnitionPanel(bundle: bundle)
             default:
@@ -106,21 +100,23 @@ struct RevealSequenceView: View {
     }
 
     private var sharePanel: some View {
-        VStack(spacing: 18) {
+        VStack(spacing: 14) {
             Text("Choose your share card")
-                .font(.custom("Georgia", size: 34).weight(.bold))
+                .font(DesignSystem.FontToken.display(30))
+                .foregroundStyle(DesignSystem.ColorToken.textPrimary)
                 .multilineTextAlignment(.center)
             Text("Tap a card to send your aura to stories, messages, or your camera roll.")
-                .font(.subheadline)
-                .foregroundStyle(.white.opacity(0.72))
+                .font(DesignSystem.FontToken.body(14, italic: true))
+                .foregroundStyle(DesignSystem.ColorToken.textSecondary)
                 .multilineTextAlignment(.center)
+                .padding(.horizontal, 8)
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 16) {
+                HStack(spacing: 14) {
                     ForEach(bundle.augmentedShareCards) { card in
                         ShareCardView(card: card, summary: reading.oneLineSummary)
-                            .frame(width: 176, height: 312)
-                            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-                            .shadow(color: .black.opacity(0.28), radius: 18, y: 12)
+                            .frame(width: 176, height: 308)
+                            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.Radius.cardLg, style: .continuous))
+                            .shadow(color: .black.opacity(0.45), radius: 22, y: 12)
                             .onTapGesture {
                                 selectedCard = card
                                 hasCompletedFirstReveal = true
@@ -128,51 +124,66 @@ struct RevealSequenceView: View {
                             }
                     }
                 }
-                .padding(.horizontal, 2)
-                .padding(.vertical, 8)
+                .padding(.horizontal, 4)
+                .padding(.vertical, 6)
             }
         }
     }
 
     private var finalActions: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 10) {
             if bundle.hasPhoto {
                 NavigationLink {
                     PalmMapView(bundle: bundle)
                 } label: {
-                    Text("Explore your palm map")
-                        .font(.headline)
-                        .foregroundStyle(.black)
+                    Text("Explore your palm map  ›")
+                        .font(DesignSystem.FontToken.caps(11))
+                        .tracking(4)
+                        .textCase(.uppercase)
+                        .foregroundStyle(DesignSystem.ColorToken.skyDeep)
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(LinearGradient(colors: [.yellow, .orange], startPoint: .leading, endPoint: .trailing))
-                        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                        .padding(.vertical, 15)
+                        .background(Capsule().fill(DesignSystem.ColorToken.goldCream.opacity(0.94)))
+                        .shadow(color: DesignSystem.ColorToken.goldCream.opacity(0.28), radius: 15)
                 }
+                .buttonStyle(.plain)
             }
 
             NavigationLink {
                 ReadingResultView(bundle: bundle)
             } label: {
                 Text("Open full report")
-                    .font(.headline)
-                    .foregroundStyle(.black)
+                    .font(DesignSystem.FontToken.caps(10))
+                    .tracking(3)
+                    .textCase(.uppercase)
+                    .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.86))
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
-                    .background(LinearGradient(colors: [.yellow, .orange], startPoint: .leading, endPoint: .trailing))
-                    .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                    .padding(.vertical, 12)
+                    .overlay(Capsule().stroke(DesignSystem.ColorToken.goldCream.opacity(0.35), lineWidth: 1))
             }
+            .buttonStyle(.plain)
 
-            NavigationLink("Return home") { HomeView() }
-                .buttonStyle(.bordered)
+            NavigationLink {
+                HomeView()
+            } label: {
+                Text("Return home")
+                    .font(DesignSystem.FontToken.caps(9))
+                    .tracking(2.5)
+                    .textCase(.uppercase)
+                    .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.62))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+            }
+            .buttonStyle(.plain)
         }
     }
 
     private var stepDots: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: 7) {
             ForEach(0...lastStep, id: \.self) { index in
                 Capsule()
-                    .fill(index == step ? .yellow : .white.opacity(0.25))
-                    .frame(width: index == step ? 22 : 8, height: 8)
+                    .fill(DesignSystem.ColorToken.goldCream.opacity(index == step ? 0.9 : 0.28))
+                    .frame(width: index == step ? 22 : 6, height: 6)
             }
         }
         .animation(.easeInOut(duration: 0.22), value: step)
@@ -180,57 +191,65 @@ struct RevealSequenceView: View {
 
     private var nextTitle: String {
         if isFirstReveal {
-            return ["Show my aura", "Chart my lines", "Reveal archetype", "Explore + share"][safe: step] ?? "Continue"
+            return ["Show my aura  ›", "Chart my lines  ›", "Reveal archetype  ›", "Explore + share  ›"][safe: step] ?? "Continue"
         } else {
-            return ["Show signal", "Choose share card"][safe: step] ?? "Continue"
+            return ["Show signal  ›", "Choose share card  ›"][safe: step] ?? "Continue"
         }
     }
 
-    private var auraEmoji: String {
-        switch reading.auraColor {
-        case .violet: return "💜"
-        case .gold: return "🌟"
-        case .fire: return "🔥"
-        case .moon: return "🌙"
-        case .water: return "🌊"
-        case .rose: return "🌹"
+    private func glyphForAura(_ color: AuraColor) -> String {
+        switch color {
+        case .violet: return "♀"
+        case .gold:   return "☉"
+        case .fire:   return "♂"
+        case .moon:   return "☽"
+        case .water:  return "♆"
+        case .rose:   return "♀"
         }
     }
 }
 
 private struct CeremonyPanel: View {
-    let emoji: String
+    let glyph: String
     let eyebrow: String
     let title: String
     let detail: String
 
     var body: some View {
-        VStack(spacing: 18) {
-            Text(emoji)
-                .font(.system(size: 78))
-                .shadow(color: .purple, radius: 24)
-            Text(eyebrow)
-                .font(.caption.weight(.semibold))
-                .textCase(.uppercase)
-                .tracking(1.4)
-                .foregroundStyle(.yellow.opacity(0.86))
+        VStack(spacing: 16) {
+            // Glyph halo
+            ZStack {
+                Circle()
+                    .fill(RadialGradient(colors: [DesignSystem.ColorToken.goldCream.opacity(0.32), .clear], center: .center, startRadius: 0, endRadius: 80))
+                    .frame(width: 160, height: 160)
+                Text(glyph)
+                    .font(DesignSystem.FontToken.display(64))
+                    .foregroundStyle(DesignSystem.ColorToken.goldCreamSoft)
+                    .shadow(color: DesignSystem.ColorToken.goldCream.opacity(0.7), radius: 22)
+            }
+            Text(eyebrow.uppercased())
+                .font(DesignSystem.FontToken.caps(10))
+                .tracking(DesignSystem.Tracking.caps)
+                .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.78))
             Text(title)
-                .font(.custom("Georgia", size: 40).weight(.bold))
+                .font(DesignSystem.FontToken.display(36))
+                .foregroundStyle(DesignSystem.ColorToken.textPrimary)
                 .multilineTextAlignment(.center)
                 .minimumScaleFactor(0.7)
             Text(detail)
-                .font(.body)
+                .font(DesignSystem.FontToken.body(15))
                 .lineSpacing(4)
                 .multilineTextAlignment(.center)
-                .foregroundStyle(.white.opacity(0.78))
+                .foregroundStyle(DesignSystem.ColorToken.textPrimary.opacity(0.85))
+                .padding(.horizontal, 8)
         }
-        .padding(24)
+        .padding(22)
         .frame(maxWidth: .infinity)
-        .background(.white.opacity(0.08))
-        .clipShape(RoundedRectangle(cornerRadius: 32, style: .continuous))
+        .background(DesignSystem.ColorToken.goldCream.opacity(0.075))
+        .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 32, style: .continuous)
-                .stroke(.yellow.opacity(0.22), lineWidth: 1)
+            RoundedRectangle(cornerRadius: 28, style: .continuous)
+                .stroke(DesignSystem.ColorToken.goldCream.opacity(0.28), lineWidth: 1)
         )
     }
 }
