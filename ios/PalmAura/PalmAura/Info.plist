@@ -28,6 +28,15 @@
 	<string>PalmAura uses your camera to capture your palm for an entertainment-only reading.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>PalmAura uses your photo library to choose a palm photo for an entertainment-only reading.</string>
+	<key>UIAppFonts</key>
+	<array>
+		<string>CormorantGaramond.ttf</string>
+		<string>CormorantGaramond-Italic.ttf</string>
+		<string>EBGaramond.ttf</string>
+		<string>EBGaramond-Italic.ttf</string>
+		<string>Cinzel.ttf</string>
+		<string>Caveat.ttf</string>
+	</array>
 	<key>UILaunchScreen</key>
 	<dict/>
 	<key>UIRequiresFullScreen</key>

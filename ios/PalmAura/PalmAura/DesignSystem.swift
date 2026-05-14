@@ -40,7 +40,9 @@ enum DesignSystem {
             .custom(italic ? "EBGaramond-Italic" : "EBGaramond-Regular", size: size)
         }
         static func caps(_ size: CGFloat = 11) -> Font {
-            .custom("Cinzel-SemiBold", size: size).weight(.semibold)
+            // Cinzel ships as a variable font with named instances at Regular/Bold/Black only;
+            // SemiBold is reached by setting the wght axis via .weight(.semibold).
+            .custom("Cinzel-Regular", size: size).weight(.semibold)
         }
         static func hand(_ size: CGFloat = 16) -> Font {
             .custom("Caveat-Regular", size: size)
