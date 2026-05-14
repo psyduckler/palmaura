@@ -7,9 +7,19 @@ struct PalmMapView: View {
 
     var body: some View {
         ZStack {
-            MysticalBackground()
-            VStack(spacing: 14) {
-                header
+            DarkScreenBackground()
+            VStack(spacing: 0) {
+                ScreenHeader(
+                    eyebrow: "Your Hand · Mapped",
+                    back: true,
+                    trailingText: "FULL",
+                    onTrailing: { showFullReport = true }
+                )
+
+                titleBlock
+                    .padding(.horizontal, DesignSystem.Spacing.lg)
+                    .padding(.bottom, 14)
+
                 PalmCanvasView(
                     photoURL: bundle.photoURL,
                     lineSet: bundle.lineSet,
@@ -19,75 +29,112 @@ struct PalmMapView: View {
                     renderingMode: bundle.shouldUsePreciseLines ? .preciseLines : .softGlow,
                     onSelectLine: select
                 )
-                .frame(maxHeight: 520)
+                .frame(maxHeight: 460)
+                .padding(.horizontal, DesignSystem.Spacing.lg)
+
+                Spacer(minLength: 14)
 
                 lineSheet
+                    .padding(.horizontal, DesignSystem.Spacing.lg)
+                    .padding(.bottom, 24)
             }
-            .padding(20)
         }
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar { NavigationLink("Full report") { ReadingResultView(bundle: bundle) } }
-        .sheet(item: $selectedCard) { card in ShareOptionsSheet(card: card, summary: bundle.reading.oneLineSummary, bundle: bundle) }
-        .onAppear { Analytics.shared.track("palm_map_opened", properties: ["source": "map", "lineSource": bundle.lineSet.source.rawValue, "confidence": String(format: "%.2f", bundle.lineSet.confidence)]) }
+        .navigationBarBackButtonHidden(true)
+        .navigationDestination(isPresented: $showFullReport) {
+            ReadingResultView(bundle: bundle)
+        }
+        .sheet(item: $selectedCard) { card in
+            ShareOptionsSheet(card: card, summary: bundle.reading.oneLineSummary, bundle: bundle)
+        }
+        .onAppear {
+            Analytics.shared.track("palm_map_opened", properties: [
+                "source": "map",
+                "lineSource": bundle.lineSet.source.rawValue,
+                "confidence": String(format: "%.2f", bundle.lineSet.confidence)
+            ])
+        }
     }
 
-    private var header: some View {
-        VStack(spacing: 6) {
-            Text("Your palm map")
-                .font(.custom("Georgia", size: 36).weight(.bold))
-            Text(bundle.shouldUsePreciseLines ? "Tap a glowing line" : "Your palm map is symbolic — the lines are softly charted.")
-                .font(.subheadline)
-                .foregroundStyle(.white.opacity(0.72))
-                .multilineTextAlignment(.center)
-            Button {
-                selectedCard = bundle.augmentedShareCards.first(where: { $0.format == .palmMap })
-            } label: {
-                Label("Share this palm map", systemImage: "square.and.arrow.up")
+    @State private var showFullReport = false
+
+    private var titleBlock: some View {
+        VStack(alignment: .center, spacing: 6) {
+            HStack(spacing: 6) {
+                Text("Four lines.")
+                    .font(DesignSystem.FontToken.display(28))
+                Text("Six mounts.")
+                    .font(DesignSystem.FontToken.display(28, italic: true))
+                    .foregroundStyle(DesignSystem.ColorToken.goldCream)
             }
-            .buttonStyle(.bordered)
-            .disabled(!bundle.hasPhoto)
+            .foregroundStyle(DesignSystem.ColorToken.textPrimary)
+            Text(bundle.shouldUsePreciseLines
+                 ? "Tap a glowing line to read what it carries."
+                 : "Your map is symbolic — the lines are softly charted.")
+                .font(DesignSystem.FontToken.body(13, italic: true))
+                .foregroundStyle(DesignSystem.ColorToken.textSecondary)
+                .multilineTextAlignment(.center)
         }
+        .frame(maxWidth: .infinity)
     }
 
     private var lineSheet: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: 12) {
+            // Chip row of all 4 lines
             HStack(spacing: 8) {
                 ForEach(PalmLine.allCases) { line in
-                    Button {
-                        select(line)
-                    } label: {
-                        Label(line.title.replacingOccurrences(of: " Line", with: ""), systemImage: line.symbolName)
-                            .font(.caption.weight(.semibold))
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(selectedLine == line ? .yellow : .white.opacity(0.15))
-                    .foregroundStyle(selectedLine == line ? .black : .white)
+                    LineChip(line: line, selected: selectedLine == line) { select(line) }
                 }
             }
 
             if let selectedLine {
-                Text(selectedLine.title)
-                    .font(.custom("Georgia", size: 26).weight(.bold))
-                    .foregroundStyle(.yellow.opacity(0.95))
-                Text(selectedLine.domain)
-                    .font(.caption.weight(.semibold))
-                    .textCase(.uppercase)
-                    .tracking(1.1)
-                    .foregroundStyle(.white.opacity(0.55))
-                Text(bundle.reading.reportText(for: selectedLine))
-                    .foregroundStyle(.white.opacity(0.84))
-                    .lineSpacing(4)
-                Button("Next line") { cycleNext() }
-                    .buttonStyle(.borderedProminent)
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(selectedLine.title)
+                        .font(DesignSystem.FontToken.display(24))
+                        .foregroundStyle(DesignSystem.ColorToken.textPrimary)
+                    Text(selectedLine.domain.uppercased())
+                        .font(DesignSystem.FontToken.caps(9))
+                        .tracking(2.5)
+                        .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.72))
+                    Text(bundle.reading.reportText(for: selectedLine))
+                        .font(DesignSystem.FontToken.body(14))
+                        .foregroundStyle(DesignSystem.ColorToken.textPrimary.opacity(0.92))
+                        .lineSpacing(3)
+                }
+                HStack(spacing: 10) {
+                    GhostButton(title: "Next line", leading: "›") { cycleNext() }
+                    Button {
+                        selectedCard = bundle.augmentedShareCards.first(where: { $0.format == .palmMap })
+                    } label: {
+                        HStack(spacing: 8) {
+                            Text("↗").font(DesignSystem.FontToken.display(15))
+                            Text("Share Map")
+                                .font(DesignSystem.FontToken.caps(10))
+                                .tracking(3)
+                                .textCase(.uppercase)
+                        }
+                        .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.86))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .overlay(Capsule().stroke(DesignSystem.ColorToken.goldCream.opacity(0.35), lineWidth: 1))
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(!bundle.hasPhoto)
+                    .opacity(bundle.hasPhoto ? 1 : 0.4)
+                }
             } else {
-                Text("Choose a line to browse the part of your reading it carries.")
-                    .foregroundStyle(.white.opacity(0.78))
+                Text("Choose a line to read the part of your answer it carries.")
+                    .font(DesignSystem.FontToken.body(14, italic: true))
+                    .foregroundStyle(DesignSystem.ColorToken.textSecondary)
+                    .lineSpacing(2)
             }
         }
         .padding(18)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.white.opacity(0.08))
-        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .background(DesignSystem.ColorToken.goldCream.opacity(0.075))
+        .overlay(
+            RoundedRectangle(cornerRadius: DesignSystem.Radius.cardLg, style: .continuous)
+                .stroke(DesignSystem.ColorToken.goldCream.opacity(0.26), lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.Radius.cardLg, style: .continuous))
     }
 
     private func select(_ line: PalmLine) {
@@ -102,5 +149,54 @@ struct PalmMapView: View {
         let next = all[(all.firstIndex(of: current)! + 1) % all.count]
         selectedLine = next
         Analytics.shared.track("palm_line_cycle_next", properties: ["from": current.rawValue, "to": next.rawValue])
+    }
+}
+
+/// Vintage glyph chip used to select one of the 4 palm lines.
+private struct LineChip: View {
+    let line: PalmLine
+    let selected: Bool
+    let action: () -> Void
+
+    private var glyph: String {
+        switch line {
+        case .heart: return "♥"
+        case .head:  return "☿"
+        case .life:  return "♃"
+        case .fate:  return "✦"
+        }
+    }
+    private var short: String {
+        switch line {
+        case .heart: return "Heart"
+        case .head:  return "Head"
+        case .life:  return "Life"
+        case .fate:  return "Fate"
+        }
+    }
+
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 4) {
+                Text(glyph)
+                    .font(DesignSystem.FontToken.display(18))
+                    .foregroundStyle(selected ? DesignSystem.ColorToken.skyDeep : DesignSystem.ColorToken.goldCream)
+                Text(short)
+                    .font(DesignSystem.FontToken.caps(8.5))
+                    .tracking(2)
+                    .foregroundStyle(selected ? DesignSystem.ColorToken.skyDeep : DesignSystem.ColorToken.goldCream.opacity(0.85))
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 10)
+            .background(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(selected ? DesignSystem.ColorToken.goldCream.opacity(0.92) : DesignSystem.ColorToken.goldCream.opacity(0.06))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .stroke(DesignSystem.ColorToken.goldCream.opacity(selected ? 0.85 : 0.28), lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
     }
 }
