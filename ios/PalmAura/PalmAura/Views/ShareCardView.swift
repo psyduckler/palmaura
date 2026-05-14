@@ -1,229 +1,169 @@
 import SwiftUI
 
-/// The 1080×1920 share card exported to Stories / camera roll / activity sheet.
-/// Unified vintage-engraving aesthetic across all six themes — only the aura
-/// halo color varies. Designed so every shared card identifiably reads as
-/// PalmAura on a feed, regardless of which card the user picked.
+/// A vintage tarot-style parchment card that renders a `ShareCard` from a
+/// `PalmReadingResponse`. Designed to be displayed in a horizontal scroller
+/// on the reveal/result screens, and exported as a single image for sharing.
 struct ShareCardView: View {
     let card: ShareCard
     let summary: String
+    var size: CGSize? = nil   // when rendering for export, pass the target size
 
     var body: some View {
-        GeometryReader { geo in
-            let size = geo.size
-            let shortSide = min(size.width, size.height)
-            let titleSize = shortSide * 0.085
-            let summarySize = shortSide * 0.038
-            let footerSize = shortSide * 0.020
-
-            ZStack {
-                parchmentBackground(in: size)
-                auraHalo(in: size)
-                vignette(in: size)
-
-                VStack(spacing: 0) {
-                    Spacer(minLength: size.height * 0.08)
-
-                    eyebrow(size: footerSize)
-                    Spacer(minLength: size.height * 0.018)
-
-                    Text(card.title)
-                        .font(.custom("CormorantGaramond-Medium", size: titleSize))
-                        .multilineTextAlignment(.center)
-                        .minimumScaleFactor(0.55)
-                        .lineLimit(2)
-                        .foregroundStyle(inkColor)
-                        .padding(.horizontal, size.width * 0.10)
-
-                    Spacer(minLength: size.height * 0.030)
-                    ornamentRule(width: size.width * 0.42)
-                    Spacer(minLength: size.height * 0.024)
-
-                    Image("PalmPlate")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: size.width * 0.62)
-                        .opacity(0.88)
-                        .shadow(color: auraColor.opacity(0.36), radius: shortSide * 0.045)
-
-                    Spacer(minLength: size.height * 0.030)
-
-                    Text(card.body)
-                        .font(.custom("CormorantGaramond-MediumItalic", size: summarySize))
-                        .multilineTextAlignment(.center)
-                        .minimumScaleFactor(0.6)
-                        .lineLimit(3)
-                        .foregroundStyle(inkSoft)
-                        .padding(.horizontal, size.width * 0.12)
-                        .lineSpacing(summarySize * 0.18)
-
-                    if !summary.isEmpty && summary != card.body {
-                        Spacer(minLength: size.height * 0.014)
-                        Text(summary)
-                            .font(.custom("EBGaramond-Italic", size: summarySize * 0.72))
-                            .multilineTextAlignment(.center)
-                            .minimumScaleFactor(0.6)
-                            .lineLimit(2)
-                            .foregroundStyle(inkSoft.opacity(0.78))
-                            .padding(.horizontal, size.width * 0.14)
-                            .lineSpacing(summarySize * 0.12)
-                    }
-
-                    Spacer(minLength: size.height * 0.04)
-                    ornamentRule(width: size.width * 0.42)
-                    Spacer(minLength: size.height * 0.022)
-
-                    footer(size: footerSize)
-                    Spacer(minLength: size.height * 0.06)
-                }
-                .padding(.horizontal, size.width * 0.06)
-
-                engravedFrame(in: size)
-            }
-        }
-    }
-
-    // MARK: - Backgrounds
-
-    private func parchmentBackground(in size: CGSize) -> some View {
         ZStack {
-            LinearGradient(
-                colors: [
-                    DesignSystem.ColorToken.parchmentLight,
-                    DesignSystem.ColorToken.parchment,
-                    DesignSystem.ColorToken.parchmentDeep
-                ],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            // subtle paper grain via stippled radial spots
-            ForEach(0..<8, id: \.self) { i in
-                Circle()
-                    .fill(DesignSystem.ColorToken.inkSoft.opacity(0.02))
-                    .frame(width: size.width * 0.18, height: size.width * 0.18)
-                    .position(
-                        x: size.width * grainSeed(i, salt: 1),
-                        y: size.height * grainSeed(i, salt: 7)
+            // Parchment background with subtle texture
+            Rectangle()
+                .fill(DesignSystem.ColorToken.parchmentLight)
+                .overlay(
+                    LinearGradient(
+                        colors: [.white.opacity(0.18), .clear, DesignSystem.ColorToken.gold.opacity(0.16)],
+                        startPoint: .topLeading, endPoint: .bottomTrailing
                     )
-                    .blur(radius: 30)
+                )
+
+            // Engraved double border
+            engravedBorder
+
+            VStack(spacing: 14) {
+                // Top eyebrow — date + theme
+                Text(eyebrow)
+                    .font(DesignSystem.FontToken.caps(9))
+                    .tracking(3)
+                    .foregroundStyle(DesignSystem.ColorToken.inkSoft.opacity(0.8))
+
+                // Title
+                Text(card.title)
+                    .font(DesignSystem.FontToken.display(26))
+                    .foregroundStyle(DesignSystem.ColorToken.ink)
+                    .multilineTextAlignment(.center)
+                    .minimumScaleFactor(0.7)
+                    .lineLimit(2)
+
+                OrnamentRuleLight()
+
+                // Palm illustration centered
+                Image("PalmPlate")
+                    .resizable()
+                    .scaledToFit()
+                    .opacity(0.78)
+                    .frame(maxHeight: 180)
+
+                // Quote / body
+                Text(card.body.isEmpty ? summary : card.body)
+                    .font(DesignSystem.FontToken.body(14, italic: true))
+                    .foregroundStyle(DesignSystem.ColorToken.ink.opacity(0.88))
+                    .multilineTextAlignment(.center)
+                    .lineSpacing(2)
+                    .padding(.horizontal, 6)
+
+                Spacer(minLength: 6)
+
+                // Planet glyphs row + footer
+                HStack(spacing: 14) {
+                    ForEach(themeGlyphs, id: \.self) { g in
+                        Text(g)
+                            .font(DesignSystem.FontToken.display(16))
+                            .foregroundStyle(DesignSystem.ColorToken.goldDeep)
+                    }
+                }
+                Text(footer)
+                    .font(DesignSystem.FontToken.caps(7.5))
+                    .tracking(3)
+                    .foregroundStyle(DesignSystem.ColorToken.inkSoft.opacity(0.7))
+            }
+            .padding(.vertical, 20)
+            .padding(.horizontal, 18)
+        }
+    }
+
+    // MARK: - Decorative
+
+    private var engravedBorder: some View {
+        ZStack {
+            // Outer crisp 1px gold-deep
+            RoundedRectangle(cornerRadius: 4, style: .continuous)
+                .strokeBorder(DesignSystem.ColorToken.goldDeep.opacity(0.75), lineWidth: 0.8)
+                .padding(8)
+            // Inner faint
+            RoundedRectangle(cornerRadius: 2, style: .continuous)
+                .strokeBorder(DesignSystem.ColorToken.goldDeep.opacity(0.45), lineWidth: 0.5)
+                .padding(14)
+            // Tiny corner stars
+            ForEach(Array(CornerStarSlot.allCases.enumerated()), id: \.offset) { _, slot in
+                Text("✦")
+                    .font(DesignSystem.FontToken.display(9))
+                    .foregroundStyle(DesignSystem.ColorToken.goldDeep.opacity(0.7))
+                    .padding(12)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: slot.alignment)
             }
         }
     }
 
-    private func auraHalo(in size: CGSize) -> some View {
-        RadialGradient(
-            colors: [auraColor.opacity(0.32), auraColor.opacity(0.08), .clear],
-            center: .center,
-            startRadius: 0,
-            endRadius: min(size.width, size.height) * 0.55
-        )
-        .blendMode(.plusLighter)
+    // MARK: - Derived
+
+    private var eyebrow: String {
+        let format = formatLabel.uppercased()
+        return "\(format) · \(MoonPhaseProvider.currentCode)"
     }
 
-    private func vignette(in size: CGSize) -> some View {
-        RadialGradient(
-            colors: [.clear, DesignSystem.ColorToken.inkSoft.opacity(0.32)],
-            center: .center,
-            startRadius: min(size.width, size.height) * 0.45,
-            endRadius: min(size.width, size.height) * 0.72
-        )
-    }
-
-    private func engravedFrame(in size: CGSize) -> some View {
-        ZStack {
-            Rectangle()
-                .stroke(DesignSystem.ColorToken.gold.opacity(0.55), lineWidth: 1)
-                .padding(size.width * 0.035)
-            Rectangle()
-                .stroke(DesignSystem.ColorToken.gold.opacity(0.30), lineWidth: 0.5)
-                .padding(size.width * 0.045)
-        }
-        .allowsHitTesting(false)
-    }
-
-    // MARK: - Type rows
-
-    private func eyebrow(size: CGFloat) -> some View {
-        HStack(spacing: 18) {
-            Rectangle()
-                .fill(DesignSystem.ColorToken.gold.opacity(0.55))
-                .frame(width: size * 4, height: 0.7)
-            Text("PALMAURA")
-                .font(.custom("Cinzel-Regular", size: size).weight(.semibold))
-                .tracking(size * 0.32)
-                .foregroundStyle(DesignSystem.ColorToken.gold)
-            Rectangle()
-                .fill(DesignSystem.ColorToken.gold.opacity(0.55))
-                .frame(width: size * 4, height: 0.7)
+    private var formatLabel: String {
+        switch card.format {
+        case .aura:        return "Aura"
+        case .archetype:   return "Archetype"
+        case .thirtyDay:   return "30-day arc"
+        case .palmMap:     return "Palm map"
         }
     }
 
-    private func ornamentRule(width: CGFloat) -> some View {
-        HStack(spacing: 12) {
-            Rectangle()
-                .fill(DesignSystem.ColorToken.gold.opacity(0.45))
-                .frame(width: width * 0.42, height: 0.7)
-            Text("✦")
-                .font(.custom("CormorantGaramond-Medium", size: width * 0.10))
-                .foregroundStyle(DesignSystem.ColorToken.gold)
-            Rectangle()
-                .fill(DesignSystem.ColorToken.gold.opacity(0.45))
-                .frame(width: width * 0.42, height: 0.7)
-        }
-    }
-
-    private func footer(size: CGFloat) -> some View {
-        VStack(spacing: size * 0.6) {
-            Text(BrandConfig.domain.uppercased())
-                .font(.custom("Cinzel-Regular", size: size).weight(.semibold))
-                .tracking(size * 0.34)
-                .foregroundStyle(inkSoft)
-            Text("ENTERTAINMENT ONLY")
-                .font(.custom("Cinzel-Regular", size: size * 0.76).weight(.semibold))
-                .tracking(size * 0.30)
-                .foregroundStyle(inkSoft.opacity(0.62))
-        }
-    }
-
-    // MARK: - Theme color
-
-    /// Each ShareCardTheme gets a distinct aura halo color, but the surrounding
-    /// parchment + engraved frame stays unified so the brand reads consistently.
-    private var auraColor: Color {
+    private var themeGlyphs: [String] {
         switch card.theme {
-        case .moon: return Color(red: 0.70, green: 0.74, blue: 0.92)
-        case .fire: return Color(red: 0.94, green: 0.43, blue: 0.20)
-        case .water: return Color(red: 0.32, green: 0.66, blue: 0.86)
-        case .gold: return DesignSystem.ColorToken.goldCream
-        case .violet: return Color(red: 0.62, green: 0.36, blue: 0.86)
-        case .rose: return Color(red: 0.92, green: 0.54, blue: 0.66)
+        case .moon:    return ["☽", "♀", "✦"]
+        case .fire:    return ["♂", "☉", "✦"]
+        case .water:   return ["☽", "♆", "✦"]
+        case .gold:    return ["☉", "♃", "✦"]
+        case .violet:  return ["♄", "☿", "✦"]
+        case .rose:    return ["♀", "☽", "✦"]
         }
     }
 
-    private var inkColor: Color { DesignSystem.ColorToken.ink }
-    private var inkSoft: Color { DesignSystem.ColorToken.inkSoft }
+    private var footer: String { "PALMAURA · MMXXVI" }
+}
 
-    // Deterministic "grain" — same input always returns same offsets so the
-    // ImageRenderer output is reproducible.
-    private func grainSeed(_ i: Int, salt: Int) -> CGFloat {
-        let raw = sin(CGFloat(i * 92 + salt * 31)) * 10000
-        return abs(raw - raw.rounded(.down))
+// Corner slots for the engraved-frame ✦ markers. Swift's `Alignment` isn't
+// Hashable, so we use a small enum to drive the ForEach.
+private enum CornerStarSlot: CaseIterable {
+    case topLeading, topTrailing, bottomLeading, bottomTrailing
+    var alignment: Alignment {
+        switch self {
+        case .topLeading:     return .topLeading
+        case .topTrailing:    return .topTrailing
+        case .bottomLeading:  return .bottomLeading
+        case .bottomTrailing: return .bottomTrailing
+        }
+    }
+}
+
+// MARK: - Ornament rule (light variant for use on parchment cards)
+
+struct OrnamentRuleLight: View {
+    var body: some View {
+        HStack(spacing: 10) {
+            Rectangle().fill(DesignSystem.ColorToken.goldDeep.opacity(0.45)).frame(height: 0.6)
+            Text("✦").font(DesignSystem.FontToken.display(12)).foregroundStyle(DesignSystem.ColorToken.goldDeep.opacity(0.75))
+            Rectangle().fill(DesignSystem.ColorToken.goldDeep.opacity(0.45)).frame(height: 0.6)
+        }
     }
 }
 
 #Preview {
-    ShareCardView(
-        card: ShareCard(
-            format: .aura,
-            title: "The Violet Wanderer",
-            body: "A quiet hour. The hand has heard you.",
-            accentColor: "#A07A3A",
-            theme: .violet
-        ),
-        summary: "Heart, head, life, and fate — all in motion this season."
-    )
-    .frame(width: 360, height: 640)
-    .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
-    .padding()
-    .background(Color.black)
+    let sample = ShareCard(format: .aura,
+                            title: "The Open Door",
+                            body: "You're closer to the answer than you've been letting yourself believe.",
+                            accentColor: "gold",
+                            theme: .gold)
+    return ShareCardView(card: sample, summary: "Closer than you think.")
+        .frame(width: 220, height: 360)
+        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .shadow(color: .black.opacity(0.4), radius: 22, y: 12)
+        .padding()
+        .background(DesignSystem.ColorToken.skyDeep)
 }
