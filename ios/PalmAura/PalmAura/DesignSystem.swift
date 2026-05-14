@@ -313,7 +313,7 @@ struct OrbitLoader: View {
                 Circle().stroke(DesignSystem.ColorToken.goldCream.opacity(0.18), style: .init(lineWidth: 1, dash: [2,4])).frame(width: 140, height: 140)
                 Circle().stroke(DesignSystem.ColorToken.goldCream.opacity(0.14), style: .init(lineWidth: 1, dash: [2,4])).frame(width: 260, height: 260)
                 Circle().fill(RadialGradient(colors: [DesignSystem.ColorToken.goldCream.opacity(0.25), .clear], center: .center, startRadius: 0, endRadius: 55)).frame(width: 110, height: 110)
-                Image("PalmPlateGold").resizable().scaledToFit().frame(width: 74, height: 74).opacity(0.75)
+                Image("PalmPlate").resizable().scaledToFit().frame(width: 82, height: 82).opacity(0.72)
                 ForEach(0..<inner.count, id: \.self) { i in orbit(inner[i], t, 70) }
                 ForEach(0..<outer.count, id: \.self) { i in orbit(outer[i], t, 130) }
             }.frame(width: 320, height: 320)
@@ -331,7 +331,7 @@ struct InkLinesLoader: View {
         TimelineView(.animation) { ctx in
             let t = ctx.date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 4.0)
             ZStack {
-                Image("PalmPlateGold").resizable().scaledToFit().opacity(0.35)
+                Image("PalmPlate").resizable().scaledToFit().opacity(0.48)
                 inkPath(progress: progress(t, dur: 2.2, delay: 0.0)) { s in Path { p in p.move(to: CGPoint(x: 74, y: 194)); p.addQuadCurve(to: CGPoint(x: 217, y: 198), control: CGPoint(x: 148, y: 188)) }.applying(.init(scaleX: s.width/260, y: s.height/390)) }
                 inkPath(progress: progress(t, dur: 2.2, delay: 0.6)) { s in Path { p in p.move(to: CGPoint(x: 63, y: 211)); p.addQuadCurve(to: CGPoint(x: 211, y: 214), control: CGPoint(x: 148, y: 228)) }.applying(.init(scaleX: s.width/260, y: s.height/390)) }
                 inkPath(progress: progress(t, dur: 2.4, delay: 1.2)) { s in Path { p in p.move(to: CGPoint(x: 114, y: 188)); p.addQuadCurve(to: CGPoint(x: 125, y: 320), control: CGPoint(x: 76, y: 236)) }.applying(.init(scaleX: s.width/260, y: s.height/390)) }

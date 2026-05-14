@@ -197,11 +197,13 @@ private struct ConstellationPalm: View {
             let offsetY = (geo.size.height - viewBoxH * s) / 2
 
             ZStack {
-                // Ghosted palm
-                Image("PalmPlateGold")
+                // Transparent engraved palm plate. Use the detailed palmistry PNG here
+                // instead of the flat gold mask so the hero shows the actual hand artwork.
+                Image("PalmPlate")
                     .resizable()
                     .scaledToFit()
-                    .opacity(0.38)
+                    .opacity(0.68)
+                    .shadow(color: DesignSystem.ColorToken.goldCream.opacity(0.12), radius: 10, y: 4)
 
                 // Connector lines + stars
                 Canvas { ctx, size in
