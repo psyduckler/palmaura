@@ -1,185 +1,117 @@
 import SwiftUI
-import UIKit
 
-/// Sheet shown after a user taps a share card. Reskinned to the design system —
-/// dark engraved-night surface, gold buttons, ghost secondaries, no SF Symbols,
-/// no emoji in caption. Preserves the existing renderer, analytics, video
-/// fallback, and Instagram Stories integration unchanged.
 struct ShareOptionsSheet: View {
     let card: ShareCard
     let summary: String
     let bundle: ReadingBundle?
-
     @Environment(\.dismiss) private var dismiss
-    @State private var rendered: UIImage?
-    @State private var videoURL: URL?
-    @State private var shareItem: ShareItem?
-    @State private var isRenderingVideo = false
-
-    init(card: ShareCard, summary: String, bundle: ReadingBundle? = nil) {
-        self.card = card
-        self.summary = summary
-        self.bundle = bundle
-    }
+    @State private var showSystemShare = false
 
     var body: some View {
-        NavigationStack {
-            ZStack {
-                DarkScreenBackground()
+        ZStack {
+            DarkScreenBackground()
+            VStack(spacing: 18) {
+                handle
+                ScreenHeader(eyebrow: "Your Aura Card", moon: false)
+                    .padding(.horizontal, -DesignSystem.Spacing.lg)
 
-                VStack(spacing: 0) {
-                    ScreenHeader(eyebrow: "Share Your Card", back: true) {
-                        dismiss()
-                    }
+                Text("Tap and hold to save · swipe to share")
+                    .font(DesignSystem.FontToken.body(13, italic: true))
+                    .foregroundStyle(DesignSystem.ColorToken.textSecondary)
 
-                    ScrollView(showsIndicators: false) {
-                        VStack(spacing: 22) {
-                            cardPreview
-                                .padding(.top, 4)
+                ShareCardView(card: card, summary: summary)
+                    .aspectRatio(0.6, contentMode: .fit)
+                    .frame(maxHeight: 460)
+                    .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                    .shadow(color: .black.opacity(0.5), radius: 28, y: 14)
+                    .padding(.horizontal, 36)
 
-                            actions
-                                .padding(.horizontal, 4)
-                        }
-                        .padding(.horizontal, DesignSystem.Spacing.lg)
-                        .padding(.bottom, 36)
-                    }
+                Spacer(minLength: 12)
+
+                HStack(spacing: 10) {
+                    actionButton(glyph: "↓", title: "Save",   action: saveToLibrary)
+                    actionButton(glyph: "✉", title: "Message", action: { showSystemShare = true })
+                    primaryShareButton
                 }
-            }
-            .navigationBarBackButtonHidden(true)
-        }
-        .task {
-            let renderer = ShareCardRenderer()
-            if card.format == .palmMap, let bundle {
-                rendered = await renderer.renderPalmMapImage(bundle: bundle, title: card.title, summary: summary)
-            } else {
-                rendered = await renderer.renderImage(card: card, oneLineSummary: summary)
-            }
-        }
-        .sheet(item: $shareItem) { item in ActivityView(items: item.items) }
-    }
+                .padding(.horizontal, DesignSystem.Spacing.lg)
 
-    // MARK: - Preview
-
-    @ViewBuilder
-    private var cardPreview: some View {
-        if let rendered {
-            Image(uiImage: rendered)
-                .resizable()
-                .scaledToFit()
-                .frame(maxHeight: 460)
-                .clipShape(RoundedRectangle(cornerRadius: DesignSystem.Radius.cardLg, style: .continuous))
-                .overlay(
-                    RoundedRectangle(cornerRadius: DesignSystem.Radius.cardLg, style: .continuous)
-                        .stroke(DesignSystem.ColorToken.goldCream.opacity(0.32), lineWidth: 1)
-                )
-                .shadow(color: .black.opacity(0.45), radius: 32, y: 18)
-        } else {
-            RoundedRectangle(cornerRadius: DesignSystem.Radius.cardLg, style: .continuous)
-                .fill(DesignSystem.ColorToken.surfaceSoft)
-                .frame(maxHeight: 460)
-                .overlay(
-                    VStack(spacing: 14) {
-                        Text("Drawing your card …")
-                            .font(DesignSystem.FontToken.body(15, italic: true))
-                            .foregroundStyle(DesignSystem.ColorToken.textSecondary)
-                        ProgressView()
-                            .tint(DesignSystem.ColorToken.goldCream)
-                    }
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: DesignSystem.Radius.cardLg, style: .continuous)
-                        .stroke(DesignSystem.ColorToken.goldCream.opacity(0.2), lineWidth: 1)
-                )
+                Button("Close") { dismiss() }
+                    .font(DesignSystem.FontToken.caps(9))
+                    .tracking(2.5)
+                    .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.6))
+                    .padding(.bottom, 24)
+            }
+            .padding(.top, 8)
+        }
+        .sheet(isPresented: $showSystemShare) {
+            ShareSheet(items: [renderCard(), card.body.isEmpty ? summary : card.body])
         }
     }
 
-    // MARK: - Actions
-
-    private var actions: some View {
-        VStack(spacing: 10) {
-            GoldButton(title: isRenderingVideo ? "RENDERING VIDEO  ·  ·  ·" : "SHARE  ANIMATED  VIDEO  ›") {
-                shareVideoPrimary()
-            }
-            .opacity(rendered == nil || isRenderingVideo ? 0.45 : 1)
-            .disabled(rendered == nil || isRenderingVideo)
-
-            GhostButton(title: "Save Still to Camera Roll") { save() }
-                .opacity(rendered == nil ? 0.45 : 1)
-                .disabled(rendered == nil)
-
-            GhostButton(title: "Share to Instagram Stories") { shareInstagram() }
-                .opacity(rendered == nil ? 0.45 : 1)
-                .disabled(rendered == nil)
-
-            GhostButton(title: "More Sharing Options") {
-                if let rendered { shareItem = ShareItem(items: stillShareItems(image: rendered)) }
-            }
-            .opacity(rendered == nil ? 0.45 : 1)
-            .disabled(rendered == nil)
-        }
+    private var handle: some View {
+        Capsule()
+            .fill(DesignSystem.ColorToken.goldCream.opacity(0.25))
+            .frame(width: 40, height: 4)
+            .padding(.bottom, 6)
     }
 
-    // MARK: - Side effects (preserved from prior implementation)
-
-    private func shareVideoPrimary() {
-        if let videoURL {
-            shareItem = ShareItem(items: videoShareItems(url: videoURL))
-            return
-        }
-
-        guard let rendered else { return }
-        isRenderingVideo = true
-        Task {
-            do {
-                let url = try await ShareVideoRenderer().renderVideo(from: rendered)
-                await MainActor.run {
-                    videoURL = url
-                    shareItem = ShareItem(items: videoShareItems(url: url))
-                    Analytics.shared.track("share_video_rendered", properties: ["channel": "activity_sheet"])
-                }
-            } catch {
-                await MainActor.run {
-                    shareItem = ShareItem(items: stillShareItems(image: rendered))
-                    Analytics.shared.track("share_video_fallback", properties: ["reason": String(describing: error)])
-                }
+    private func actionButton(glyph: String, title: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 8) {
+                Text(glyph).font(DesignSystem.FontToken.display(15))
+                Text(title)
+                    .font(DesignSystem.FontToken.caps(10))
+                    .tracking(3)
+                    .textCase(.uppercase)
             }
-            await MainActor.run { isRenderingVideo = false }
+            .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.86))
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 12)
+            .overlay(Capsule().stroke(DesignSystem.ColorToken.goldCream.opacity(0.35), lineWidth: 1))
         }
+        .buttonStyle(.plain)
     }
 
-    private func save() {
-        guard let rendered else { return }
-        UIImageWriteToSavedPhotosAlbum(rendered, nil, nil, nil)
-        Analytics.shared.track("share_completed", properties: ["channel": "camera_roll"])
+    private var primaryShareButton: some View {
+        Button {
+            showSystemShare = true
+            Analytics.shared.track("share_card_share_tapped", properties: ["format": card.format.rawValue])
+        } label: {
+            HStack(spacing: 8) {
+                Text("↗").font(DesignSystem.FontToken.display(15))
+                Text("Share  ›")
+                    .font(DesignSystem.FontToken.caps(11))
+                    .tracking(4)
+                    .textCase(.uppercase)
+            }
+            .foregroundStyle(DesignSystem.ColorToken.skyDeep)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 14)
+            .background(Capsule().fill(DesignSystem.ColorToken.goldCream.opacity(0.94)))
+            .shadow(color: DesignSystem.ColorToken.goldCream.opacity(0.28), radius: 15)
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func saveToLibrary() {
+        let image = renderCard()
+        UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
+        Analytics.shared.track("share_card_saved", properties: ["format": card.format.rawValue])
         UINotificationFeedbackGenerator().notificationOccurred(.success)
     }
 
-    private func shareInstagram() {
-        guard let rendered else { return }
-        if InstagramStorySharer.share(image: rendered) {
-            Analytics.shared.track("share_completed", properties: ["channel": "instagram_stories"])
-            dismiss()
-        } else {
-            shareItem = ShareItem(items: stillShareItems(image: rendered))
-        }
-    }
-
-    private func stillShareItems(image: UIImage) -> [Any] { [image, shareCaption] }
-    private func videoShareItems(url: URL) -> [Any] { [url, shareCaption] }
-
-    /// Caption: replaced the previous `✨` emoji with the engraved `✦` glyph
-    /// so social posts read on-brand. Hashtags preserved.
-    private var shareCaption: String {
-        "\(summary)\n\n✦  Read your palm at \(BrandConfig.domain)\n#palmreading #aura #mystic #fyp"
+    private func renderCard() -> UIImage {
+        let renderer = ImageRenderer(content:
+            ShareCardView(card: card, summary: summary)
+                .frame(width: 1080, height: 1620)
+        )
+        renderer.scale = 1
+        return renderer.uiImage ?? UIImage()
     }
 }
 
-struct ShareItem: Identifiable {
-    let id = UUID()
-    let items: [Any]
-}
-
-struct ActivityView: UIViewControllerRepresentable {
+/// Thin wrapper around `UIActivityViewController` for SwiftUI.
+struct ShareSheet: UIViewControllerRepresentable {
     let items: [Any]
     func makeUIViewController(context: Context) -> UIActivityViewController {
         UIActivityViewController(activityItems: items, applicationActivities: nil)

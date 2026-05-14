@@ -22,6 +22,7 @@
 		3CD97D1741E5D321363AFF36 /* ShareCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D400ADEFA4588D8827BBF27 /* ShareCardView.swift */; };
 		3D45B7B1F05F43D3E108A302 /* PalmCaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DDCED82A71521A213F06E6 /* PalmCaptureView.swift */; };
 		41CEBCA976CE95ECF50C237A /* ReadingResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A41B56D51D9821A8B4B23968 /* ReadingResultView.swift */; };
+		54991A7A5353D816A69D7DEA /* AppOpeningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1953DFB6C4E9688173108D85 /* AppOpeningView.swift */; };
 		58AEBFB6B73A5463441B644B /* ReadingBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = A861D489AE5C296722AFCB36 /* ReadingBundle.swift */; };
 		674273DBEEC0A3FA777615B3 /* PalmReadingResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07C6DA2991F59AA384A35613 /* PalmReadingResponse.swift */; };
 		6C313972967FFBB35306AEFF /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF5C572506FA73A211D1CA8 /* AppConfig.swift */; };
@@ -75,6 +76,7 @@
 		0AD44802780D3C2497A7ED7F /* CormorantGaramond-Italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "CormorantGaramond-Italic.ttf"; sourceTree = "<group>"; };
 		10F10588D6E3349643B6DF68 /* PalmPhotoStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PalmPhotoStore.swift; sourceTree = "<group>"; };
 		1720F2B3C55DB463CFA88037 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		1953DFB6C4E9688173108D85 /* AppOpeningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppOpeningView.swift; sourceTree = "<group>"; };
 		1C5F47F16EFFADB47F8F39B7 /* DisclaimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisclaimerView.swift; sourceTree = "<group>"; };
 		1ED5622021E51E67B67E3F19 /* PalmLineSetStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PalmLineSetStore.swift; sourceTree = "<group>"; };
 		21401A4B8D5A2FA34B980923 /* InstagramStorySharer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstagramStorySharer.swift; sourceTree = "<group>"; };
@@ -160,6 +162,7 @@
 		8149F5811E847A0BEBE7A21C /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				1953DFB6C4E9688173108D85 /* AppOpeningView.swift */,
 				1C5F47F16EFFADB47F8F39B7 /* DisclaimerView.swift */,
 				FF35F9B0A99171A580772659 /* HomeView.swift */,
 				D79B762F892E4853A54A9DE0 /* LoadingReadingView.swift */,
@@ -373,6 +376,7 @@
 			files = (
 				07A83962107C25616D3BE37E /* Analytics.swift in Sources */,
 				6C313972967FFBB35306AEFF /* AppConfig.swift in Sources */,
+				54991A7A5353D816A69D7DEA /* AppOpeningView.swift in Sources */,
 				E96415D53D66F337A7166AFF /* BrandConfig.swift in Sources */,
 				C5B48FF9F16B66259B700778 /* DesignSystem.swift in Sources */,
 				8344956A9658C9F4485A03BF /* DeviceID.swift in Sources */,

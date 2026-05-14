@@ -1,11 +1,23 @@
 import SwiftUI
 
+/// Top-level navigation gate.
+///
+/// Flow:
+///   1. `AppOpeningView` plays the 3.2s splash (OrbitLoader + cycling salutations).
+///   2. If the user hasn't accepted the entertainment disclaimer yet, show it.
+///   3. Otherwise drop into `HomeView`.
+///
+/// `showOpening` is local state — the splash plays once per process launch, not
+/// once per install — matches the design canvas behavior.
 struct RootView: View {
     @AppStorage("disclaimerAccepted") private var disclaimerAccepted = false
+    @State private var showOpening = true
 
     var body: some View {
         NavigationStack {
-            if disclaimerAccepted {
+            if showOpening {
+                AppOpeningView { showOpening = false }
+            } else if disclaimerAccepted {
                 HomeView()
             } else {
                 DisclaimerView()

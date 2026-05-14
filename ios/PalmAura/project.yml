@@ -30,6 +30,7 @@ targets:
           - UIInterfaceOrientationPortrait
         NSCameraUsageDescription: PalmAura uses your camera to capture your palm for an entertainment-only reading.
         NSPhotoLibraryUsageDescription: PalmAura uses your photo library to choose a palm photo for an entertainment-only reading.
+        NSPhotoLibraryAddUsageDescription: PalmAura saves your share card to your photo library when you tap Save.
         LSApplicationQueriesSchemes:
           - instagram-stories
         UIAppFonts:
