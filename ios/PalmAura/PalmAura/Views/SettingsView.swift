@@ -1,292 +1,229 @@
 import SwiftUI
 
-/// Settings — reskinned to the same vintage-engraving design system as the rest
-/// of the app. Preserves every existing destructive action and navigation
-/// destination from the previous List-based implementation. Destructive actions
-/// now confirm via .alert(...) before firing.
 struct SettingsView: View {
-    @State private var lastReading = LastReadingStore.load()
-    @State private var savedPalmPhotoCount = PalmPhotoStore.count
-    @State private var savedPersonalization = PersonalizationStore.load()
-
-    @State private var pendingAction: PendingAction?
+    @AppStorage("disclaimerAccepted") private var disclaimerAccepted = true
+    @State private var personalization = PersonalizationStore.load() ?? ReadingPersonalization()
+    @State private var lunarRemindersOn = true
+    @State private var showResetAlert = false
 
     var body: some View {
         ZStack {
             DarkScreenBackground()
-            VStack(spacing: 0) {
-                ScreenHeader(eyebrow: "Settings", back: true)
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: 18) {
-                        if let lastReading {
-                            let bundle = ReadingBundle.restore(reading: lastReading)
-                            lastReadingPanel(reading: lastReading, bundle: bundle)
-                        }
-                        profilePanel
-                        photosPanel
-                        privacyPanel
-                        aboutPanel
-                        DisclaimerFoot()
-                            .padding(.top, 8)
+            ScrollView {
+                VStack(spacing: 22) {
+                    ScreenHeader(eyebrow: "Settings", moon: false, back: true)
+                        .padding(.horizontal, -DesignSystem.Spacing.lg)
+
+                    profileCard
+                    section(title: "READING") {
+                        row(glyph: "☉", label: "Oracle voice",        detail: voiceDetail)
+                        row(glyph: "♀", label: "Default focus",       detail: focusDetail)
+                        toggleRow(glyph: "☽", label: "Lunar reminders", isOn: $lunarRemindersOn)
                     }
-                    .padding(.horizontal, DesignSystem.Spacing.lg)
-                    .padding(.top, 6)
-                    .padding(.bottom, 30)
+                    section(title: "PERSONALIZATION") {
+                        row(glyph: "♃", label: "Birthday",       detail: birthdayDetail)
+                        row(glyph: "✦", label: "Energy",         detail: personalization.gender?.displayName ?? "Not set")
+                        row(glyph: "☉", label: "Dominant hand",  detail: personalization.handedness?.displayName ?? "Not set")
+                    }
+                    section(title: "KEEPSAKES") {
+                        navRow(glyph: "✦", label: "Library of readings") { /* TODO: ReadingsLibraryView */ }
+                        navRow(glyph: "↗", label: "Share defaults") { /* TODO */ }
+                    }
+                    section(title: "ACCOUNT") {
+                        row(glyph: "♃", label: "Membership", detail: "Lifetime")
+                        linkRow(glyph: "✉", label: "Support", url: URL(string: "mailto:support@palmaura.app")!)
+                        linkRow(glyph: "♄", label: "Privacy & terms", url: URL(string: "https://palmaura.app/privacy.html")!)
+                    }
+
+                    aboutCard
                 }
+                .padding(DesignSystem.Spacing.lg)
             }
         }
         .navigationBarBackButtonHidden(true)
-        .alert(item: $pendingAction) { action in
-            Alert(
-                title: Text(action.title),
-                message: Text(action.message),
-                primaryButton: .destructive(Text(action.confirmTitle)) { action.run(); refreshAll() },
-                secondaryButton: .cancel()
-            )
-        }
-        .onAppear { refreshAll() }
-    }
-
-    // MARK: - Panels
-
-    private func lastReadingPanel(reading: PalmReadingResponse, bundle: ReadingBundle) -> some View {
-        ParchmentPanel {
-            VStack(alignment: .leading, spacing: 12) {
-                sectionHeader("YOUR LAST READING")
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(reading.title)
-                        .font(DesignSystem.FontToken.display(24))
-                        .foregroundStyle(DesignSystem.ColorToken.textPrimary)
-                    Text(reading.oneLineSummary)
-                        .font(DesignSystem.FontToken.body(14, italic: true))
-                        .foregroundStyle(DesignSystem.ColorToken.textSecondary)
-                        .lineLimit(2)
-                }
-
-                VStack(spacing: 8) {
-                    NavigationLink {
-                        ReadingResultView(bundle: bundle)
-                    } label: {
-                        navRow(title: "Open Full Report")
-                    }.buttonStyle(.plain)
-
-                    if bundle.hasPhoto {
-                        NavigationLink {
-                            PalmMapView(bundle: bundle)
-                        } label: {
-                            navRow(title: "Open Palm Map")
-                        }.buttonStyle(.plain)
-                    }
-
-                    Button {
-                        pendingAction = .clearLastReading
-                    } label: {
-                        navRow(title: "Clear Last Reading", destructive: true)
-                    }.buttonStyle(.plain)
-                }
+        .alert("Reset all personalization?", isPresented: $showResetAlert) {
+            Button("Cancel", role: .cancel) {}
+            Button("Reset", role: .destructive) {
+                PersonalizationStore.clear()
+                personalization = ReadingPersonalization()
             }
+        } message: {
+            Text("Your birthday, energy, and dominant hand will be cleared. The app will ask again on your next reading.")
         }
     }
 
-    private var profilePanel: some View {
-        ParchmentPanel {
-            VStack(alignment: .leading, spacing: 12) {
-                sectionHeader("YOUR PROFILE")
-                if let savedPersonalization, savedPersonalization.isCompleteProfile {
-                    VStack(alignment: .leading, spacing: 6) {
-                        ForEach(profileLines(savedPersonalization), id: \.self) { line in
-                            HStack(alignment: .top, spacing: 8) {
-                                Text("✦")
-                                    .font(DesignSystem.FontToken.display(11))
-                                    .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.55))
-                                Text(line)
-                                    .font(DesignSystem.FontToken.body(14))
-                                    .foregroundStyle(DesignSystem.ColorToken.textSecondary)
-                            }
-                        }
-                    }
-                    Button { pendingAction = .clearProfile } label: {
-                        navRow(title: "Clear Saved Profile", destructive: true)
-                    }.buttonStyle(.plain)
-                } else {
-                    Text("Your profile will be remembered after your first reading.")
-                        .font(DesignSystem.FontToken.body(14, italic: true))
-                        .foregroundStyle(DesignSystem.ColorToken.textSecondary)
-                }
+    // MARK: - Profile card
+
+    private var profileCard: some View {
+        HStack(spacing: 14) {
+            ZStack {
+                Circle().fill(RadialGradient(
+                    colors: [DesignSystem.ColorToken.goldCreamSoft, DesignSystem.ColorToken.gold],
+                    center: .topLeading, startRadius: 5, endRadius: 56))
+                Text(initialChar)
+                    .font(DesignSystem.FontToken.display(26))
+                    .foregroundStyle(DesignSystem.ColorToken.skyDeep)
             }
-        }
-    }
+            .frame(width: 56, height: 56)
+            .shadow(color: DesignSystem.ColorToken.goldCream.opacity(0.4), radius: 18)
 
-    private var photosPanel: some View {
-        ParchmentPanel {
-            VStack(alignment: .leading, spacing: 12) {
-                sectionHeader("SAVED PALM PHOTOS")
-                HStack {
-                    Text("On this device")
-                        .font(DesignSystem.FontToken.body(14))
-                        .foregroundStyle(DesignSystem.ColorToken.textSecondary)
-                    Spacer()
-                    Text("\(savedPalmPhotoCount)")
-                        .font(DesignSystem.FontToken.display(20))
-                        .foregroundStyle(DesignSystem.ColorToken.goldCream)
-                }
-                if savedPalmPhotoCount > 0 {
-                    Button { pendingAction = .deletePhotos } label: {
-                        navRow(title: "Delete Saved Photos", destructive: true)
-                    }.buttonStyle(.plain)
-                }
-            }
-        }
-    }
-
-    private var privacyPanel: some View {
-        ParchmentPanel {
-            VStack(alignment: .leading, spacing: 12) {
-                sectionHeader("PRIVACY")
-                Text("PalmAura sends your palm image only for the reading request. Saved palm photos stay on this device for reveal, palm-map browsing, and sharing.")
-                    .font(DesignSystem.FontToken.body(13))
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Seeker")
+                    .font(DesignSystem.FontToken.display(22))
+                    .foregroundStyle(DesignSystem.ColorToken.textPrimary)
+                Text(profileSubtitle)
+                    .font(DesignSystem.FontToken.body(13, italic: true))
                     .foregroundStyle(DesignSystem.ColorToken.textSecondary)
-                    .lineSpacing(2)
-                Text("Your one-time profile — birthday, gender, and dominant hand — is stored on this device and sent with reading requests for context. Free-form questions are not collected or saved.")
-                    .font(DesignSystem.FontToken.body(13))
-                    .foregroundStyle(DesignSystem.ColorToken.textSecondary)
-                    .lineSpacing(2)
-
-                VStack(spacing: 6) {
-                    Link(destination: URL(string: "\(BrandConfig.websiteURL)/privacy.html")!) {
-                        navRow(title: "Privacy Policy", trailing: "↗")
-                    }
-                    Link(destination: URL(string: "\(BrandConfig.websiteURL)/terms.html")!) {
-                        navRow(title: "Terms of Use", trailing: "↗")
-                    }
-                }
             }
+            Spacer(minLength: 0)
         }
-    }
-
-    private var aboutPanel: some View {
-        ParchmentPanel {
-            VStack(alignment: .leading, spacing: 10) {
-                sectionHeader("ABOUT")
-                HStack {
-                    Text("Version")
-                        .font(DesignSystem.FontToken.body(14))
-                        .foregroundStyle(DesignSystem.ColorToken.textSecondary)
-                    Spacer()
-                    Text(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.1.0")
-                        .font(DesignSystem.FontToken.body(14))
-                        .foregroundStyle(DesignSystem.ColorToken.goldCream)
-                }
-                Text(BrandConfig.entertainmentDisclaimer)
-                    .font(DesignSystem.FontToken.body(12, italic: true))
-                    .foregroundStyle(DesignSystem.ColorToken.textTertiary)
-                    .lineSpacing(2)
-            }
-        }
-    }
-
-    // MARK: - Building blocks
-
-    private func sectionHeader(_ text: String) -> some View {
-        Text(text)
-            .font(DesignSystem.FontToken.caps(9))
-            .tracking(DesignSystem.Tracking.caps)
-            .foregroundStyle(DesignSystem.ColorToken.textTertiary)
-    }
-
-    private func navRow(title: String, trailing: String = "›", destructive: Bool = false) -> some View {
-        HStack {
-            Text(title)
-                .font(DesignSystem.FontToken.caps(10))
-                .tracking(3)
-                .textCase(.uppercase)
-                .foregroundStyle(destructive
-                    ? DesignSystem.ColorToken.goldCream.opacity(0.55)
-                    : DesignSystem.ColorToken.goldCream.opacity(0.86))
-            Spacer()
-            Text(trailing)
-                .font(DesignSystem.FontToken.display(15))
-                .foregroundStyle(destructive
-                    ? DesignSystem.ColorToken.goldCream.opacity(0.45)
-                    : DesignSystem.ColorToken.goldCream.opacity(0.7))
-        }
-        .padding(.vertical, 10)
-        .padding(.horizontal, 12)
+        .padding(18)
+        .background(DesignSystem.ColorToken.goldCream.opacity(0.08))
         .overlay(
-            Capsule().stroke(
-                destructive
-                    ? DesignSystem.ColorToken.goldCream.opacity(0.20)
-                    : DesignSystem.ColorToken.goldCream.opacity(0.32),
-                lineWidth: 1
-            )
+            RoundedRectangle(cornerRadius: DesignSystem.Radius.cardLg, style: .continuous)
+                .stroke(DesignSystem.ColorToken.goldCream.opacity(0.28), lineWidth: 1)
         )
+        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.Radius.cardLg, style: .continuous))
     }
 
-    // MARK: - Data
+    // MARK: - About card
 
-    private func profileLines(_ p: ReadingPersonalization) -> [String] {
-        var parts: [String] = []
-        if let birthDate = p.birthDate {
-            let month = Calendar.current.monthSymbols[max(0, min(11, birthDate.month - 1))]
-            parts.append("Birthday: \(month) \(birthDate.day), \(birthDate.year)")
+    private var aboutCard: some View {
+        VStack(spacing: 12) {
+            OrnamentRule()
+            Text(BrandConfig.entertainmentDisclaimer)
+                .font(DesignSystem.FontToken.body(13, italic: true))
+                .foregroundStyle(DesignSystem.ColorToken.textSecondary)
+                .multilineTextAlignment(.center)
+                .lineSpacing(3)
+            Button(role: .destructive) {
+                showResetAlert = true
+            } label: {
+                Text("Reset Personalization")
+                    .font(DesignSystem.FontToken.caps(9))
+                    .tracking(2.5)
+                    .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.7))
+            }
+            .padding(.top, 6)
+            Text(versionString)
+                .font(DesignSystem.FontToken.caps(8))
+                .tracking(3)
+                .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.45))
         }
-        if let gender = p.gender { parts.append("Gender: \(gender.displayName)") }
-        if let handedness = p.handedness { parts.append("Dominant hand: \(handedness.displayName)") }
-        return parts.isEmpty ? ["No saved personalization"] : parts
+        .padding(18)
+        .background(DesignSystem.ColorToken.goldCream.opacity(0.045))
+        .overlay(
+            RoundedRectangle(cornerRadius: DesignSystem.Radius.cardLg, style: .continuous)
+                .stroke(DesignSystem.ColorToken.goldCream.opacity(0.18), lineWidth: 0.5)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.Radius.cardLg, style: .continuous))
     }
 
-    private func refreshAll() {
-        lastReading = LastReadingStore.load()
-        savedPalmPhotoCount = PalmPhotoStore.count
-        savedPersonalization = PersonalizationStore.load()
-    }
-}
+    // MARK: - Section primitive
 
-// MARK: - Pending destructive actions
-
-private enum PendingAction: Identifiable {
-    case clearLastReading
-    case clearProfile
-    case deletePhotos
-
-    var id: String {
-        switch self {
-        case .clearLastReading: return "clearLastReading"
-        case .clearProfile: return "clearProfile"
-        case .deletePhotos: return "deletePhotos"
+    @ViewBuilder
+    private func section<Content: View>(title: String, @ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack(spacing: 10) {
+                Text("·").font(DesignSystem.FontToken.caps(11)).foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.6))
+                Text(title)
+                    .font(DesignSystem.FontToken.caps(9))
+                    .tracking(DesignSystem.Tracking.caps)
+                    .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.65))
+                Text("·").font(DesignSystem.FontToken.caps(11)).foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.6))
+            }
+            .padding(.leading, 4)
+            VStack(spacing: 0) { content() }
+                .background(DesignSystem.ColorToken.goldCream.opacity(0.045))
+                .overlay(
+                    RoundedRectangle(cornerRadius: DesignSystem.Radius.cardLg, style: .continuous)
+                        .stroke(DesignSystem.ColorToken.goldCream.opacity(0.16), lineWidth: 0.5)
+                )
+                .clipShape(RoundedRectangle(cornerRadius: DesignSystem.Radius.cardLg, style: .continuous))
         }
     }
 
-    var title: String {
-        switch self {
-        case .clearLastReading: return "Clear last reading?"
-        case .clearProfile: return "Clear saved profile?"
-        case .deletePhotos: return "Delete saved palm photos?"
+    // MARK: - Rows
+
+    private func row(glyph: String, label: String, detail: String) -> some View {
+        rowChrome(glyph: glyph) {
+            Text(label).font(DesignSystem.FontToken.display(16)).foregroundStyle(DesignSystem.ColorToken.textPrimary)
+            Spacer()
+            Text(detail).font(DesignSystem.FontToken.body(13, italic: true)).foregroundStyle(DesignSystem.ColorToken.textSecondary)
+            chevron
         }
     }
 
-    var message: String {
-        switch self {
-        case .clearLastReading: return "This removes your stored reading from this device. You can always get a new one."
-        case .clearProfile: return "This removes your birthday, gender, and dominant hand from this device. You'll be asked again for your next reading."
-        case .deletePhotos: return "Saved palm photos on this device will be permanently removed."
+    private func navRow(glyph: String, label: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            rowChrome(glyph: glyph) {
+                Text(label).font(DesignSystem.FontToken.display(16)).foregroundStyle(DesignSystem.ColorToken.textPrimary)
+                Spacer()
+                chevron
+            }
+        }.buttonStyle(.plain)
+    }
+
+    private func linkRow(glyph: String, label: String, url: URL) -> some View {
+        Link(destination: url) {
+            rowChrome(glyph: glyph) {
+                Text(label).font(DesignSystem.FontToken.display(16)).foregroundStyle(DesignSystem.ColorToken.textPrimary)
+                Spacer()
+                chevron
+            }
         }
     }
 
-    var confirmTitle: String {
-        switch self {
-        case .clearLastReading: return "Clear Reading"
-        case .clearProfile: return "Clear Profile"
-        case .deletePhotos: return "Delete Photos"
+    private func toggleRow(glyph: String, label: String, isOn: Binding<Bool>) -> some View {
+        rowChrome(glyph: glyph) {
+            Text(label).font(DesignSystem.FontToken.display(16)).foregroundStyle(DesignSystem.ColorToken.textPrimary)
+            Spacer()
+            Toggle("", isOn: isOn).labelsHidden().tint(DesignSystem.ColorToken.goldCream)
         }
     }
 
-    func run() {
-        switch self {
-        case .clearLastReading: LastReadingStore.clear()
-        case .clearProfile: PersonalizationStore.clear()
-        case .deletePhotos: PalmPhotoStore.clearAll()
+    @ViewBuilder
+    private func rowChrome<Content: View>(glyph: String, @ViewBuilder content: () -> Content) -> some View {
+        HStack(spacing: 12) {
+            GlyphCircle(glyph: glyph, size: 30)
+            content()
         }
+        .padding(.vertical, 12)
+        .padding(.horizontal, 14)
+        .overlay(Divider().background(DesignSystem.ColorToken.goldCream.opacity(0.1)), alignment: .bottom)
+    }
+
+    private var chevron: some View {
+        Text("›")
+            .font(DesignSystem.FontToken.display(18))
+            .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.55))
+    }
+
+    // MARK: - Derived
+
+    private var initialChar: String { "✦" }
+
+    private var profileSubtitle: String {
+        let readingsCount = LastReadingStore.load() != nil ? "1 reading" : "0 readings"
+        let lean = personalization.gender?.displayName ?? "—"
+        return "\(readingsCount) · \(lean) energy"
+    }
+
+    private var voiceDetail: String { "Mysterious" }
+    private var focusDetail: String { "Love" }
+
+    private var birthdayDetail: String {
+        guard let d = personalization.birthDate else { return "Not set" }
+        let formatter = DateFormatter()
+        formatter.dateFormat = "d MMM"
+        var components = DateComponents(year: d.year, month: d.month, day: d.day)
+        let date = Calendar.current.date(from: components) ?? Date()
+        return "\(formatter.string(from: date)), \(d.year)"
+    }
+
+    private var versionString: String {
+        let v = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
+        return "PALMAURA · MMXXVI · v\(v)"
     }
 }
 
