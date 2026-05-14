@@ -4,13 +4,13 @@
 
 **Goal:** Ship a native SwiftUI iOS palm-reading app prototype that lets a user scan/upload a palm photo, answer 3 low-friction ritual questions, receive an entertainment-only mystical reading, and share beautiful 9:16 cards to Instagram/TikTok.
 
-**Name posture:** `PalmAura` is a placeholder. All app naming, domain, watermark, and copy must be centralized so it is easy to swap later.
+**Name posture:** `PalmAura` is the committed app name. Keep app naming, domain, watermark, and copy centralized so the brand is consistent everywhere.
 
 **Default assumptions approved unless changed:**
 
-- App placeholder name: `PalmAura`
-- Domain placeholder: `https://palmaura.app`
-- Share watermark placeholder: `@PalmAuraApp`
+- App name: `PalmAura`
+- Domain: `https://palmaura.app`
+- Share watermark: `@PalmAuraApp`
 - iOS only, native SwiftUI
 - Cloudflare Worker backend, single API endpoint
 - Anthropic multimodal model first, model name configured via env var
@@ -169,7 +169,7 @@ palm-aura/
 
 ## Centralized Brand Configuration
 
-All placeholder naming must be centralized.
+All brand naming must be centralized and consistently use PalmAura.
 
 ### iOS: `BrandConfig.swift`
 
@@ -193,7 +193,7 @@ PUBLIC_APP_DOMAIN=palmaura.app
 PUBLIC_SOCIAL_HANDLE=@PalmAuraApp
 ```
 
-### Landing page placeholders
+### Landing page brand constants
 
 Use simple top-level constants at the top of each static HTML file or a tiny build-time replacement script if desired. Do not hardcode scattered names throughout multiple files.
 
