@@ -26,7 +26,7 @@ struct LoadingReadingView: View {
 
     var body: some View {
         ZStack {
-            MysticalBackground()
+            DarkScreenBackground()
             VStack(spacing: 28) {
                 InkLinesLoader()
                     .frame(width: 230, height: 330)
@@ -36,8 +36,13 @@ struct LoadingReadingView: View {
                     .multilineTextAlignment(.center)
                     .contentTransition(.opacity)
                 if let currentErrorMessage = errorMessage {
-                    Text(currentErrorMessage).foregroundStyle(DesignSystem.ColorToken.solarGold).multilineTextAlignment(.center)
-                    Button("Try again") { errorMessage = nil; Task { await generate() } }.buttonStyle(.borderedProminent)
+                    Text(currentErrorMessage)
+                        .font(DesignSystem.FontToken.body(15, italic: true))
+                        .foregroundStyle(DesignSystem.ColorToken.goldCream)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, DesignSystem.Spacing.lg)
+                    GoldButton(title: "Try Again  ›") { errorMessage = nil; Task { await generate() } }
+                        .padding(.horizontal, DesignSystem.Spacing.lg)
                 }
             }
             .padding(24)

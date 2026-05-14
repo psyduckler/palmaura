@@ -25,7 +25,7 @@ final class ReadingAPIClient {
         let (data, response) = try await URLSession.shared.data(for: urlRequest)
         guard let http = response as? HTTPURLResponse else { throw ReadingError.invalidResponse }
         if http.statusCode == 429 {
-            let message = (try? JSONDecoder().decode(APIErrorResponse.self, from: data).message) ?? "You've used your free readings today. Come back tomorrow ✨"
+            let message = (try? JSONDecoder().decode(APIErrorResponse.self, from: data).message) ?? "You've used your free readings today. Come back tomorrow."
             throw ReadingError.rateLimited(message)
         }
         guard 200..<300 ~= http.statusCode else {

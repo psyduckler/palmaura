@@ -128,7 +128,7 @@ private struct PalmLinesShape: Shape {
 
 #Preview {
     ZStack {
-        MysticalBackground()
+        DarkScreenBackground()
         VStack(spacing: 24) {
             PalmAuraMark(style: .capture, size: 120)
             PalmAuraMark(style: .loading(ignitionProgress: 0.56), size: 100)
