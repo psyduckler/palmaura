@@ -13,6 +13,28 @@ export interface Env {
 const Focus = z.enum(['love', 'career', 'self', 'purpose', 'general']);
 const LifeSeason = z.enum(['new_beginning', 'big_decision', 'healing', 'building_momentum', 'feeling_stuck', 'unknown']);
 const ReadingStyle = z.enum(['gentle', 'direct', 'mysterious', 'deep_spiritual']);
+const Handedness = z.enum(['left', 'right', 'ambidextrous']);
+const ScannedHand = z.enum(['left', 'right']);
+const Gender = z.enum(['woman', 'man', 'non_binary', 'prefer_not_to_say']);
+const BirthDateContextSchema = z.object({
+  month: z.number().int().min(1).max(12),
+  day: z.number().int().min(1).max(31),
+  // Do not compute this with `new Date()` at module/schema creation time.
+  // Cloudflare's Worker bundling/runtime can evaluate module-scope dates as the
+  // Unix epoch, which turned the max into 1970 and rejected valid birthdays.
+  // The iOS client constrains this to the current year; the backend derives no
+  // age for implausible future years, but accepts the request instead of making
+  // the reading flow fail with "Invalid request.".
+  year: z.number().int().min(1900).max(2100),
+}).refine((value) => isValidBirthDate(value.month, value.day, value.year), { message: 'Invalid birth date' });
+const ReadingPersonalizationSchema = z.object({
+  gender: Gender.optional(),
+  handedness: Handedness.optional(),
+  scannedHand: ScannedHand.optional(),
+  birthDate: BirthDateContextSchema.optional(),
+  // Accepted for older clients, intentionally ignored by prompt construction.
+  question: z.string().trim().max(200).optional(),
+});
 
 const RequestSchema = z.object({
   clientRequestId: z.string().uuid(),
@@ -20,7 +42,12 @@ const RequestSchema = z.object({
   appVersion: z.string().min(1).max(32),
   locale: z.string().min(1).max(64),
   imageBase64Jpeg: z.string().min(100).max(1_400_000),
-  onboarding: z.object({ focus: Focus, lifeSeason: LifeSeason, readingStyle: ReadingStyle }),
+  onboarding: z.object({
+    focus: Focus,
+    lifeSeason: LifeSeason,
+    readingStyle: ReadingStyle,
+    personalization: ReadingPersonalizationSchema.optional(),
+  }),
 });
 
 const ShareCardSchema = z.object({
@@ -31,6 +58,42 @@ const ShareCardSchema = z.object({
   theme: z.enum(['moon', 'fire', 'water', 'gold', 'violet', 'rose']),
 });
 
+const PointSchema = z.object({
+  x: z.number().min(0).max(1),
+  y: z.number().min(0).max(1),
+});
+
+const PalmLinePathSchema = z.object({
+  points: z.array(PointSchema).min(5).max(8),
+  midpoint: PointSchema,
+  confidence: z.number().min(0).max(1).default(0.7),
+});
+
+const PalmLineSetSchema = z.object({
+  heart: PalmLinePathSchema,
+  head: PalmLinePathSchema,
+  life: PalmLinePathSchema,
+  fate: PalmLinePathSchema,
+  source: z.enum(['ai_detected', 'fallback']).default('ai_detected'),
+  confidence: z.number().min(0).max(1).default(0.7),
+});
+
+const pointToolSchema = {
+  type: 'object',
+  properties: { x: { type: 'number', minimum: 0, maximum: 1 }, y: { type: 'number', minimum: 0, maximum: 1 } },
+  required: ['x', 'y'],
+} as const;
+
+const linePathToolSchema = {
+  type: 'object',
+  properties: {
+    points: { type: 'array', minItems: 5, maxItems: 8, items: pointToolSchema },
+    midpoint: pointToolSchema,
+    confidence: { type: 'number', minimum: 0, maximum: 1 },
+  },
+  required: ['points', 'midpoint', 'confidence'],
+} as const;
+
 const ReadingSchema = z.object({
   status: z.enum(['ok', 'not_palm', 'bad_image']),
   title: z.string().default(''),
@@ -38,6 +101,7 @@ const ReadingSchema = z.object({
   auraColor: z.enum(['violet', 'gold', 'fire', 'moon', 'water', 'rose']).default('violet'),
   archetype: z.string().default(''),
   shareCards: z.array(ShareCardSchema).default([]),
+  palmLines: PalmLineSetSchema.optional(),
   report: z.object({
     aura: z.string().default(''),
     heartLine: z.string().default(''),
@@ -54,6 +118,8 @@ const ReadingSchema = z.object({
 
 type ReadingRequest = z.infer<typeof RequestSchema>;
 type Reading = z.infer<typeof ReadingSchema>;
+
+const DAILY_SCAN_LIMIT = 100;
 
 const TOOL = {
   name: 'return_reading',
@@ -81,6 +147,19 @@ const TOOL = {
           },
           required: ['format', 'title', 'body', 'accentColor', 'theme'],
         },
+      },
+      palmLines: {
+        type: 'object',
+        description: 'Normalized top-left-origin coordinates tracing visible palm creases. Required when status=ok if the lines are visible enough.',
+        properties: {
+          heart: linePathToolSchema,
+          head: linePathToolSchema,
+          life: linePathToolSchema,
+          fate: linePathToolSchema,
+          source: { type: 'string', enum: ['ai_detected', 'fallback'] },
+          confidence: { type: 'number', minimum: 0, maximum: 1 },
+        },
+        required: ['heart', 'head', 'life', 'fate', 'source', 'confidence'],
       },
       report: {
         type: 'object',
@@ -143,7 +222,9 @@ export default {
 async function handleRead(request: Request, env: Env): Promise<Response> {
   const body = await request.json().catch(() => null);
   const parsed = RequestSchema.safeParse(body);
-  if (!parsed.success) return json({ error: 'invalid_request', message: 'Invalid request.' }, { status: 400 });
+  if (!parsed.success) {
+    return json({ error: 'invalid_request', message: 'Invalid request.' }, { status: 400 });
+  }
 
   const rate = await checkRateLimit(env, parsed.data.deviceId);
   if (!rate.allowed) {
@@ -177,7 +258,7 @@ async function checkRateLimit(env: Env, deviceId: string): Promise<{ allowed: bo
   const existing = Number(await env.RATE_LIMIT_KV.get(key) ?? '0');
   const next = existing + 1;
   await env.RATE_LIMIT_KV.put(key, String(next), { expirationTtl: 90_000 });
-  return { allowed: next <= 3, retryAfterSeconds: 86_400 };
+  return { allowed: next <= DAILY_SCAN_LIMIT, retryAfterSeconds: 86_400 };
 }
 
 function hashDeviceId(deviceId: string): string {
@@ -190,39 +271,181 @@ function hashDeviceId(deviceId: string): string {
   return (hash >>> 0).toString(16).padStart(8, '0');
 }
 
+type ReadingPersonalization = z.infer<typeof ReadingPersonalizationSchema>;
+type DerivedContext = {
+  sunSign?: string;
+  age?: number;
+  ageBand?: 'under_25' | '25_34' | '35_44' | '45_54' | '55_plus';
+  handRole?: 'dominant' | 'non_dominant';
+  handPhrase?: string;
+  palmistryFrame?: string;
+  genderPhrase?: string;
+};
+
+function isValidBirthDate(month: number, day: number, year?: number): boolean {
+  const safeYear = year ?? 2024; // leap year so Feb 29 is valid without collecting a year.
+  const date = new Date(Date.UTC(safeYear, month - 1, day));
+  return date.getUTCFullYear() === safeYear && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
+}
+
+function deriveSunSign(month: number, day: number): string | undefined {
+  const md = month * 100 + day;
+  if (md >= 321 && md <= 419) return 'aries';
+  if (md >= 420 && md <= 520) return 'taurus';
+  if (md >= 521 && md <= 620) return 'gemini';
+  if (md >= 621 && md <= 722) return 'cancer';
+  if (md >= 723 && md <= 822) return 'leo';
+  if (md >= 823 && md <= 922) return 'virgo';
+  if (md >= 923 && md <= 1022) return 'libra';
+  if (md >= 1023 && md <= 1121) return 'scorpio';
+  if (md >= 1122 && md <= 1221) return 'sagittarius';
+  if (md >= 1222 || md <= 119) return 'capricorn';
+  if (md >= 120 && md <= 218) return 'aquarius';
+  if (md >= 219 && md <= 320) return 'pisces';
+  return undefined;
+}
+
+function deriveAge(year: number, month: number, day: number, now = new Date()): number | undefined {
+  if (!isValidBirthDate(month, day, year)) return undefined;
+  let age = now.getUTCFullYear() - year;
+  const birthdayThisYear = Date.UTC(now.getUTCFullYear(), month - 1, day);
+  const today = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  if (today < birthdayThisYear) age -= 1;
+  return age >= 0 && age <= 125 ? age : undefined;
+}
+
+function deriveAgeBand(age?: number): DerivedContext['ageBand'] | undefined {
+  if (age === undefined) return undefined;
+  if (age < 25) return 'under_25';
+  if (age <= 34) return '25_34';
+  if (age <= 44) return '35_44';
+  if (age <= 54) return '45_54';
+  return '55_plus';
+}
+
+function buildDerivedContext(personalization?: ReadingPersonalization): DerivedContext {
+  const derived: DerivedContext = {};
+  if (personalization?.birthDate) {
+    const { month, day, year } = personalization.birthDate;
+    derived.sunSign = deriveSunSign(month, day);
+    derived.age = deriveAge(year, month, day);
+    derived.ageBand = deriveAgeBand(derived.age);
+  }
+  if (personalization?.gender) {
+    derived.genderPhrase = personalization.gender === 'prefer_not_to_say' ? 'prefer not to say' : personalization.gender.replace('_', '-');
+  }
+  if (personalization?.handedness) {
+    if (personalization.scannedHand && personalization.handedness !== 'ambidextrous') {
+      derived.handRole = personalization.handedness === personalization.scannedHand ? 'dominant' : 'non_dominant';
+      derived.handPhrase = `${derived.handRole === 'dominant' ? 'dominant' : 'non-dominant'} ${personalization.scannedHand} hand`;
+      derived.palmistryFrame = derived.handRole === 'dominant'
+        ? 'current choices, active path, and what the user is doing with their potential'
+        : 'inherited tendencies, inner pattern, past, and potential';
+    } else {
+      derived.handPhrase = personalization.handedness === 'ambidextrous' ? 'ambidextrous dominant hands' : `${personalization.handedness} dominant hand`;
+      derived.palmistryFrame = 'dominant-hand context: current choices, active path, and what the user is doing with their potential';
+    }
+  }
+  return derived;
+}
+
+function ageBandGuidance(ageBand?: DerivedContext['ageBand']): string {
+  switch (ageBand) {
+    case 'under_25': return 'identity, first big choices, independence, and direction';
+    case '25_34': return 'momentum, career/love filtering, ambition versus burnout';
+    case '35_44': return 'leadership, family or legacy pressure, and reinvention';
+    case '45_54': return 'recalibration, second-act energy, and obligations versus freedom';
+    case '55_plus': return 'wisdom, simplification, legacy, and self-authorship';
+    default: return 'not provided';
+  }
+}
+
 function buildSystemPrompt(env: Env): string {
   const appName = env.PUBLIC_APP_NAME ?? 'PalmAura';
-  return `You are ${appName}, a polished mystical palm-reading guide for symbolic entertainment and self-reflection ONLY.
+  return `You are ${appName}, a cheeky mystical palm oracle for symbolic entertainment ONLY. Sound like a sharp, glamorous friend reading the room: playful, specific, a little cosmic, never clinical.
 
 ABSOLUTE SAFETY RULES:
 - Never provide medical, legal, financial, psychological, fertility, pregnancy, lifespan, death, diagnosis, or life-critical advice.
 - Never predict illness, death, fertility, pregnancy, guaranteed wealth, legal outcomes, or unavoidable future events.
-- Never claim certainty. Use language like "suggests," "symbolizes," "may point to," and "invites you to reflect on."
+- Never claim certainty. Use language like "suggests," "symbolizes," "hints," "gives," and "points to."
 - Never say a person's fate is fixed.
 - Do not mention being an AI model.
+- Avoid therapy-speak and generic wellness phrasing: do not say "hold space," "inner child," "nervous system," "trauma," "healing journey," "do the work," or "set boundaries" unless the user explicitly asked for that framing.
 
 IMAGE VALIDATION:
 - If the image is not clearly a human palm/open hand, return status = "not_palm" and a short friendly rejectionMessage. Do not generate a reading.
 - If the image is a palm but too dark, blurry, cropped, or unclear to read, return status = "bad_image" and a short friendly rejectionMessage. Do not fake detailed line observations.
 - Only generate status = "ok" when the image appears to contain a human palm/open hand.
 
+PALM LINE COORDINATES:
+- When status = "ok", inspect the user's actual visible palm creases and return palmLines.
+- Coordinates must be normalized numbers from 0.0 to 1.0 relative to the image bounds, origin top-left.
+- Return 5-8 rough points per line so the iOS client can snap them to nearby dark crease pixels and smooth the curve.
+- Trace visible creases where possible. Do not use generic textbook placement if visible creases disagree.
+- Heart line: upper transverse crease under the fingers, typically from pinky side toward index/middle.
+- Head line: middle transverse/diagonal crease across the palm.
+- Life line: curved crease wrapping around the thumb mound.
+- Fate line: vertical/diagonal central line from wrist/lower palm toward middle finger, if visible.
+- If a line is faint/partially absent, estimate gently from visible palm structure and lower that line's confidence.
+- If coordinates would be speculative, still return status ok for the reading but set palmLines.source = "fallback" and confidence < 0.45.
+
+ORACLE VOICE:
+- Be cheeky, concrete, and memorable. Prefer crisp observations over soft reassurance.
+- Tie claims to visible palm cues when possible: line depth, curve, spacing, mounts, finger shape, thumb angle, or overall hand energy.
+- Use lively specifics ("main-character stamina," "calendar chaos," "velvet hammer honesty") instead of vague advice.
+- Keep it symbolic and entertainment-only; no diagnoses, certainty, or real-world guarantees.
+- Avoid bland phrases like "embrace your journey," "trust the process," "practice self-care," and "you are enough."
+
 READING STYLE:
-- gentle: warm, soft, encouraging
+- gentle: warm, witty, encouraging, never saccharine
 - direct: clear, confident, mystical but no-nonsense
-- mysterious: poetic, evocative, layered metaphor
-- deep_spiritual: sacred, archetypal, transformational
+- mysterious: poetic, evocative, layered metaphor, still understandable
+- deep_spiritual: sacred, archetypal, transformational, not therapy-ish
+
+SPECIFICITY RULES:
+1. Evidence-grounding rule: every meaningful claim must be tied to at least one of: a visible palm feature from the image; palm line confidence/shape; focus/lifeSeason/readingStyle; dominant-hand context; saved birthday-derived sun sign or age band; or saved gender context if relevant. If a claim cannot be grounded, do not make it.
+2. Dominant hand rule: if dominant hand context is provided, use it as the user's active/current path lens. If scanned-hand role is provided by older clients, use it in at least two report sections.
+3. Sun sign rule: if sunSign is provided, reference it exactly once across the whole report. Do not turn the reading into a horoscope.
+4. Age-band rule: if ageBand is provided, adapt life-stage assumptions without over-explaining the age. under_25 = identity/first big choices; 25_34 = momentum/filtering/ambition vs burnout; 35_44 = leadership/reinvention; 45_54 = recalibration/second-act energy; 55_plus = wisdom/simplification/legacy.
+5. Gender context rule: do not stereotype or infer pronouns. Use saved gender only lightly when it helps phrasing; if prefer_not_to_say, avoid gendered framing entirely.
+6. Banned standalone adjectives: never use creative, intuitive, loyal, sensitive, resilient, or ambitious as freestanding descriptors. You may use one only when the same sentence explains the palm or context evidence behind it.
+7. Rule of softness: use "this season favors," "this pattern suggests," "your hand points toward," and "a useful move would be." Never use "you will," "you are destined to," or "this proves."
+
+SECTION INTENT:
+- aura: 2-3 sentences. Give an at-a-glance physical/visual impression; if sunSign is available, this is the best place for the single sun-sign mention.
+- heartLine: ground in the visible heart line and the user's focus when relevant.
+- headLine: ground in the head line and how the user approaches decisions.
+- lifeLine: ground in the life line plus lifeSeason and ageBand when available.
+- fateLine: ground in the fate line plus focus/career/purpose when relevant.
+- currentSeason: ground in lifeSeason, handRole, and ageBand when available.
+- guidance: this is "The Hand's Answer." Give a grounded synthesis with three concrete reasons when natural.
+- ritual: this is "Next Useful Move." Give one tiny, doable action for today. Make it concrete, not generic.
 
 GROUNDING:
 - Ground observations in visible palm features and/or the user's onboarding answers.
 - It is okay to be symbolic, but do not invent concrete facts about the person's real life.
+- Make each report section feel distinct; do not repeat the same advice in different outfits.
+- Write in second person: "you" and "your hand." Do not infer gender and do not ask for pronouns.
 
 SHARE CARDS:
-Generate exactly 3 share cards when status = "ok": aura, archetype, thirty_day. Each title <= 4 words. Each body <= 22 words. Cards should be punchy for Instagram/TikTok sharing.`;
+Generate exactly 3 share cards when status = "ok": aura, archetype, thirty_day. Each title <= 4 words. Each body <= 22 words. Cards should be punchy, cheeky, and specific for Instagram/TikTok sharing.`;
 }
 
 function buildUserPrompt(env: Env, data: ReadingRequest): string {
   const appDomain = env.PUBLIC_APP_DOMAIN ?? 'palmaura.app';
-  return `Onboarding context:\n- Seeking clarity on: ${data.onboarding.focus}\n- Current season: ${data.onboarding.lifeSeason}\n- Reading style: ${data.onboarding.readingStyle}\n\nRead this palm if it is a clear human palm. If not, return the appropriate status and rejection message. The app domain is ${appDomain}.`;
+  const personalization = data.onboarding.personalization;
+  const derived = buildDerivedContext(personalization);
+  const birthdayContext = personalization?.birthDate
+    ? `- Sun sign: ${derived.sunSign ?? 'unknown'}\n- Age band: ${derived.ageBand ?? 'not provided'}\n- Life-stage lens: ${ageBandGuidance(derived.ageBand)}`
+    : '- Birthday context: not provided';
+  const handContext = personalization?.handedness
+    ? `- Dominant hand: ${personalization.handedness}\n- Scanned hand: ${personalization.scannedHand ?? 'not provided'}\n- Hand lens: ${derived.handPhrase}\n- Palmistry frame: ${derived.palmistryFrame}`
+    : '- Hand context: not provided';
+  const genderContext = personalization?.gender
+    ? `- Gender: ${derived.genderPhrase}`
+    : '- Gender: not provided';
+
+  return `Onboarding context:\n- Seeking clarity on: ${data.onboarding.focus}\n- Current season: ${data.onboarding.lifeSeason}\n- Reading style: ${data.onboarding.readingStyle}\n\nSaved profile context:\n${genderContext}\n${handContext}\n\nBirthday context:\n${birthdayContext}\n\nPalm evidence:\n- Client-side palm-line evidence: not provided in this client build; use the image itself and the palmLines you return in the same tool call.\n\nRead this palm if it is a clear human palm. If not, return the appropriate status and rejection message. The app domain is ${appDomain}.`;
 }
 
 async function generateReading(env: Env, data: ReadingRequest): Promise<Reading> {

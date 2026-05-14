@@ -6,7 +6,7 @@ struct RootView: View {
     var body: some View {
         NavigationStack {
             if disclaimerAccepted {
-                OnboardingView()
+                HomeView()
             } else {
                 DisclaimerView()
             }

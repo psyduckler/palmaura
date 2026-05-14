@@ -2,7 +2,7 @@ import Foundation
 
 enum ReadingStatus: String, Codable { case ok, notPalm = "not_palm", badImage = "bad_image" }
 enum AuraColor: String, Codable { case violet, gold, fire, moon, water, rose }
-enum ShareCardFormat: String, Codable { case aura, archetype, thirtyDay = "thirty_day" }
+enum ShareCardFormat: String, Codable { case aura, archetype, thirtyDay = "thirty_day", palmMap = "palm_map" }
 enum ShareCardTheme: String, Codable { case moon, fire, water, gold, violet, rose }
 
 struct PalmReadingResponse: Codable, Equatable, Identifiable {
@@ -14,11 +14,16 @@ struct PalmReadingResponse: Codable, Equatable, Identifiable {
     let auraColor: AuraColor
     let archetype: String
     let shareCards: [ShareCard]
+    let palmLines: PalmLineSet?
     let report: ReadingReport
     let rejectionMessage: String?
     let nextReadingHook: NextReadingHook?
     let entertainmentDisclaimer: String
     let createdAt: String
+
+    func replacingPalmLines(_ palmLines: PalmLineSet?) -> PalmReadingResponse {
+        PalmReadingResponse(status: status, readingId: readingId, title: title, oneLineSummary: oneLineSummary, auraColor: auraColor, archetype: archetype, shareCards: shareCards, palmLines: palmLines, report: report, rejectionMessage: rejectionMessage, nextReadingHook: nextReadingHook, entertainmentDisclaimer: entertainmentDisclaimer, createdAt: createdAt)
+    }
 }
 
 struct ShareCard: Codable, Equatable, Identifiable {

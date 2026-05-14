@@ -2,7 +2,18 @@ import SwiftUI
 
 struct ReadingResultView: View {
     let reading: PalmReadingResponse
+    let bundle: ReadingBundle?
     @State private var selectedCard: ShareCard?
+
+    init(reading: PalmReadingResponse) {
+        self.reading = reading
+        self.bundle = nil
+    }
+
+    init(bundle: ReadingBundle) {
+        self.reading = bundle.reading
+        self.bundle = bundle
+    }
 
     var body: some View {
         ZStack {
@@ -13,9 +24,26 @@ struct ReadingResultView: View {
                     Text(reading.title).font(.custom("Georgia", size: 44).weight(.bold))
                     Text(reading.oneLineSummary).font(.title3).foregroundStyle(.white.opacity(0.82))
                     Text(reading.archetype).font(.headline).foregroundStyle(.yellow)
+                    if let bundle, bundle.hasPhoto {
+                        NavigationLink { PalmMapView(bundle: bundle) } label: {
+                            HStack(spacing: 14) {
+                                PalmCanvasView(photoURL: bundle.photoURL, lineSet: bundle.lineSet, auraColor: bundle.auraColor, ignitionProgress: 1, renderingMode: bundle.shouldUsePreciseLines ? .preciseLines : .softGlow)
+                                    .frame(width: 110, height: 150)
+                                VStack(alignment: .leading, spacing: 6) {
+                                    Text("Palm Map").font(.headline).foregroundStyle(.yellow)
+                                    Text("Browse heart, head, life, and fate on your actual palm.").font(.footnote).foregroundStyle(.white.opacity(0.72))
+                                }
+                                Spacer()
+                                Image(systemName: "chevron.right").foregroundStyle(.white.opacity(0.5))
+                            }
+                            .padding(14)
+                            .background(.white.opacity(0.08))
+                            .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+                        }
+                    }
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 16) {
-                            ForEach(reading.shareCards) { card in
+                            ForEach(bundle?.augmentedShareCards ?? reading.shareCards) { card in
                                 ShareCardView(card: card, summary: reading.oneLineSummary)
                                     .frame(width: 180, height: 320)
                                     .clipShape(RoundedRectangle(cornerRadius: 24))
@@ -36,7 +64,7 @@ struct ReadingResultView: View {
                 }.padding(24)
             }
         }
-        .sheet(item: $selectedCard) { card in ShareOptionsSheet(card: card, summary: reading.oneLineSummary) }
+        .sheet(item: $selectedCard) { card in ShareOptionsSheet(card: card, summary: reading.oneLineSummary, bundle: bundle) }
         .onAppear { UINotificationFeedbackGenerator().notificationOccurred(.success) }
     }
 

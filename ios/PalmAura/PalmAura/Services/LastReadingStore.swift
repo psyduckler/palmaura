@@ -13,5 +13,8 @@ enum LastReadingStore {
         return try? JSONDecoder().decode(PalmReadingResponse.self, from: data)
     }
 
-    static func clear() { UserDefaults.standard.removeObject(forKey: key) }
+    static func clear() {
+        if let reading = load() { PalmLineSetStore.clear(for: reading.readingId) }
+        UserDefaults.standard.removeObject(forKey: key)
+    }
 }

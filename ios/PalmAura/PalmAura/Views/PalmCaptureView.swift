@@ -12,14 +12,14 @@ struct PalmCaptureView: View {
             MysticalBackground()
             VStack(spacing: 22) {
                 Text("Scan your palm")
-                    .font(.custom("Georgia", size: 42).weight(.bold))
+                    .font(DesignSystem.FontToken.display(42))
                 Text("Open your hand, fill the frame, and use good lighting.")
                     .multilineTextAlignment(.center)
-                    .foregroundStyle(.white.opacity(0.75))
+                    .foregroundStyle(DesignSystem.ColorToken.softText)
                 RoundedRectangle(cornerRadius: 32)
-                    .strokeBorder(.yellow.opacity(0.6), style: StrokeStyle(lineWidth: 2, dash: [10]))
+                    .strokeBorder(DesignSystem.ColorToken.solarGold.opacity(0.6), style: StrokeStyle(lineWidth: 2, dash: [10]))
                     .frame(height: 360)
-                    .overlay(Text("✋").font(.system(size: 96)))
+                    .overlay(PalmAuraMark(style: .capture, size: 118))
                 Button("Take Photo") { showCamera = true }
                     .buttonStyle(.borderedProminent)
                 PhotosPicker("Choose From Library", selection: $selectedItem, matching: .images)

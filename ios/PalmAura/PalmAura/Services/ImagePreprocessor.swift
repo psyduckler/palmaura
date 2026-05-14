@@ -7,6 +7,14 @@ enum ImagePreprocessor {
         return resized(image, maxLongestEdge: 768).jpegData(compressionQuality: 0.6)
     }
 
+    static func jpegDataForLocalStorage(from image: UIImage) -> Data? {
+        resized(image, maxLongestEdge: 1024).jpegData(compressionQuality: 0.75)
+    }
+
+    static func normalizedForLocalStorage(_ image: UIImage) -> UIImage {
+        resized(image, maxLongestEdge: 1024)
+    }
+
     private static func resized(_ image: UIImage, maxLongestEdge: CGFloat) -> UIImage {
         let size = image.size
         let longest = max(size.width, size.height)
