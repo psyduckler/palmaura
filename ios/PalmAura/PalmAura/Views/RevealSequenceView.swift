@@ -7,7 +7,6 @@ struct RevealSequenceView: View {
     @AppStorage("hasCompletedFirstReveal") private var hasCompletedFirstReveal = false
     @State private var useFirstReveal: Bool
     @State private var step = 0
-    @State private var selectedCard: ShareCard?
 
     init(bundle: ReadingBundle) {
         self.bundle = bundle
@@ -19,7 +18,7 @@ struct RevealSequenceView: View {
     }
 
     private var isFirstReveal: Bool { useFirstReveal }
-    private var lastStep: Int { isFirstReveal ? 4 : 2 }
+    private var lastStep: Int { isFirstReveal ? 3 : 1 }
 
     var body: some View {
         ZStack {
@@ -61,9 +60,6 @@ struct RevealSequenceView: View {
         }
         .navigationBarBackButtonHidden(true)
         .navigationDestination(isPresented: $showFullReport) { ReadingResultView(bundle: bundle) }
-        .sheet(item: $selectedCard) { card in
-            ShareOptionsSheet(card: card, summary: reading.oneLineSummary, bundle: bundle)
-        }
         .onAppear {
             UINotificationFeedbackGenerator().notificationOccurred(.success)
             Analytics.shared.track("reveal_sequence_started", properties: ["mode": isFirstReveal ? "first" : "returning"])
@@ -77,7 +73,7 @@ struct RevealSequenceView: View {
         if isFirstReveal {
             switch step {
             case 0:
-                CeremonyPanel(glyph: "✦", eyebrow: "The portal opens", title: reading.title, detail: "Take a breath. Your palm has been translated into an aura snapshot for this moment.")
+                CeremonyPanel(glyph: "✦", eyebrow: answerEyebrow, title: answerTitle, detail: answerDetail)
             case 1:
                 CeremonyPanel(glyph: glyphForAura(reading.auraColor), eyebrow: "Aura color", title: reading.auraColor.rawValue.capitalized, detail: reading.report.aura)
             case 2:
@@ -85,49 +81,32 @@ struct RevealSequenceView: View {
             case 3:
                 CeremonyPanel(glyph: "☽", eyebrow: "Archetype", title: reading.archetype, detail: reading.report.guidance)
             default:
-                sharePanel
+                EmptyView()
             }
         } else {
             switch step {
             case 0:
-                CeremonyPanel(glyph: glyphForAura(reading.auraColor), eyebrow: "Aura snapshot", title: reading.title, detail: reading.oneLineSummary)
+                CeremonyPanel(glyph: glyphForAura(reading.auraColor), eyebrow: answerEyebrow, title: answerTitle, detail: answerDetail)
             case 1:
                 PalmIgnitionPanel(bundle: bundle)
             default:
-                sharePanel
+                EmptyView()
             }
         }
     }
 
-    private var sharePanel: some View {
-        VStack(spacing: 14) {
-            Text("Choose your share card")
-                .font(DesignSystem.FontToken.display(30))
-                .foregroundStyle(DesignSystem.ColorToken.textPrimary)
-                .multilineTextAlignment(.center)
-            Text("Tap a card to send your aura to stories, messages, or your camera roll.")
-                .font(DesignSystem.FontToken.body(14, italic: true))
-                .foregroundStyle(DesignSystem.ColorToken.textSecondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 8)
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 14) {
-                    ForEach(bundle.augmentedShareCards) { card in
-                        ShareCardView(card: card, summary: reading.oneLineSummary)
-                            .frame(width: 176, height: 308)
-                            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.Radius.cardLg, style: .continuous))
-                            .shadow(color: .black.opacity(0.45), radius: 22, y: 12)
-                            .onTapGesture {
-                                selectedCard = card
-                                hasCompletedFirstReveal = true
-                                Analytics.shared.track("share_card_tapped", properties: ["format": card.format.rawValue, "source": "reveal"])
-                            }
-                    }
-                }
-                .padding(.horizontal, 4)
-                .padding(.vertical, 6)
-            }
-        }
+    private var answerEyebrow: String {
+        bundle.sessionIntent?.question == nil ? "The answer begins" : "Question answered"
+    }
+
+    private var answerTitle: String {
+        if let question = bundle.sessionIntent?.question, !question.isEmpty { return question }
+        return reading.title
+    }
+
+    private var answerDetail: String {
+        let guidance = reading.report.guidance.trimmingCharacters(in: .whitespacesAndNewlines)
+        return guidance.isEmpty ? reading.oneLineSummary : guidance
     }
 
     private var finalActions: some View {
@@ -191,9 +170,9 @@ struct RevealSequenceView: View {
 
     private var nextTitle: String {
         if isFirstReveal {
-            return ["Show my aura  ›", "Chart my lines  ›", "Reveal archetype  ›", "Explore + share  ›"][safe: step] ?? "Continue"
+            return ["Show my aura  ›", "Chart my lines  ›", "Reveal archetype  ›"][safe: step] ?? "Continue"
         } else {
-            return ["Show signal  ›", "Choose share card  ›"][safe: step] ?? "Continue"
+            return ["Chart my lines  ›"][safe: step] ?? "Continue"
         }
     }
 

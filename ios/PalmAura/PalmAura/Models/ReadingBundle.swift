@@ -5,19 +5,22 @@ struct ReadingBundle: Equatable {
     let photoURL: URL?
     let lineSet: PalmLineSet
     let auraColor: AuraColor
+    let sessionIntent: ReadingSessionIntent?
 
-    init(reading: PalmReadingResponse, photoURL: URL?, lineSet: PalmLineSet? = nil) {
+    init(reading: PalmReadingResponse, photoURL: URL?, lineSet: PalmLineSet? = nil, sessionIntent: ReadingSessionIntent? = nil) {
         self.reading = reading
         self.photoURL = photoURL
         self.lineSet = lineSet ?? reading.palmLines ?? PalmLineSet.fallback
         self.auraColor = reading.auraColor
+        self.sessionIntent = sessionIntent ?? ReadingIntentStore.load(for: reading.readingId)
     }
 
     static func restore(reading: PalmReadingResponse) -> ReadingBundle {
         ReadingBundle(
             reading: reading,
             photoURL: PalmPhotoStore.url(for: reading.readingId),
-            lineSet: PalmLineSetStore.load(for: reading.readingId) ?? reading.palmLines
+            lineSet: PalmLineSetStore.load(for: reading.readingId) ?? reading.palmLines,
+            sessionIntent: ReadingIntentStore.load(for: reading.readingId)
         )
     }
 
@@ -27,11 +30,31 @@ struct ReadingBundle: Equatable {
     }
 
     var shouldUsePreciseLines: Bool { lineSet.source == .aiDetected && lineSet.confidence >= 0.55 }
+}
 
-    var augmentedShareCards: [ShareCard] {
-        guard hasPhoto else { return reading.shareCards }
-        if reading.shareCards.contains(where: { $0.format == .palmMap }) { return reading.shareCards }
-        let card = ShareCard(format: .palmMap, title: "Palm Map", body: reading.oneLineSummary, accentColor: "#F6D27A", theme: .gold)
-        return reading.shareCards + [card]
+enum ReadingIntentStore {
+    private static let prefix = "palmaura.readingIntent."
+
+    static func save(_ intent: ReadingSessionIntent?, for readingId: String) {
+        guard let intent else { return }
+        guard let data = try? JSONEncoder().encode(intent) else { return }
+        UserDefaults.standard.set(data, forKey: key(readingId))
     }
+
+    static func load(for readingId: String) -> ReadingSessionIntent? {
+        guard let data = UserDefaults.standard.data(forKey: key(readingId)) else { return nil }
+        return try? JSONDecoder().decode(ReadingSessionIntent.self, from: data)
+    }
+
+    static func clear(for readingId: String) {
+        UserDefaults.standard.removeObject(forKey: key(readingId))
+    }
+
+    static func clearAll() {
+        for key in UserDefaults.standard.dictionaryRepresentation().keys where key.hasPrefix(prefix) {
+            UserDefaults.standard.removeObject(forKey: key)
+        }
+    }
+
+    private static func key(_ readingId: String) -> String { prefix + readingId }
 }

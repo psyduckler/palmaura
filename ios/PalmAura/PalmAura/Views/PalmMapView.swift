@@ -3,7 +3,6 @@ import SwiftUI
 struct PalmMapView: View {
     let bundle: ReadingBundle
     @State private var selectedLine: PalmLine?
-    @State private var selectedCard: ShareCard?
 
     var body: some View {
         ZStack {
@@ -43,9 +42,6 @@ struct PalmMapView: View {
         .navigationDestination(isPresented: $showFullReport) {
             ReadingResultView(bundle: bundle)
         }
-        .sheet(item: $selectedCard) { card in
-            ShareOptionsSheet(card: card, summary: bundle.reading.oneLineSummary, bundle: bundle)
-        }
         .onAppear {
             Analytics.shared.track("palm_map_opened", properties: [
                 "source": "map",
@@ -67,9 +63,9 @@ struct PalmMapView: View {
                     .foregroundStyle(DesignSystem.ColorToken.goldCream)
             }
             .foregroundStyle(DesignSystem.ColorToken.textPrimary)
-            Text(bundle.shouldUsePreciseLines
-                 ? "Tap a glowing line to read what it carries."
-                 : "Your map is symbolic — the lines are softly charted.")
+            Text(bundle.sessionIntent?.question == nil
+                 ? (bundle.shouldUsePreciseLines ? "Tap a glowing line to read what it carries." : "Your map is symbolic — the lines are softly charted.")
+                 : "Tap a glowing line to read what it contributes to this question.")
                 .font(DesignSystem.FontToken.body(13, italic: true))
                 .foregroundStyle(DesignSystem.ColorToken.textSecondary)
                 .multilineTextAlignment(.center)
@@ -79,6 +75,13 @@ struct PalmMapView: View {
 
     private var lineSheet: some View {
         VStack(alignment: .leading, spacing: 12) {
+            if let intent = bundle.sessionIntent {
+                Text(intent.displaySummary)
+                    .font(DesignSystem.FontToken.body(13, italic: true))
+                    .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.78))
+                    .lineLimit(2)
+                    .padding(.bottom, 2)
+            }
             // Chip row of all 4 lines
             HStack(spacing: 8) {
                 ForEach(PalmLine.allCases) { line in
@@ -100,27 +103,7 @@ struct PalmMapView: View {
                         .foregroundStyle(DesignSystem.ColorToken.textPrimary.opacity(0.92))
                         .lineSpacing(3)
                 }
-                HStack(spacing: 10) {
-                    GhostButton(title: "Next line", leading: "›") { cycleNext() }
-                    Button {
-                        selectedCard = bundle.augmentedShareCards.first(where: { $0.format == .palmMap })
-                    } label: {
-                        HStack(spacing: 8) {
-                            Text("↗").font(DesignSystem.FontToken.display(15))
-                            Text("Share Map")
-                                .font(DesignSystem.FontToken.caps(10))
-                                .tracking(3)
-                                .textCase(.uppercase)
-                        }
-                        .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.86))
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 12)
-                        .overlay(Capsule().stroke(DesignSystem.ColorToken.goldCream.opacity(0.35), lineWidth: 1))
-                    }
-                    .buttonStyle(.plain)
-                    .disabled(!bundle.hasPhoto)
-                    .opacity(bundle.hasPhoto ? 1 : 0.4)
-                }
+                GhostButton(title: "Next line", action: { cycleNext() }, leading: "›")
             } else {
                 Text("Choose a line to read the part of your answer it carries.")
                     .font(DesignSystem.FontToken.body(14, italic: true))

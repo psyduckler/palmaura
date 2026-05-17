@@ -1,22 +1,25 @@
 import SwiftUI
 
-/// A single-screen, one-time onboarding that collects birthday + gender +
-/// dominant hand together. Replaces the previous 3-step version while
-/// preserving the existing `ReadingPersonalization` model, `PersonalizationStore`,
-/// and analytics event names.
+/// Completion behavior for the one-time profile screen.
+enum ProfileCompletionDestination { case home, dismiss }
+
+/// One-time profile onboarding. It collects durable calibration only; the
+/// per-reading question lives in `ReadingQuestionView`.
 struct OnboardingView: View {
+    var completionDestination: ProfileCompletionDestination = .home
+    @Environment(\.dismiss) private var dismiss
     @State private var answers = OnboardingAnswers.default
     @State private var birthMonth: Int = Calendar.current.component(.month, from: Date())
     @State private var birthDay: Int = Calendar.current.component(.day, from: Date())
     @State private var birthYear = Calendar.current.component(.year, from: Date()) - 30
-    @State private var showCapture = false
+    @State private var showHome = false
 
     var body: some View {
         ZStack {
             DarkScreenBackground()
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 22) {
-                    ScreenHeader(eyebrow: "PalmAura")
+                    ScreenHeader(eyebrow: "Profile")
                         .padding(.horizontal, -24)
 
                     intro
@@ -44,11 +47,11 @@ struct OnboardingView: View {
 
                     privacyFootnote
 
-                    GoldButton(title: "Read My Palm  ›") { advanceOrFinish() }
+                    GoldButton(title: "Save Profile  ›") { advanceOrFinish() }
                         .opacity(canContinue ? 1 : 0.45)
                         .disabled(!canContinue)
 
-                    Text("ONE TIME ONLY · EDIT IN SETTINGS")
+                    Text("ONE TIME ONLY · THEN ASK ONE QUESTION")
                         .font(DesignSystem.FontToken.caps(8.5))
                         .tracking(2.5)
                         .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.45))
@@ -60,8 +63,8 @@ struct OnboardingView: View {
         }
         .navigationBarBackButtonHidden(true)
         .onAppear(perform: preloadSavedPersonalization)
-        .navigationDestination(isPresented: $showCapture) {
-            PalmCaptureView(onboardingAnswers: answers)
+        .navigationDestination(isPresented: $showHome) {
+            HomeView()
         }
     }
 
@@ -75,16 +78,16 @@ struct OnboardingView: View {
                 .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.7))
 
             VStack(spacing: 2) {
-                Text("Three answers,")
+                Text("One profile,")
                     .font(DesignSystem.FontToken.display(34))
                     .foregroundStyle(DesignSystem.ColorToken.textPrimary)
-                Text("before the hand opens.")
+                Text("then the question.")
                     .font(DesignSystem.FontToken.display(34, italic: true))
                     .foregroundStyle(DesignSystem.ColorToken.goldCream)
             }
             .multilineTextAlignment(.center)
 
-            Text("The lines on your hand exist inside a wider sky. These three things tune the reading to you.")
+            Text("These durable details calibrate every reading. After this, each scan asks only the fresh question for that moment.")
                 .font(DesignSystem.FontToken.body(15, italic: true))
                 .foregroundStyle(DesignSystem.ColorToken.textSecondary)
                 .multilineTextAlignment(.center)
@@ -233,7 +236,7 @@ struct OnboardingView: View {
             Text("🜍")
                 .font(DesignSystem.FontToken.display(18))
                 .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.75))
-            Text("Saved only on your device. We never share or sell these answers — they shape every future reading.")
+            Text("Saved only on your device. These answers shape future readings, but your per-reading question stays separate.")
                 .font(DesignSystem.FontToken.body(12.5, italic: true))
                 .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.78))
                 .lineSpacing(2)
@@ -280,7 +283,12 @@ struct OnboardingView: View {
             "birthYearProvided": String(personalization?.birthDate != nil),
             "combinedScreen": "true"
         ])
-        showCapture = true
+        switch completionDestination {
+        case .home:
+            showHome = true
+        case .dismiss:
+            dismiss()
+        }
     }
 
     private func preloadSavedPersonalization() {

@@ -33,6 +33,12 @@ struct PalmReviewView: View {
                 photoCard
                     .padding(.horizontal, DesignSystem.Spacing.lg)
 
+                if let intent = ReadingSessionIntent(answers: onboardingAnswers) {
+                    intentChip(intent)
+                        .padding(.horizontal, DesignSystem.Spacing.lg)
+                        .padding(.top, 14)
+                }
+
                 Spacer(minLength: 16)
 
                 actions
@@ -91,6 +97,23 @@ struct PalmReviewView: View {
             }
         }
         .frame(height: 480)
+    }
+
+    private func intentChip(_ intent: ReadingSessionIntent) -> some View {
+        HStack(spacing: 10) {
+            Text("✦")
+                .font(DesignSystem.FontToken.display(16))
+                .foregroundStyle(DesignSystem.ColorToken.goldCream)
+            Text(intent.displaySummary)
+                .font(DesignSystem.FontToken.body(13, italic: true))
+                .foregroundStyle(DesignSystem.ColorToken.textPrimary.opacity(0.9))
+                .lineLimit(2)
+            Spacer(minLength: 0)
+        }
+        .padding(.vertical, 10)
+        .padding(.horizontal, 14)
+        .background(Capsule().fill(DesignSystem.ColorToken.goldCream.opacity(0.08)))
+        .overlay(Capsule().stroke(DesignSystem.ColorToken.goldCream.opacity(0.24), lineWidth: 0.5))
     }
 
     private var actions: some View {

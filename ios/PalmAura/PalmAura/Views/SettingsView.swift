@@ -5,6 +5,8 @@ struct SettingsView: View {
     @State private var personalization = PersonalizationStore.load() ?? ReadingPersonalization()
     @State private var lunarRemindersOn = true
     @State private var showResetAlert = false
+    @State private var showClearHistoryAlert = false
+    @State private var showEditProfile = false
 
     var body: some View {
         ZStack {
@@ -17,17 +19,17 @@ struct SettingsView: View {
                     profileCard
                     section(title: "READING") {
                         row(glyph: "☉", label: "Oracle voice",        detail: voiceDetail)
-                        row(glyph: "♀", label: "Default focus",       detail: focusDetail)
+                        row(glyph: "♀", label: "Question focus",      detail: "Asked each reading")
                         toggleRow(glyph: "☽", label: "Lunar reminders", isOn: $lunarRemindersOn)
                     }
                     section(title: "PERSONALIZATION") {
                         row(glyph: "♃", label: "Birthday",       detail: birthdayDetail)
                         row(glyph: "✦", label: "Energy",         detail: personalization.gender?.displayName ?? "Not set")
                         row(glyph: "☉", label: "Dominant hand",  detail: personalization.handedness?.displayName ?? "Not set")
+                        navRow(glyph: "☽", label: "Edit profile") { showEditProfile = true }
                     }
                     section(title: "KEEPSAKES") {
                         navRow(glyph: "✦", label: "Library of readings") { /* TODO: ReadingsLibraryView */ }
-                        navRow(glyph: "↗", label: "Share defaults") { /* TODO */ }
                     }
                     section(title: "ACCOUNT") {
                         row(glyph: "♃", label: "Membership", detail: "Lifetime")
@@ -41,6 +43,10 @@ struct SettingsView: View {
             }
         }
         .navigationBarBackButtonHidden(true)
+        .navigationDestination(isPresented: $showEditProfile) {
+            OnboardingView(completionDestination: .dismiss)
+        }
+        .onAppear { personalization = PersonalizationStore.load() ?? ReadingPersonalization() }
         .alert("Reset all personalization?", isPresented: $showResetAlert) {
             Button("Cancel", role: .cancel) {}
             Button("Reset", role: .destructive) {
@@ -49,6 +55,17 @@ struct SettingsView: View {
             }
         } message: {
             Text("Your birthday, energy, and dominant hand will be cleared. The app will ask again on your next reading.")
+        }
+        .alert("Clear reading history?", isPresented: $showClearHistoryAlert) {
+            Button("Cancel", role: .cancel) {}
+            Button("Clear", role: .destructive) {
+                LastReadingStore.clear()
+                PalmLineSetStore.clearAll()
+                PalmPhotoStore.clearAll()
+                ReadingIntentStore.clearAll()
+            }
+        } message: {
+            Text("Your saved reading, palm photo, line map, and session question history will be cleared from this device.")
         }
     }
 
@@ -99,12 +116,21 @@ struct SettingsView: View {
             Button(role: .destructive) {
                 showResetAlert = true
             } label: {
-                Text("Reset Personalization")
+                Text("Reset Profile")
                     .font(DesignSystem.FontToken.caps(9))
                     .tracking(2.5)
                     .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.7))
             }
             .padding(.top, 6)
+            Button(role: .destructive) {
+                showClearHistoryAlert = true
+            } label: {
+                Text("Clear Reading History")
+                    .font(DesignSystem.FontToken.caps(9))
+                    .tracking(2.5)
+                    .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.7))
+            }
+            .padding(.top, 2)
             Text(versionString)
                 .font(DesignSystem.FontToken.caps(8))
                 .tracking(3)
@@ -210,13 +236,12 @@ struct SettingsView: View {
     }
 
     private var voiceDetail: String { "Mysterious" }
-    private var focusDetail: String { "Love" }
 
     private var birthdayDetail: String {
         guard let d = personalization.birthDate else { return "Not set" }
         let formatter = DateFormatter()
         formatter.dateFormat = "d MMM"
-        var components = DateComponents(year: d.year, month: d.month, day: d.day)
+        let components = DateComponents(year: d.year, month: d.month, day: d.day)
         let date = Calendar.current.date(from: components) ?? Date()
         return "\(formatter.string(from: date)), \(d.year)"
     }

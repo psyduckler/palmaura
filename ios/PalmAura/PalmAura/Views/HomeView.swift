@@ -6,6 +6,7 @@ import SwiftUI
 /// last reading panel as well.
 struct HomeView: View {
     @State private var lastReading = LastReadingStore.load()
+    @State private var hasProfile = PersonalizationStore.hasCompleteProfile()
     private var lastBundle: ReadingBundle? { lastReading.map { ReadingBundle.restore(reading: $0) } }
 
     var body: some View {
@@ -18,8 +19,8 @@ struct HomeView: View {
 
                     // Constellation palm hero
                     ConstellationPalm()
-                        .frame(maxWidth: 360)
-                        .padding(.top, -8)
+                        .frame(maxWidth: 270)
+                        .padding(.top, -14)
 
                     // Title block
                     VStack(spacing: 6) {
@@ -48,7 +49,7 @@ struct HomeView: View {
                     // CTAs
                     VStack(spacing: 12) {
                         NavigationLink {
-                            OnboardingView()
+                            if hasProfile { ReadingQuestionView() } else { OnboardingView() }
                         } label: {
                             Text(lastReading == nil ? "Ask the Palm" : "Ask Again")
                                 .font(DesignSystem.FontToken.caps(11))
@@ -119,9 +120,9 @@ struct HomeView: View {
                                     .font(DesignSystem.FontToken.caps(9))
                                     .tracking(DesignSystem.Tracking.caps)
                                     .foregroundStyle(DesignSystem.ColorToken.textTertiary)
-                                HomeBullet(numeral: "I",   title: "Set the question",     detail: "Choose focus, season, voice — and one specific question.")
+                                HomeBullet(numeral: "I",   title: "Ask one question",     detail: "Pick a focus and bring the one thing you want the palm to look into.")
                                 HomeBullet(numeral: "II",  title: "Photograph your palm", detail: "Open hand, fingers spread, soft even light.")
-                                HomeBullet(numeral: "III", title: "Receive the answer",   detail: "A chaptered reading and a keepsake card.")
+                                HomeBullet(numeral: "III", title: "Receive the answer",   detail: "A private reading, palm map, and full report — no share step.")
                             }
                         }
                     }
@@ -136,7 +137,10 @@ struct HomeView: View {
             NavigationLink("Settings") { SettingsView() }
                 .foregroundStyle(DesignSystem.ColorToken.goldCream)
         }
-        .onAppear { lastReading = LastReadingStore.load() }
+        .onAppear {
+            lastReading = LastReadingStore.load()
+            hasProfile = PersonalizationStore.hasCompleteProfile()
+        }
     }
 }
 

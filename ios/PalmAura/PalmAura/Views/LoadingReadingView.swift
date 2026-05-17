@@ -35,6 +35,14 @@ struct LoadingReadingView: View {
                     .foregroundStyle(DesignSystem.ColorToken.textPrimary)
                     .multilineTextAlignment(.center)
                     .contentTransition(.opacity)
+                if let intent = ReadingSessionIntent(answers: onboardingAnswers) {
+                    Text("Question: \(intent.displaySummary)")
+                        .font(DesignSystem.FontToken.body(13, italic: true))
+                        .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.78))
+                        .multilineTextAlignment(.center)
+                        .lineLimit(3)
+                        .padding(.horizontal, DesignSystem.Spacing.lg)
+                }
                 if let currentErrorMessage = errorMessage {
                     Text(currentErrorMessage)
                         .font(DesignSystem.FontToken.body(15, italic: true))
@@ -85,9 +93,15 @@ struct LoadingReadingView: View {
                     } else {
                         Analytics.shared.track("palm_lines_missing", properties: ["reason": "absent"])
                     }
+                    let intent = ReadingSessionIntent(answers: onboardingAnswers)
+                    ReadingIntentStore.save(intent, for: adjustedResponse.readingId)
                     LastReadingStore.save(adjustedResponse)
-                    Analytics.shared.track("reading_completed", properties: ["auraColor": response.auraColor.rawValue])
-                    bundle = ReadingBundle(reading: adjustedResponse, photoURL: boundURL, lineSet: snappedPalmLines)
+                    Analytics.shared.track("reading_completed", properties: [
+                        "auraColor": response.auraColor.rawValue,
+                        "focus": intent?.focus ?? onboardingAnswers.focus.displayName,
+                        "questionProvided": String(intent?.question?.isEmpty == false)
+                    ])
+                    bundle = ReadingBundle(reading: adjustedResponse, photoURL: boundURL, lineSet: snappedPalmLines, sessionIntent: intent)
                     showResult = true
                 } else {
                     Analytics.shared.track(response.status == .notPalm ? "reading_rejected_not_palm" : "reading_rejected_bad_image")

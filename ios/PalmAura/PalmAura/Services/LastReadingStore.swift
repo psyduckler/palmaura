@@ -14,7 +14,10 @@ enum LastReadingStore {
     }
 
     static func clear() {
-        if let reading = load() { PalmLineSetStore.clear(for: reading.readingId) }
+        if let reading = load() {
+            PalmLineSetStore.clear(for: reading.readingId)
+            ReadingIntentStore.clear(for: reading.readingId)
+        }
         UserDefaults.standard.removeObject(forKey: key)
     }
 }

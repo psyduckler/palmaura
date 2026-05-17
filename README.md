@@ -15,7 +15,7 @@ PalmAura is the committed name for our native iOS palm-reading app and supportin
 - Multimodal AI palm validation + structured reading
 - AI-routed palm-line geometry with local iOS line snapping/rendering
 - Cloudflare Worker backend proxy with KV rate limiting
-- 9:16 share cards for Instagram/TikTok
+- Private palm-map exploration; share/export is paused for the MVP
 - No PalmAura server-side palm image storage
 
 ## Safety posture

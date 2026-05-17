@@ -32,7 +32,7 @@ const ReadingPersonalizationSchema = z.object({
   handedness: Handedness.optional(),
   scannedHand: ScannedHand.optional(),
   birthDate: BirthDateContextSchema.optional(),
-  // Accepted for older clients, intentionally ignored by prompt construction.
+  // Session-only intent from the iOS ask screen. Stored with the reading, not profile.
   question: z.string().trim().max(200).optional(),
 });
 
@@ -48,14 +48,6 @@ const RequestSchema = z.object({
     readingStyle: ReadingStyle,
     personalization: ReadingPersonalizationSchema.optional(),
   }),
-});
-
-const ShareCardSchema = z.object({
-  format: z.enum(['aura', 'archetype', 'thirty_day']),
-  title: z.string().min(1).max(40),
-  body: z.string().min(1).max(180),
-  accentColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
-  theme: z.enum(['moon', 'fire', 'water', 'gold', 'violet', 'rose']),
 });
 
 const PointSchema = z.object({
@@ -100,7 +92,6 @@ const ReadingSchema = z.object({
   oneLineSummary: z.string().default(''),
   auraColor: z.enum(['violet', 'gold', 'fire', 'moon', 'water', 'rose']).default('violet'),
   archetype: z.string().default(''),
-  shareCards: z.array(ShareCardSchema).default([]),
   palmLines: PalmLineSetSchema.optional(),
   report: z.object({
     aura: z.string().default(''),
@@ -132,22 +123,6 @@ const TOOL = {
       oneLineSummary: { type: 'string' },
       auraColor: { type: 'string', enum: ['violet', 'gold', 'fire', 'moon', 'water', 'rose'] },
       archetype: { type: 'string' },
-      shareCards: {
-        type: 'array',
-        minItems: 0,
-        maxItems: 3,
-        items: {
-          type: 'object',
-          properties: {
-            format: { type: 'string', enum: ['aura', 'archetype', 'thirty_day'] },
-            title: { type: 'string' },
-            body: { type: 'string' },
-            accentColor: { type: 'string' },
-            theme: { type: 'string', enum: ['moon', 'fire', 'water', 'gold', 'violet', 'rose'] },
-          },
-          required: ['format', 'title', 'body', 'accentColor', 'theme'],
-        },
-      },
       palmLines: {
         type: 'object',
         description: 'Normalized top-left-origin coordinates tracing visible palm creases. Required when status=ok if the lines are visible enough.',
@@ -185,7 +160,7 @@ const TOOL = {
         required: ['focus', 'teaser'],
       },
     },
-    required: ['status', 'title', 'oneLineSummary', 'auraColor', 'archetype', 'shareCards', 'report'],
+    required: ['status', 'title', 'oneLineSummary', 'auraColor', 'archetype', 'report'],
   },
 } as const;
 
@@ -427,8 +402,11 @@ GROUNDING:
 - Make each report section feel distinct; do not repeat the same advice in different outfits.
 - Write in second person: "you" and "your hand." Do not infer gender and do not ask for pronouns.
 
-SHARE CARDS:
-Generate exactly 3 share cards when status = "ok": aura, archetype, thirty_day. Each title <= 4 words. Each body <= 22 words. Cards should be punchy, cheeky, and specific for Instagram/TikTok sharing.`;
+SESSION QUESTION:
+- If a session question is provided, the reading must answer it first and directly.
+- Use palm lines as evidence for the answer, not decoration.
+- Keep durable profile context secondary: it calibrates the voice and lens, but the session question drives the output.
+- Do not generate share/export/social-card copy; this MVP is private by default.`;
 }
 
 function buildUserPrompt(env: Env, data: ReadingRequest): string {
@@ -445,7 +423,12 @@ function buildUserPrompt(env: Env, data: ReadingRequest): string {
     ? `- Gender: ${derived.genderPhrase}`
     : '- Gender: not provided';
 
-  return `Onboarding context:\n- Seeking clarity on: ${data.onboarding.focus}\n- Current season: ${data.onboarding.lifeSeason}\n- Reading style: ${data.onboarding.readingStyle}\n\nSaved profile context:\n${genderContext}\n${handContext}\n\nBirthday context:\n${birthdayContext}\n\nPalm evidence:\n- Client-side palm-line evidence: not provided in this client build; use the image itself and the palmLines you return in the same tool call.\n\nRead this palm if it is a clear human palm. If not, return the appropriate status and rejection message. The app domain is ${appDomain}.`;
+  const sessionQuestion = personalization?.question?.trim();
+  const sessionIntent = sessionQuestion
+    ? `- User's question for this reading: ${sessionQuestion}`
+    : '- User skipped a custom question; answer through the selected focus only.';
+
+  return `Session intent:\n- Seeking clarity on: ${data.onboarding.focus}\n${sessionIntent}\n- Current season: ${data.onboarding.lifeSeason}\n- Reading style: ${data.onboarding.readingStyle}\n\nSaved profile context:\n${genderContext}\n${handContext}\n\nBirthday context:\n${birthdayContext}\n\nPalm evidence:\n- Client-side palm-line evidence: not provided in this client build; use the image itself and the palmLines you return in the same tool call.\n\nRead this palm if it is a clear human palm. If not, return the appropriate status and rejection message. The app domain is ${appDomain}.`;
 }
 
 async function generateReading(env: Env, data: ReadingRequest): Promise<Reading> {
@@ -485,7 +468,6 @@ async function generateReading(env: Env, data: ReadingRequest): Promise<Reading>
   if (!toolUse) throw new Error('No tool_use returned');
 
   const reading = ReadingSchema.parse(toolUse.input);
-  if (reading.status === 'ok' && reading.shareCards.length !== 3) throw new Error('Expected exactly 3 share cards');
   return reading;
 }
 

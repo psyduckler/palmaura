@@ -5,10 +5,10 @@ enum ReadingFocus: String, Codable, CaseIterable, Identifiable {
     var id: String { rawValue }
     var displayName: String {
         switch self {
-        case .love: return "Love"
+        case .love: return "Relationship"
         case .career: return "Career"
         case .selfGrowth: return "Self"
-        case .purpose: return "Purpose"
+        case .purpose: return "The path"
         case .general: return "General"
         }
     }
@@ -48,11 +48,39 @@ enum ReadingStyle: String, Codable, CaseIterable, Identifiable {
     }
 }
 
+struct ReadingSessionIntent: Codable, Equatable {
+    var focus: String
+    var question: String?
+
+    init(focus: String, question: String?) {
+        self.focus = focus
+        let trimmed = question?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        self.question = trimmed.isEmpty ? nil : trimmed
+    }
+
+    init?(answers: OnboardingAnswers) {
+        let question = answers.personalization?.question?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let focus = answers.sessionIntent?.focus ?? answers.focus.displayName
+        guard !question.isEmpty || answers.focus != .general else { return nil }
+        self.init(focus: focus, question: question.isEmpty ? nil : question)
+    }
+
+    var displaySummary: String {
+        if let question, !question.isEmpty { return question }
+        return "Focus: \(focus)"
+    }
+}
+
 struct OnboardingAnswers: Codable, Equatable {
     var focus: ReadingFocus
     var lifeSeason: LifeSeason
     var readingStyle: ReadingStyle
     var personalization: ReadingPersonalization?
+    var sessionIntent: ReadingSessionIntent? = nil
+
+    enum CodingKeys: String, CodingKey {
+        case focus, lifeSeason, readingStyle, personalization
+    }
 
     static let `default` = OnboardingAnswers(focus: .general, lifeSeason: .unknown, readingStyle: .mysterious, personalization: nil)
 
@@ -143,10 +171,15 @@ struct ReadingPersonalization: Codable, Equatable {
 
 enum PersonalizationStore {
     private static let key = "palmaura.personalization.v1"
+    static let completionKey = "palmaura.profile.complete.v1"
 
     static func load() -> ReadingPersonalization? {
         guard let data = UserDefaults.standard.data(forKey: key) else { return nil }
         return try? JSONDecoder().decode(ReadingPersonalization.self, from: data)
+    }
+
+    static func hasCompleteProfile() -> Bool {
+        load()?.isCompleteProfile == true
     }
 
     static func save(_ personalization: ReadingPersonalization?) {
@@ -156,10 +189,12 @@ enum PersonalizationStore {
         }
         if let data = try? JSONEncoder().encode(personalization) {
             UserDefaults.standard.set(data, forKey: key)
+            UserDefaults.standard.set(personalization.isCompleteProfile, forKey: completionKey)
         }
     }
 
     static func clear() {
         UserDefaults.standard.removeObject(forKey: key)
+        UserDefaults.standard.set(false, forKey: completionKey)
     }
 }

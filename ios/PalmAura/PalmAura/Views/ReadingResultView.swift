@@ -3,7 +3,6 @@ import SwiftUI
 struct ReadingResultView: View {
     let reading: PalmReadingResponse
     let bundle: ReadingBundle?
-    @State private var selectedCard: ShareCard?
 
     init(reading: PalmReadingResponse) {
         self.reading = reading
@@ -41,6 +40,10 @@ struct ReadingResultView: View {
                             .padding(.top, 2)
                     }
 
+                    if let intent = bundle?.sessionIntent {
+                        intentCard(intent)
+                    }
+
                     // Palm map preview (if photo)
                     if let bundle, bundle.hasPhoto {
                         NavigationLink { PalmMapView(bundle: bundle) } label: {
@@ -49,39 +52,14 @@ struct ReadingResultView: View {
                         .buttonStyle(.plain)
                     }
 
-                    // Share cards horizontal
-                    if !(bundle?.augmentedShareCards.isEmpty ?? reading.shareCards.isEmpty) {
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text("KEEPSAKE CARDS")
-                                .font(DesignSystem.FontToken.caps(9))
-                                .tracking(DesignSystem.Tracking.caps)
-                                .foregroundStyle(DesignSystem.ColorToken.textTertiary)
-                            ScrollView(.horizontal, showsIndicators: false) {
-                                HStack(spacing: 14) {
-                                    ForEach(bundle?.augmentedShareCards ?? reading.shareCards) { card in
-                                        ShareCardView(card: card, summary: reading.oneLineSummary)
-                                            .frame(width: 180, height: 320)
-                                            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.Radius.cardLg, style: .continuous))
-                                            .shadow(color: .black.opacity(0.4), radius: 18, y: 10)
-                                            .onTapGesture {
-                                                selectedCard = card
-                                                Analytics.shared.track("share_card_tapped", properties: ["format": card.format.rawValue])
-                                            }
-                                    }
-                                }
-                                .padding(.vertical, 4)
-                            }
-                        }
-                    }
-
                     // Chapters
+                    chapter(glyph: "☽", title: directAnswerTitle, body: reading.report.guidance)
                     chapter(glyph: "✦", title: "Aura", body: reading.report.aura)
                     chapter(glyph: "♥", title: "Heart Line", body: reading.report.heartLine)
                     chapter(glyph: "☿", title: "Head Line", body: reading.report.headLine)
                     chapter(glyph: "♃", title: "Life Line", body: reading.report.lifeLine)
                     chapter(glyph: "♄", title: "Fate Line", body: reading.report.fateLine)
                     chapter(glyph: "☉", title: "Current Season", body: reading.report.currentSeason)
-                    chapter(glyph: "☽", title: "Guidance", body: reading.report.guidance)
                     chapter(glyph: "⚹", title: "Ritual", body: reading.report.ritual)
 
                     // Footer
@@ -93,8 +71,8 @@ struct ReadingResultView: View {
                             .multilineTextAlignment(.center)
                             .lineSpacing(2)
                             .padding(.horizontal, 16)
-                        NavigationLink { OnboardingView() } label: {
-                            Text("Ask the Palm again")
+                        NavigationLink { ReadingQuestionView() } label: {
+                            Text("Ask another question")
                                 .font(DesignSystem.FontToken.caps(11))
                                 .tracking(4)
                                 .textCase(.uppercase)
@@ -120,10 +98,32 @@ struct ReadingResultView: View {
                     .foregroundStyle(DesignSystem.ColorToken.goldCream)
             }
         }
-        .sheet(item: $selectedCard) { card in
-            ShareOptionsSheet(card: card, summary: reading.oneLineSummary, bundle: bundle)
-        }
         .onAppear { UINotificationFeedbackGenerator().notificationOccurred(.success) }
+    }
+
+    private var directAnswerTitle: String {
+        bundle?.sessionIntent?.question == nil ? "Guidance" : "Direct Answer"
+    }
+
+    private func intentCard(_ intent: ReadingSessionIntent) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("QUESTION ANSWERED FIRST")
+                .font(DesignSystem.FontToken.caps(9))
+                .tracking(DesignSystem.Tracking.caps)
+                .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.72))
+            Text(intent.displaySummary)
+                .font(DesignSystem.FontToken.body(17, italic: true))
+                .foregroundStyle(DesignSystem.ColorToken.textPrimary.opacity(0.9))
+                .lineSpacing(3)
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(DesignSystem.ColorToken.goldCream.opacity(0.06))
+        .overlay(
+            RoundedRectangle(cornerRadius: DesignSystem.Radius.cardLg, style: .continuous)
+                .stroke(DesignSystem.ColorToken.goldCream.opacity(0.22), lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.Radius.cardLg, style: .continuous))
     }
 
     private var archetypeChip: some View {
