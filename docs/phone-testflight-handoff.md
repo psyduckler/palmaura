@@ -9,10 +9,12 @@ Current demo target: get PalmAura installable on a physical iPhone and ready for
 - Bundle ID: `com.zonted.palmaura`
 - Version: `0.1.0`
 - Build: `2`
-- Backend: `https://palmaura-api.psyduckler.workers.dev`
+- Backend: `https://palmaura.app/api/*` via `https://palmaura.app` app base URL
 - Cloudflare routes:
   - `GET /api/health`
+  - `GET /api/edge-context`
   - `POST /api/read`
+- Workers.dev fallback: disabled intentionally for internal-only testing (`workers_dev = false`).
 - Backend rate limit: Cloudflare KV, 3 readings/day/device.
 - Privacy posture: PalmAura does not store palm photos; images are sent to Anthropic for real-time processing.
 
@@ -87,17 +89,21 @@ The app compiles for physical iOS unsigned, but signed archive/upload requires s
 
 ## Verified gates
 
-- Cloudflare Worker deployed and live.
-- `GET /api/health` returns 200.
-- `POST /api/read` with non-palm smoke image returns structured `status: not_palm`.
+- Cloudflare Worker deployed and live on branded routes only.
+- `https://palmaura.app/api` returns Worker JSON 404, not marketing HTML.
+- `GET https://palmaura.app/api/health` returns 200 JSON.
+- `GET https://palmaura.app/api/edge-context` returns 200 JSON.
+- Invalid `POST https://palmaura.app/api/read` returns 400 JSON without calling Anthropic.
+- `https://palmaura-api.psyduckler.workers.dev/api/health` no longer serves PalmAura JSON.
+- `POST /api/read` with non-palm smoke image returns structured `status: not_palm` over the branded route.
 - Simulator install/launch succeeds with bundle ID `com.zonted.palmaura`.
-- Simulator screenshot captured at `/tmp/palmaura-simulator-launch.png`.
-- Simulator tests pass: 3 tests, 0 failures.
-- Generic physical iOS Release build passes with `CODE_SIGNING_ALLOWED=NO`.
+- Simulator screenshot captured at `/tmp/palmaura-api-migration-simulator-launch.png`.
+- Simulator tests pass: 4 tests, 0 failures.
+- Generic physical iOS build passes with `CODE_SIGNING_ALLOWED=NO`.
 - Signed archive currently fails only because no Apple Developer Team is selected.
 
 ## Before public launch
 
 - Rotate the Anthropic API key because it was shared through Slack.
-- Switch to production domain/custom Cloudflare route, e.g. `https://api.palmaura.app` or `https://palmaura.app`.
+- Re-check branded API route behavior before public launch if Cloudflare routing changes.
 - Re-check App Privacy nutrition labels against actual data processing.
