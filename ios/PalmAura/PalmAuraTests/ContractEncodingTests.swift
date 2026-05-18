@@ -6,7 +6,10 @@ final class ContractEncodingTests: XCTestCase {
         var personalization = ReadingPersonalization(
             gender: .nonBinary,
             handedness: .ambidextrous,
-            birthDate: BirthDateContext(month: 5, day: 13, year: 1990)
+            birthDate: BirthDateContext(month: 5, day: 13, year: 1990),
+            timeZoneIdentifier: "America/Chicago",
+            localeRegionCode: "US",
+            locationOverride: "Austin, TX"
         )
         personalization.question = "What should I understand about this relationship?"
         let onboarding = OnboardingAnswers(
@@ -33,6 +36,9 @@ final class ContractEncodingTests: XCTestCase {
         XCTAssertEqual(profile["gender"] as? String, "non_binary")
         XCTAssertEqual(profile["handedness"] as? String, "ambidextrous")
         XCTAssertEqual(profile["question"] as? String, "What should I understand about this relationship?")
+        XCTAssertEqual(profile["timeZoneIdentifier"] as? String, "America/Chicago")
+        XCTAssertEqual(profile["localeRegionCode"] as? String, "US")
+        XCTAssertEqual(profile["locationOverride"] as? String, "Austin, TX")
         let birthDate = try XCTUnwrap(profile["birthDate"] as? [String: Any])
         XCTAssertEqual(birthDate["year"] as? Int, 1990)
     }

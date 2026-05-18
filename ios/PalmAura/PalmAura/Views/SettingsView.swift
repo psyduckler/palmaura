@@ -26,6 +26,7 @@ struct SettingsView: View {
                         row(glyph: "♃", label: "Birthday",       detail: birthdayDetail)
                         row(glyph: "✦", label: "Energy",         detail: personalization.gender?.displayName ?? "Not set")
                         row(glyph: "☉", label: "Dominant hand",  detail: personalization.handedness?.displayName ?? "Not set")
+                        row(glyph: "⌖", label: "Location",       detail: locationDetail)
                         navRow(glyph: "☽", label: "Edit profile") { showEditProfile = true }
                     }
                     section(title: "KEEPSAKES") {
@@ -54,7 +55,7 @@ struct SettingsView: View {
                 personalization = ReadingPersonalization()
             }
         } message: {
-            Text("Your birthday, energy, and dominant hand will be cleared. The app will ask again on your next reading.")
+            Text("Your birthday, energy, dominant hand, and location override will be cleared. The app will ask again on your next reading.")
         }
         .alert("Clear reading history?", isPresented: $showClearHistoryAlert) {
             Button("Cancel", role: .cancel) {}
@@ -244,6 +245,12 @@ struct SettingsView: View {
         let components = DateComponents(year: d.year, month: d.month, day: d.day)
         let date = Calendar.current.date(from: components) ?? Date()
         return "\(formatter.string(from: date)), \(d.year)"
+    }
+
+    private var locationDetail: String {
+        if let override = personalization.normalizedLocationOverride { return override }
+        if let timeZone = personalization.timeZoneIdentifier, !timeZone.isEmpty { return "Auto · \(timeZone)" }
+        return "Auto · \(TimeZone.current.identifier)"
     }
 
     private var versionString: String {

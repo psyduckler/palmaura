@@ -222,6 +222,8 @@ struct ReadingQuestionView: View {
         answers.readingStyle = .mysterious
 
         var personalization = (PersonalizationStore.load() ?? ReadingPersonalization()).withoutQuestion
+        personalization.timeZoneIdentifier = TimeZone.current.identifier
+        personalization.localeRegionCode = Locale.current.region?.identifier
         let question = trimmedQuestion(skip: skipQuestion)
         personalization.question = question.isEmpty ? nil : question
         answers.personalization = personalization

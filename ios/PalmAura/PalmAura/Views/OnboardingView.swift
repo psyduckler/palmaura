@@ -12,6 +12,8 @@ struct OnboardingView: View {
     @State private var birthMonth: Int = Calendar.current.component(.month, from: Date())
     @State private var birthDay: Int = Calendar.current.component(.day, from: Date())
     @State private var birthYear = Calendar.current.component(.year, from: Date()) - 30
+    @State private var locationOverrideText = ""
+    @State private var edgeContext: EdgeLocationContext?
     @State private var showHome = false
 
     var body: some View {
@@ -45,6 +47,13 @@ struct OnboardingView: View {
                         handednessGrid
                     }
 
+                    section(numeral: "IV",
+                            eyebrow: "FOR PLACE & SEASON",
+                            title: "Where are you located?",
+                            rationale: "Optional. This tunes local timing and atmosphere without asking for GPS permission.") {
+                        locationField
+                    }
+
                     privacyFootnote
 
                     GoldButton(title: "Save Profile  ›") { advanceOrFinish() }
@@ -63,6 +72,7 @@ struct OnboardingView: View {
         }
         .navigationBarBackButtonHidden(true)
         .onAppear(perform: preloadSavedPersonalization)
+        .task { await loadEdgeContextHint() }
         .navigationDestination(isPresented: $showHome) {
             HomeView()
         }
@@ -229,6 +239,45 @@ struct OnboardingView: View {
         }
     }
 
+    // MARK: - Location (Section IV)
+
+    private var locationField: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            if let displayName = edgeContext?.displayName {
+                Text("Auto-detected: \(displayName)")
+                    .font(DesignSystem.FontToken.body(12.5, italic: true))
+                    .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.72))
+            }
+
+            TextField(locationPlaceholder, text: $locationOverrideText)
+                .font(DesignSystem.FontToken.body(16, italic: true))
+                .foregroundStyle(DesignSystem.ColorToken.textPrimary)
+                .textInputAutocapitalization(.words)
+                .autocorrectionDisabled()
+                .padding(.vertical, 12)
+                .padding(.horizontal, 14)
+                .background(DesignSystem.ColorToken.goldCream.opacity(0.065))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .stroke(DesignSystem.ColorToken.goldCream.opacity(0.28), lineWidth: 1)
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .onChange(of: locationOverrideText) { _, newValue in
+                    if newValue.count > 80 { locationOverrideText = String(newValue.prefix(80)) }
+                }
+
+            Text("Leave blank to use automatic network and time-zone hints. Readings still work without it.")
+                .font(DesignSystem.FontToken.body(12, italic: true))
+                .foregroundStyle(DesignSystem.ColorToken.textSecondary)
+                .lineSpacing(2)
+        }
+    }
+
+    private var locationPlaceholder: String {
+        if let displayName = edgeContext?.displayName { return "Auto · \(displayName)" }
+        return "Optional: Austin, TX"
+    }
+
     // MARK: - Privacy footnote
 
     private var privacyFootnote: some View {
@@ -273,6 +322,7 @@ struct OnboardingView: View {
         guard canContinue else { return }
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
         updateBirthdayContext()
+        updateLocationContext()
         let personalization = answers.personalization?.withoutQuestion
         answers.personalization = personalization
         PersonalizationStore.save(personalization)
@@ -281,6 +331,8 @@ struct OnboardingView: View {
             "dominantHandProvided": String(personalization?.handedness != nil),
             "birthdayProvided": String(personalization?.birthDate != nil),
             "birthYearProvided": String(personalization?.birthDate != nil),
+            "locationOverrideProvided": String(personalization?.normalizedLocationOverride != nil),
+            "timeZoneProvided": String(personalization?.timeZoneIdentifier != nil),
             "combinedScreen": "true"
         ])
         switch completionDestination {
@@ -298,6 +350,7 @@ struct OnboardingView: View {
             return
         }
         answers.personalization = saved.withoutQuestion
+        locationOverrideText = saved.normalizedLocationOverride ?? ""
         if let birthDate = saved.birthDate {
             birthMonth = birthDate.month
             birthDay = birthDate.day
@@ -318,6 +371,20 @@ struct OnboardingView: View {
     private func updateBirthdayContext() {
         ensurePersonalization()
         answers.personalization?.birthDate = BirthDateContext(month: birthMonth, day: birthDay, year: birthYear)
+    }
+
+    private func updateLocationContext() {
+        ensurePersonalization()
+        let trimmedOverride = locationOverrideText.trimmingCharacters(in: .whitespacesAndNewlines)
+        answers.personalization?.locationOverride = trimmedOverride.isEmpty ? nil : trimmedOverride
+        answers.personalization?.timeZoneIdentifier = TimeZone.current.identifier
+        answers.personalization?.localeRegionCode = Locale.current.region?.identifier
+    }
+
+    private func loadEdgeContextHint() async {
+        guard edgeContext == nil else { return }
+        guard let context = await EdgeContextService.fetchIfFast(), context.displayName != nil else { return }
+        edgeContext = context
     }
 
     private func monthName(_ month: Int) -> String {

@@ -32,6 +32,9 @@ const ReadingPersonalizationSchema = z.object({
   handedness: Handedness.optional(),
   scannedHand: ScannedHand.optional(),
   birthDate: BirthDateContextSchema.optional(),
+  timeZoneIdentifier: z.string().trim().max(80).optional(),
+  localeRegionCode: z.string().trim().max(16).optional(),
+  locationOverride: z.string().trim().max(80).optional(),
   // Session-only intent from the iOS ask screen. Stored with the reading, not profile.
   question: z.string().trim().max(200).optional(),
 });
@@ -186,6 +189,10 @@ export default {
       }, { status: 200, head: request.method === 'HEAD' });
     }
 
+    if ((request.method === 'GET' || request.method === 'HEAD') && url.pathname === '/api/edge-context') {
+      return json(edgeLocationFromRequest(request), { status: 200, head: request.method === 'HEAD' });
+    }
+
     if (request.method === 'POST' && url.pathname === '/api/read') {
       return handleRead(request, env);
     }
@@ -211,7 +218,7 @@ async function handleRead(request: Request, env: Env): Promise<Response> {
   }
 
   try {
-    const reading = await generateReading(env, parsed.data);
+    const reading = await generateReading(env, parsed.data, edgeLocationFromRequest(request));
     const appName = env.PUBLIC_APP_NAME ?? 'PalmAura';
     return json({
       readingId: crypto.randomUUID(),
@@ -223,6 +230,22 @@ async function handleRead(request: Request, env: Env): Promise<Response> {
     console.error('reading_failed', error instanceof Error ? error.message : String(error));
     return json({ error: 'server_error', message: 'The reading was interrupted. Try again.' }, { status: 502 });
   }
+}
+
+function edgeLocationFromRequest(request: Request): EdgeLocationContext {
+  const cf = (request as Request & { cf?: Record<string, unknown> }).cf ?? {};
+  return {
+    city: cleanString(cf.city),
+    region: cleanString(cf.region) ?? cleanString(cf.regionCode),
+    country: cleanString(cf.country),
+    timezone: cleanString(cf.timezone),
+  };
+}
+
+function cleanString(value: unknown): string | undefined {
+  if (typeof value !== 'string') return undefined;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : undefined;
 }
 
 async function checkRateLimit(env: Env, deviceId: string): Promise<{ allowed: boolean; retryAfterSeconds: number }> {
@@ -247,6 +270,12 @@ function hashDeviceId(deviceId: string): string {
 }
 
 type ReadingPersonalization = z.infer<typeof ReadingPersonalizationSchema>;
+type EdgeLocationContext = {
+  city?: string;
+  region?: string;
+  country?: string;
+  timezone?: string;
+};
 type DerivedContext = {
   sunSign?: string;
   age?: number;
@@ -378,13 +407,14 @@ READING STYLE:
 - deep_spiritual: sacred, archetypal, transformational, not therapy-ish
 
 SPECIFICITY RULES:
-1. Evidence-grounding rule: every meaningful claim must be tied to at least one of: a visible palm feature from the image; palm line confidence/shape; focus/lifeSeason/readingStyle; dominant-hand context; saved birthday-derived sun sign or age band; or saved gender context if relevant. If a claim cannot be grounded, do not make it.
+1. Evidence-grounding rule: every meaningful claim must be tied to at least one of: a visible palm feature from the image; palm line confidence/shape; focus/lifeSeason/readingStyle; dominant-hand context; saved birthday-derived sun sign or age band; saved gender context if relevant; or coarse location/timezone context for timing/place atmosphere if provided. If a claim cannot be grounded, do not make it.
 2. Dominant hand rule: if dominant hand context is provided, use it as the user's active/current path lens. If scanned-hand role is provided by older clients, use it in at least two report sections.
 3. Sun sign rule: if sunSign is provided, reference it exactly once across the whole report. Do not turn the reading into a horoscope.
 4. Age-band rule: if ageBand is provided, adapt life-stage assumptions without over-explaining the age. under_25 = identity/first big choices; 25_34 = momentum/filtering/ambition vs burnout; 35_44 = leadership/reinvention; 45_54 = recalibration/second-act energy; 55_plus = wisdom/simplification/legacy.
 5. Gender context rule: do not stereotype or infer pronouns. Use saved gender only lightly when it helps phrasing; if prefer_not_to_say, avoid gendered framing entirely.
 6. Banned standalone adjectives: never use creative, intuitive, loyal, sensitive, resilient, or ambitious as freestanding descriptors. You may use one only when the same sentence explains the palm or context evidence behind it.
 7. Rule of softness: use "this season favors," "this pattern suggests," "your hand points toward," and "a useful move would be." Never use "you will," "you are destined to," or "this proves."
+8. Location context rule: if location context is provided, use it only for local season, time-of-day, and grounded place atmosphere. Never claim it improves palm-line detection, never mention precise location, and never imply continuous tracking.
 
 SECTION INTENT:
 - aura: 2-3 sentences. Give an at-a-glance physical/visual impression; if sunSign is available, this is the best place for the single sun-sign mention.
@@ -409,7 +439,28 @@ SESSION QUESTION:
 - Do not generate share/export/social-card copy; this MVP is private by default.`;
 }
 
-function buildUserPrompt(env: Env, data: ReadingRequest): string {
+function buildLocationContext(personalization?: ReadingPersonalization, edgeLocation: EdgeLocationContext = {}): string {
+  const manualPlace = cleanString(personalization?.locationOverride);
+  const edgePlace = [edgeLocation.city, edgeLocation.region, edgeLocation.country].filter(Boolean).join(', ');
+  const localeRegion = cleanString(personalization?.localeRegionCode);
+  const placeHint = manualPlace ?? (edgePlace || undefined) ?? (localeRegion ? `Country/region: ${localeRegion}` : undefined);
+  const timezone = cleanString(personalization?.timeZoneIdentifier) ?? edgeLocation.timezone;
+
+  if (!placeHint && !timezone) return '- Location context: not provided';
+
+  const source = manualPlace
+    ? 'user-provided place override'
+    : edgePlace
+      ? 'network place hint'
+      : 'device locale/timezone';
+
+  return `- Place hint: ${placeHint ?? 'not provided'}
+- Timezone: ${timezone ?? 'not provided'}
+- Source: ${source}
+- Location rule: use only for local season, time-of-day, and grounded place atmosphere. Never claim it improves palm-line detection, never mention precise location, and never imply continuous tracking.`;
+}
+
+function buildUserPrompt(env: Env, data: ReadingRequest, edgeLocation: EdgeLocationContext = {}): string {
   const appDomain = env.PUBLIC_APP_DOMAIN ?? 'palmaura.app';
   const personalization = data.onboarding.personalization;
   const derived = buildDerivedContext(personalization);
@@ -422,16 +473,17 @@ function buildUserPrompt(env: Env, data: ReadingRequest): string {
   const genderContext = personalization?.gender
     ? `- Gender: ${derived.genderPhrase}`
     : '- Gender: not provided';
+  const locationContext = buildLocationContext(personalization, edgeLocation);
 
   const sessionQuestion = personalization?.question?.trim();
   const sessionIntent = sessionQuestion
     ? `- User's question for this reading: ${sessionQuestion}`
     : '- User skipped a custom question; answer through the selected focus only.';
 
-  return `Session intent:\n- Seeking clarity on: ${data.onboarding.focus}\n${sessionIntent}\n- Current season: ${data.onboarding.lifeSeason}\n- Reading style: ${data.onboarding.readingStyle}\n\nSaved profile context:\n${genderContext}\n${handContext}\n\nBirthday context:\n${birthdayContext}\n\nPalm evidence:\n- Client-side palm-line evidence: not provided in this client build; use the image itself and the palmLines you return in the same tool call.\n\nRead this palm if it is a clear human palm. If not, return the appropriate status and rejection message. The app domain is ${appDomain}.`;
+  return `Session intent:\n- Seeking clarity on: ${data.onboarding.focus}\n${sessionIntent}\n- Current season: ${data.onboarding.lifeSeason}\n- Reading style: ${data.onboarding.readingStyle}\n\nSaved profile context:\n${genderContext}\n${handContext}\n\nBirthday context:\n${birthdayContext}\n\nLocation context:\n${locationContext}\n\nPalm evidence:\n- Client-side palm-line evidence: not provided in this client build; use the image itself and the palmLines you return in the same tool call.\n\nRead this palm if it is a clear human palm. If not, return the appropriate status and rejection message. The app domain is ${appDomain}.`;
 }
 
-async function generateReading(env: Env, data: ReadingRequest): Promise<Reading> {
+async function generateReading(env: Env, data: ReadingRequest, edgeLocation: EdgeLocationContext = {}): Promise<Reading> {
   if (!env.ANTHROPIC_API_KEY) throw new Error('ANTHROPIC_API_KEY missing');
   const model = env.ANTHROPIC_MODEL ?? 'claude-haiku-4-5-20251001';
 
@@ -452,7 +504,7 @@ async function generateReading(env: Env, data: ReadingRequest): Promise<Reading>
         role: 'user',
         content: [
           { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: data.imageBase64Jpeg } },
-          { type: 'text', text: buildUserPrompt(env, data) },
+          { type: 'text', text: buildUserPrompt(env, data, edgeLocation) },
         ],
       }],
     }),

@@ -136,15 +136,33 @@ struct ReadingPersonalization: Codable, Equatable {
     var scannedHand: ScannedHand?
     var birthDate: BirthDateContext?
     var question: String?
+    var timeZoneIdentifier: String?
+    var localeRegionCode: String?
+    var locationOverride: String?
 
-    enum CodingKeys: String, CodingKey { case gender, handedness, scannedHand, birthDate, question }
+    enum CodingKeys: String, CodingKey {
+        case gender, handedness, scannedHand, birthDate, question
+        case timeZoneIdentifier, localeRegionCode, locationOverride
+    }
 
-    init(gender: Gender? = nil, handedness: Handedness? = nil, scannedHand: ScannedHand? = nil, birthDate: BirthDateContext? = nil, question: String? = nil) {
+    init(
+        gender: Gender? = nil,
+        handedness: Handedness? = nil,
+        scannedHand: ScannedHand? = nil,
+        birthDate: BirthDateContext? = nil,
+        question: String? = nil,
+        timeZoneIdentifier: String? = nil,
+        localeRegionCode: String? = nil,
+        locationOverride: String? = nil
+    ) {
         self.gender = gender
         self.handedness = handedness
         self.scannedHand = scannedHand
         self.birthDate = birthDate
         self.question = question
+        self.timeZoneIdentifier = timeZoneIdentifier
+        self.localeRegionCode = localeRegionCode
+        self.locationOverride = locationOverride
     }
 
     init(from decoder: Decoder) throws {
@@ -154,14 +172,38 @@ struct ReadingPersonalization: Codable, Equatable {
         scannedHand = try container.decodeIfPresent(ScannedHand.self, forKey: .scannedHand)
         birthDate = try? container.decodeIfPresent(BirthDateContext.self, forKey: .birthDate)
         question = try container.decodeIfPresent(String.self, forKey: .question)
+        timeZoneIdentifier = try container.decodeIfPresent(String.self, forKey: .timeZoneIdentifier)
+        localeRegionCode = try container.decodeIfPresent(String.self, forKey: .localeRegionCode)
+        locationOverride = try container.decodeIfPresent(String.self, forKey: .locationOverride)
     }
 
     var withoutQuestion: ReadingPersonalization {
-        ReadingPersonalization(gender: gender, handedness: handedness, scannedHand: scannedHand, birthDate: birthDate, question: nil)
+        ReadingPersonalization(
+            gender: gender,
+            handedness: handedness,
+            scannedHand: scannedHand,
+            birthDate: birthDate,
+            question: nil,
+            timeZoneIdentifier: timeZoneIdentifier,
+            localeRegionCode: localeRegionCode,
+            locationOverride: normalizedLocationOverride
+        )
+    }
+
+    var normalizedLocationOverride: String? {
+        let trimmed = locationOverride?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        return trimmed.isEmpty ? nil : trimmed
     }
 
     var isEmpty: Bool {
-        gender == nil && handedness == nil && scannedHand == nil && birthDate == nil && (question?.isEmpty ?? true)
+        gender == nil &&
+        handedness == nil &&
+        scannedHand == nil &&
+        birthDate == nil &&
+        (question?.isEmpty ?? true) &&
+        (timeZoneIdentifier?.isEmpty ?? true) &&
+        (localeRegionCode?.isEmpty ?? true) &&
+        normalizedLocationOverride == nil
     }
 
     var isCompleteProfile: Bool {
