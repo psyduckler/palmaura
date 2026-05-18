@@ -93,6 +93,13 @@ struct LoadingReadingView: View {
                     } else {
                         Analytics.shared.track("palm_lines_missing", properties: ["reason": "absent"])
                     }
+                    if let inferredHand = response.inferredScannedHand {
+                        Analytics.shared.track("hand_inferred", properties: [
+                            "hand": inferredHand.hand.rawValue,
+                            "role": inferredHand.role.rawValue,
+                            "confidence": String(format: "%.2f", inferredHand.confidence)
+                        ])
+                    }
                     let intent = ReadingSessionIntent(answers: onboardingAnswers)
                     ReadingIntentStore.save(intent, for: adjustedResponse.readingId)
                     LastReadingStore.save(adjustedResponse)

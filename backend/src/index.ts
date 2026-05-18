@@ -73,6 +73,13 @@ const PalmLineSetSchema = z.object({
   confidence: z.number().min(0).max(1).default(0.7),
 });
 
+const InferredScannedHandSchema = z.object({
+  hand: z.enum(['left', 'right', 'unknown']).default('unknown'),
+  confidence: z.number().min(0).max(1).default(0),
+  role: z.enum(['dominant', 'non_dominant', 'ambidextrous', 'unknown']).default('unknown'),
+  evidence: z.string().max(180).default(''),
+});
+
 const pointToolSchema = {
   type: 'object',
   properties: { x: { type: 'number', minimum: 0, maximum: 1 }, y: { type: 'number', minimum: 0, maximum: 1 } },
@@ -89,6 +96,18 @@ const linePathToolSchema = {
   required: ['points', 'midpoint', 'confidence'],
 } as const;
 
+const inferredScannedHandToolSchema = {
+  type: 'object',
+  description: 'The visible hand inferred from the image and its role compared with the user-provided dominant hand. Required when status=ok.',
+  properties: {
+    hand: { type: 'string', enum: ['left', 'right', 'unknown'] },
+    confidence: { type: 'number', minimum: 0, maximum: 1 },
+    role: { type: 'string', enum: ['dominant', 'non_dominant', 'ambidextrous', 'unknown'] },
+    evidence: { type: 'string', description: 'Short visual reason, e.g. thumb appears on image-right so this looks like a left palm.' },
+  },
+  required: ['hand', 'confidence', 'role', 'evidence'],
+} as const;
+
 const ReadingSchema = z.object({
   status: z.enum(['ok', 'not_palm', 'bad_image']),
   title: z.string().default(''),
@@ -96,6 +115,7 @@ const ReadingSchema = z.object({
   auraColor: z.enum(['violet', 'gold', 'fire', 'moon', 'water', 'rose']).default('violet'),
   archetype: z.string().default(''),
   palmLines: PalmLineSetSchema.optional(),
+  inferredScannedHand: InferredScannedHandSchema.optional(),
   report: z.object({
     aura: z.string().default(''),
     heartLine: z.string().default(''),
@@ -139,6 +159,7 @@ const TOOL = {
         },
         required: ['heart', 'head', 'life', 'fate', 'source', 'confidence'],
       },
+      inferredScannedHand: inferredScannedHandToolSchema,
       report: {
         type: 'object',
         properties: {
@@ -381,6 +402,14 @@ IMAGE VALIDATION:
 - If the image is a palm but too dark, blurry, cropped, or unclear to read, return status = "bad_image" and a short friendly rejectionMessage. Do not fake detailed line observations.
 - Only generate status = "ok" when the image appears to contain a human palm/open hand.
 
+HAND INFERENCE:
+- When status = "ok", infer whether the visible palm is the user's left hand, right hand, or unknown. Return inferredScannedHand.
+- Use anatomy cues from the image as presented: thumb side, pinky side, finger order, thenar/thumb mound, and wrist orientation. Do not guess from camera/device metadata.
+- If mirroring, cropping, rotation, or pose makes left/right uncertain, set hand = "unknown", confidence < 0.55, role = "unknown", and do not build the reading around hand role.
+- Combine the inferred hand with the provided dominant hand. If dominant hand is left/right and inferred hand matches it, role = "dominant". If it differs, role = "non_dominant". If dominant hand is ambidextrous, role = "ambidextrous". If dominant hand is missing or inference is unknown, role = "unknown".
+- If role is dominant, frame the reading as current choices, active path, and what the user is doing with their potential. If role is non_dominant, frame it as inherited tendencies, inner pattern, past, and potential. If role is ambidextrous, frame it as both currents/current-use energy.
+- Use a high-confidence inferred role in at least two report sections. If confidence is low, say less — do not pretend.
+
 PALM LINE COORDINATES:
 - When status = "ok", inspect the user's actual visible palm creases and return palmLines.
 - Coordinates must be normalized numbers from 0.0 to 1.0 relative to the image bounds, origin top-left.
@@ -408,7 +437,7 @@ READING STYLE:
 
 SPECIFICITY RULES:
 1. Evidence-grounding rule: every meaningful claim must be tied to at least one of: a visible palm feature from the image; palm line confidence/shape; focus/lifeSeason/readingStyle; dominant-hand context; saved birthday-derived sun sign or age band; saved gender context if relevant; or coarse location/timezone context for timing/place atmosphere if provided. If a claim cannot be grounded, do not make it.
-2. Dominant hand rule: if dominant hand context is provided, use it as the user's active/current path lens. If scanned-hand role is provided by older clients, use it in at least two report sections.
+2. Dominant/scanned hand rule: if the client provides scannedHand, use it. If not, infer the visible hand from the image, compare it with the dominant hand, and use the inferred role when confidence >= 0.55. Use known hand role in at least two report sections; if role is unknown/low-confidence, rely on dominant-hand context only and avoid pretending the photo is dominant.
 3. Sun sign rule: if sunSign is provided, reference it exactly once across the whole report. Do not turn the reading into a horoscope.
 4. Age-band rule: if ageBand is provided, adapt life-stage assumptions without over-explaining the age. under_25 = identity/first big choices; 25_34 = momentum/filtering/ambition vs burnout; 35_44 = leadership/reinvention; 45_54 = recalibration/second-act energy; 55_plus = wisdom/simplification/legacy.
 5. Gender context rule: do not stereotype or infer pronouns. Use saved gender only lightly when it helps phrasing; if prefer_not_to_say, avoid gendered framing entirely.
@@ -468,8 +497,10 @@ function buildUserPrompt(env: Env, data: ReadingRequest, edgeLocation: EdgeLocat
     ? `- Sun sign: ${derived.sunSign ?? 'unknown'}\n- Age band: ${derived.ageBand ?? 'not provided'}\n- Life-stage lens: ${ageBandGuidance(derived.ageBand)}`
     : '- Birthday context: not provided';
   const handContext = personalization?.handedness
-    ? `- Dominant hand: ${personalization.handedness}\n- Scanned hand: ${personalization.scannedHand ?? 'not provided'}\n- Hand lens: ${derived.handPhrase}\n- Palmistry frame: ${derived.palmistryFrame}`
-    : '- Hand context: not provided';
+    ? personalization.scannedHand
+      ? `- Dominant hand: ${personalization.handedness}\n- Client-provided scanned hand: ${personalization.scannedHand}\n- Hand lens: ${derived.handPhrase}\n- Palmistry frame: ${derived.palmistryFrame}`
+      : `- Dominant hand: ${personalization.handedness}\n- Client-provided scanned hand: not provided\n- Hand inference task: infer whether the image shows the left or right palm, then compare it with the dominant hand before choosing dominant vs non-dominant framing.\n- Palmistry frame before image inference: ${derived.palmistryFrame}`
+    : '- Hand context: not provided; still infer the visible hand from the image when status=ok, but set role = "unknown".';
   const genderContext = personalization?.gender
     ? `- Gender: ${derived.genderPhrase}`
     : '- Gender: not provided';

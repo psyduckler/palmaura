@@ -2,6 +2,15 @@ import Foundation
 
 enum ReadingStatus: String, Codable { case ok, notPalm = "not_palm", badImage = "bad_image" }
 enum AuraColor: String, Codable { case violet, gold, fire, moon, water, rose }
+enum InferredScannedHand: String, Codable { case left, right, unknown }
+enum InferredHandRole: String, Codable { case dominant, nonDominant = "non_dominant", ambidextrous, unknown }
+
+struct InferredScannedHandContext: Codable, Equatable {
+    let hand: InferredScannedHand
+    let confidence: Double
+    let role: InferredHandRole
+    let evidence: String
+}
 
 struct PalmReadingResponse: Codable, Equatable, Identifiable {
     var id: String { readingId }
@@ -12,6 +21,7 @@ struct PalmReadingResponse: Codable, Equatable, Identifiable {
     let auraColor: AuraColor
     let archetype: String
     let palmLines: PalmLineSet?
+    let inferredScannedHand: InferredScannedHandContext?
     let report: ReadingReport
     let rejectionMessage: String?
     let nextReadingHook: NextReadingHook?
@@ -19,7 +29,7 @@ struct PalmReadingResponse: Codable, Equatable, Identifiable {
     let createdAt: String
 
     func replacingPalmLines(_ palmLines: PalmLineSet?) -> PalmReadingResponse {
-        PalmReadingResponse(status: status, readingId: readingId, title: title, oneLineSummary: oneLineSummary, auraColor: auraColor, archetype: archetype, palmLines: palmLines, report: report, rejectionMessage: rejectionMessage, nextReadingHook: nextReadingHook, entertainmentDisclaimer: entertainmentDisclaimer, createdAt: createdAt)
+        PalmReadingResponse(status: status, readingId: readingId, title: title, oneLineSummary: oneLineSummary, auraColor: auraColor, archetype: archetype, palmLines: palmLines, inferredScannedHand: inferredScannedHand, report: report, rejectionMessage: rejectionMessage, nextReadingHook: nextReadingHook, entertainmentDisclaimer: entertainmentDisclaimer, createdAt: createdAt)
     }
 }
 
