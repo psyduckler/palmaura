@@ -22,6 +22,7 @@
 		4CD63657758C124662FC3CFE /* SafariView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F13F64552D9CEC21942FCD75 /* SafariView.swift */; };
 		54991A7A5353D816A69D7DEA /* AppOpeningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1953DFB6C4E9688173108D85 /* AppOpeningView.swift */; };
 		58AEBFB6B73A5463441B644B /* ReadingBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = A861D489AE5C296722AFCB36 /* ReadingBundle.swift */; };
+		5FEAFB5477F52D3335A3539E /* NavigationCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6BF4B44BF3896F04E926637 /* NavigationCoordinatorTests.swift */; };
 		674273DBEEC0A3FA777615B3 /* PalmReadingResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07C6DA2991F59AA384A35613 /* PalmReadingResponse.swift */; };
 		6C313972967FFBB35306AEFF /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF5C572506FA73A211D1CA8 /* AppConfig.swift */; };
 		72F2F1C92A1EF30C64376BFD /* PalmLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83B1B3C81EE103A0E8DAC0F0 /* PalmLine.swift */; };
@@ -112,6 +113,7 @@
 		AC72B8E2100B1B2DD7EA7CFC /* PalmAuraApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PalmAuraApp.swift; sourceTree = "<group>"; };
 		AF459A5F9333106CA5AF9CC2 /* Caveat.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Caveat.ttf; sourceTree = "<group>"; };
 		AFEB3CB059CC4EBA570D575F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		C6BF4B44BF3896F04E926637 /* NavigationCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationCoordinatorTests.swift; sourceTree = "<group>"; };
 		CCD3B2E2F368F488CA858B59 /* EBGaramond-Italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "EBGaramond-Italic.ttf"; sourceTree = "<group>"; };
 		CF5515FDAB1E983707B4048E /* mystical-loading-phrases.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "mystical-loading-phrases.json"; sourceTree = "<group>"; };
 		D5529B6060B0A6F65C79536A /* PalmCanvasView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PalmCanvasView.swift; sourceTree = "<group>"; };
@@ -146,6 +148,7 @@
 				41EDB47AB8DE4AE6BDE1794A /* ImagePreprocessorTests.swift */,
 				055BDCC8D1CC9A05842EB2C0 /* Info.plist */,
 				9FC7B35A4BDF4903640A31BF /* MysticProfileDescriptorTests.swift */,
+				C6BF4B44BF3896F04E926637 /* NavigationCoordinatorTests.swift */,
 				0601EB8C33A7ACEEE28C92BF /* PalmPhotoStoreTests.swift */,
 				A8F12EF70C3329DD05F7A2BF /* PalmReadingResponseTests.swift */,
 				1FF2E1CEBD10AC6339C86269 /* ReadingTimestampFormatterTests.swift */,
@@ -366,6 +369,7 @@
 				08667B571912BDFD50085CF2 /* ContractEncodingTests.swift in Sources */,
 				030D46DF6271BAA4DF23851B /* ImagePreprocessorTests.swift in Sources */,
 				73008B58CDA2E9AB711B3F3F /* MysticProfileDescriptorTests.swift in Sources */,
+				5FEAFB5477F52D3335A3539E /* NavigationCoordinatorTests.swift in Sources */,
 				FEF994DE316BC2352376669C /* PalmPhotoStoreTests.swift in Sources */,
 				E3D09EC24C2B30CFC8E50737 /* PalmReadingResponseTests.swift in Sources */,
 				8B99077D41C2EC0D4AB52F06 /* ReadingTimestampFormatterTests.swift in Sources */,

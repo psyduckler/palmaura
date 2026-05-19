@@ -7,28 +7,34 @@ private enum RootDestination: Hashable {
 
 /// Centralized navigation state. Owned by `RootView` as a `@StateObject` and
 /// exposed to nested views (notably `ScreenHeader`) via an environment value.
-/// This replaces the earlier pattern of posting `NotificationCenter` events
-/// and force-rebuilding the entire NavigationStack with a UUID `.id(...)`.
+/// This replaces the earlier pattern of posting `NotificationCenter` events.
+/// It still owns a stack reset token because several feature flows use local
+/// `NavigationLink` / `navigationDestination(isPresented:)` state that is not
+/// represented in `path`; resetting the stack identity is the reliable global
+/// escape hatch from reveal/report/capture subflows.
 ///
 /// Navigation behaviour:
-/// - `goHome()` empties the navigation path so the `NavigationStack` returns
-///   to its root content (whichever screen `RootView.rootContent` resolves to
-///   based on the disclaimer / profile gates).
-/// - `goSettings()` resets the path to `[.settings]`, pushing Settings as the
-///   single top entry. Tapping Settings from inside Settings is a no-op
-///   reset.
+/// - `goHome()` empties the navigation path and resets the stack identity so
+///   the `NavigationStack` returns to root content (whichever screen
+///   `RootView.rootContent` resolves to based on the disclaimer / profile
+///   gates).
+/// - `goSettings()` resets pushed/local stack state, then sets the path to
+///   `[.settings]`, pushing Settings as the single top entry.
 @MainActor
 final class NavigationCoordinator: ObservableObject {
     @Published var path = NavigationPath()
+    @Published private(set) var stackResetID = UUID()
 
     func goHome() {
         path = NavigationPath()
+        stackResetID = UUID()
     }
 
     func goSettings() {
         var newPath = NavigationPath()
         newPath.append(RootDestination.settings)
         path = newPath
+        stackResetID = UUID()
     }
 }
 
@@ -77,6 +83,7 @@ struct RootView: View {
                     }
                 }
         }
+        .id(coordinator.stackResetID)
         .environment(\.navigationCoordinator, coordinator)
         .preferredColorScheme(.dark)
     }

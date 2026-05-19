@@ -237,14 +237,10 @@ struct ScreenHeader: View {
     private func navIcon(systemName: String, accessibilityLabel: String, isActive: Bool = false, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: systemName)
-                .font(.system(size: 15, weight: .semibold))
+                .font(.system(size: 18, weight: .semibold))
                 .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(isActive ? 0.45 : 0.92))
-                .frame(width: 36, height: 36)
-                .background(Circle().fill(DesignSystem.ColorToken.goldCream.opacity(isActive ? 0.02 : 0.055)))
-                .overlay(Circle().stroke(DesignSystem.ColorToken.goldCream.opacity(isActive ? 0.12 : 0.28), lineWidth: 0.8))
-                // Visible chrome stays 36pt; the surrounding 44pt frame +
-                // rectangle content shape gives an HIG-compliant tap area
-                // without changing the look of the persistent header.
+                // Icon-only chrome: no visible circle, but keep the 44pt
+                // rectangle tap target so the controls stay easy to hit.
                 .frame(width: 44, height: 44)
                 .contentShape(Rectangle())
         }
