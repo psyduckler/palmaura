@@ -10,7 +10,7 @@ export interface Env {
   VERSION?: string;
 }
 
-const Focus = z.enum(['love', 'career', 'self', 'purpose', 'general']);
+const Focus = z.enum(['love', 'career', 'money', 'family', 'self', 'purpose', 'general']);
 const LifeSeason = z.enum(['new_beginning', 'big_decision', 'healing', 'building_momentum', 'feeling_stuck', 'unknown']);
 const ReadingStyle = z.enum(['gentle', 'direct', 'mysterious', 'deep_spiritual']);
 const Handedness = z.enum(['left', 'right', 'ambidextrous']);
@@ -73,13 +73,17 @@ const AURA_COLOR_ALIASES: Record<string, string> = {
   lunar: 'moon',
   silver: 'moon',
 };
-const VALID_FOCUSES = new Set(['love', 'career', 'self', 'purpose', 'general']);
+const VALID_FOCUSES = new Set(['love', 'career', 'money', 'family', 'self', 'purpose', 'general']);
 const FOCUS_ALIASES: Record<string, string> = {
   relationship: 'love',
   relationships: 'love',
   romance: 'love',
   work: 'career',
-  money: 'career',
+  // `money` and `family` are now first-class focuses (added 2026-05-19); the
+  // previous money→career and family→self aliases are intentionally removed so
+  // the prompt can distinguish them. Aliases below remain for typos / synonyms.
+  finances: 'money',
+  household: 'family',
   identity: 'self',
   personal: 'self',
   meaning: 'purpose',
@@ -164,7 +168,7 @@ const TOOL = {
       nextReadingHook: {
         type: 'object',
         properties: {
-          focus: { type: 'string', enum: ['love', 'career', 'self', 'purpose', 'general'] },
+          focus: { type: 'string', enum: ['love', 'career', 'money', 'family', 'self', 'purpose', 'general'] },
           teaser: { type: 'string', maxLength: MAX_NEXT_READING_HOOK_CHARS },
         },
         required: ['focus', 'teaser'],

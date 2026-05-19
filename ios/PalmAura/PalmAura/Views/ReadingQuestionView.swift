@@ -270,8 +270,8 @@ private struct SessionFocusOption: Identifiable, Equatable {
     static let all: [SessionFocusOption] = [
         relationship,
         .init(id: "career", title: "Career", glyph: "♄", suggestedQuestion: "What should I know about the path my work is taking?", backendFocus: .career, lifeSeason: .buildingMomentum),
-        .init(id: "money", title: "Money", glyph: "♃", suggestedQuestion: "What pattern around money is asking for my attention?", backendFocus: .career, lifeSeason: .bigDecision),
-        .init(id: "family", title: "Family", glyph: "☽", suggestedQuestion: "What should I see more clearly in my family life?", backendFocus: .selfGrowth, lifeSeason: .healing),
+        .init(id: "money", title: "Money", glyph: "♃", suggestedQuestion: "What pattern around money is asking for my attention?", backendFocus: .money, lifeSeason: .bigDecision),
+        .init(id: "family", title: "Family", glyph: "☽", suggestedQuestion: "What should I see more clearly in my family life?", backendFocus: .family, lifeSeason: .healing),
         .init(id: "the_path", title: "The path", glyph: "✦", suggestedQuestion: "What is the next right step on my path?", backendFocus: .purpose, lifeSeason: .unknown)
     ]
 }
