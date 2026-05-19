@@ -180,7 +180,8 @@
   .mini-glyph { width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(243,221,168,.12); color:var(--gold-cream); border:1px solid rgba(243,221,168,.25); }
   .two-col { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
   .small-card { border-radius:16px; background:rgba(243,221,168,.06); border:1px solid rgba(243,221,168,.2); padding:10px; min-height:68px; }
-  .input { min-height:92px; border-radius:18px; padding:12px; background:rgba(243,221,168,.065); border:1px solid rgba(243,221,168,.45); color:var(--text); font-style:italic; }
+  .input { min-height:92px; width:100%; border-radius:18px; padding:12px; background:rgba(243,221,168,.065); border:1px solid rgba(243,221,168,.45); color:var(--text); font:italic 17px/1.28 "EB Garamond", Georgia, serif; resize:none; outline:none; }
+  .input::placeholder { color:rgba(255,246,216,.72); opacity:1; }
   .todo-card { border-radius:18px; background:rgba(243,221,168,.055); border:1px solid rgba(243,221,168,.18); padding:16px; color:var(--text2); }
   @media (max-width: 820px) { .hero { grid-template-columns:1fr; } .phone { width:300px; height:650px; } h1 { font-size:48px; } }
 </style>
@@ -254,7 +255,7 @@
         <div class="status"><span>9:41</span><span>●●●</span></div><div class="header"><div class="back">‹</div><div class="head-title">For This Reading</div><div class="moon">☽<small>WAX</small></div></div>
         <div class="center"><div class="eyebrow">Session Intent</div><div class="display sm" style="margin-top:8px">What should the palm<br><span class="gold"><em>look into?</em></span></div><p class="body">One question for this moment. Profile context stays saved.</p></div>
         <div class="two-col" style="margin-top:14px"><div class="small-card" style="background:rgba(243,221,168,.92);color:var(--sky-deep)"><b>♥</b><br><small>Relationship</small></div><div class="small-card"><b>♄</b><br><small>Career</small></div><div class="small-card"><b>♃</b><br><small>Money</small></div><div class="small-card"><b>☉</b><br><small>Self</small></div></div>
-        <div class="panel" style="margin-top:12px"><div class="caps" style="font-size:8px">Optional custom wording</div><div class="input" style="margin-top:8px">What should I understand about this relationship?</div></div>
+        <div class="panel" style="margin-top:12px"><div class="caps" style="font-size:8px">Whisper your question</div><textarea class="input" style="margin-top:8px" placeholder="What should I understand about this relationship?"></textarea></div>
         <div class="spacer"></div><button class="button">Open My Palm&nbsp; ›</button><button class="button ghost" style="margin-top:10px">Skip Question</button>
       </div></div></div></div>
 
@@ -324,7 +325,6 @@
       <div class="phone-wrap"><div class="label"><b>15 · Settings</b><span>SettingsView</span></div><div class="phone"><div class="screen"><div class="content">
         <div class="status"><span>9:41</span><span>●●●</span></div><div class="header"><div class="back">‹</div><div class="head-title">Settings</div><span></span></div>
         <div class="row"><div class="glyph">✦</div><div><b>Seeker</b><small>1 reading · Violet energy</small></div></div>
-        <div class="caps" style="margin:16px 0 6px">Reading</div><div class="panel" style="padding:0"><div class="row"><span class="mini-glyph">☉</span><b>Oracle voice</b><small style="margin-left:auto">Mysterious</small></div><div class="row"><span class="mini-glyph">♀</span><b>Question focus</b><small style="margin-left:auto">Asked each reading</small></div><div class="row"><span class="mini-glyph">☽</span><b>Lunar reminders</b><small style="margin-left:auto">On</small></div></div>
         <div class="caps" style="margin:16px 0 6px">Personalization</div><div class="panel" style="padding:0"><div class="row"><span class="mini-glyph">♃</span><b>Birthday</b><small style="margin-left:auto">23 Aug, 1990</small></div><div class="row"><span class="mini-glyph">☉</span><b>Dominant hand</b><small style="margin-left:auto">Right-handed</small></div><div class="row"><span class="mini-glyph">⌖</span><b>Location</b><small style="margin-left:auto">Auto · Austin</small></div></div>
         <div class="spacer"></div><button class="button ghost">Clear Reading History</button>
       </div></div></div></div>

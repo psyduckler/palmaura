@@ -4,7 +4,7 @@ import SwiftUI
 /// this screen only captures the focus/question for the next scan.
 struct ReadingQuestionView: View {
     @State private var selectedOption: SessionFocusOption = .relationship
-    @State private var questionText: String = SessionFocusOption.relationship.suggestedQuestion
+    @State private var questionText: String = ""
     @State private var showCapture = false
     @State private var skipQuestion = false
     @State private var profile = PersonalizationStore.load()
@@ -37,9 +37,6 @@ struct ReadingQuestionView: View {
         }
         .navigationBarBackButtonHidden(true)
         .onAppear { profile = PersonalizationStore.load() }
-        .onChange(of: selectedOption) { _, option in
-            questionText = option.suggestedQuestion
-        }
         .navigationDestination(isPresented: $showCapture) {
             PalmCaptureView(onboardingAnswers: buildAnswers())
         }
@@ -107,7 +104,7 @@ struct ReadingQuestionView: View {
     private var questionBox: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
-                Text("Optional custom wording")
+                Text("Whisper your question")
                     .font(DesignSystem.FontToken.caps(9))
                     .tracking(2.4)
                     .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.72))
@@ -118,22 +115,37 @@ struct ReadingQuestionView: View {
                     .foregroundStyle(DesignSystem.ColorToken.textTertiary)
             }
 
-            TextEditor(text: $questionText)
-                .font(DesignSystem.FontToken.body(17, italic: true))
-                .foregroundStyle(DesignSystem.ColorToken.textPrimary)
-                .scrollContentBackground(.hidden)
-                .focused($questionFocused)
-                .frame(minHeight: 112)
-                .padding(12)
-                .background(DesignSystem.ColorToken.goldCream.opacity(0.065))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 18, style: .continuous)
-                        .stroke(DesignSystem.ColorToken.goldCream.opacity(questionFocused ? 0.65 : 0.28), lineWidth: 1)
-                )
-                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-                .onChange(of: questionText) { _, newValue in
-                    if newValue.count > 200 { questionText = String(newValue.prefix(200)) }
+            ZStack(alignment: .topLeading) {
+                TextEditor(text: $questionText)
+                    .font(DesignSystem.FontToken.body(17, italic: true))
+                    .foregroundStyle(DesignSystem.ColorToken.textPrimary)
+                    .scrollContentBackground(.hidden)
+                    .focused($questionFocused)
+                    .frame(minHeight: 112)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 6)
+
+                if questionText.isEmpty && !questionFocused {
+                    Text(selectedOption.suggestedQuestion)
+                        .font(DesignSystem.FontToken.body(17, italic: true))
+                        .foregroundStyle(DesignSystem.ColorToken.textTertiary)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 14)
+                        .allowsHitTesting(false)
                 }
+            }
+            .frame(minHeight: 112)
+            .background(DesignSystem.ColorToken.goldCream.opacity(0.065))
+            .overlay(
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .stroke(DesignSystem.ColorToken.goldCream.opacity(questionFocused ? 0.65 : 0.28), lineWidth: 1)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .onTapGesture { questionFocused = true }
+            .onChange(of: questionText) { _, newValue in
+                if newValue.count > 200 { questionText = String(newValue.prefix(200)) }
+            }
         }
         .padding(16)
         .background(DesignSystem.ColorToken.surfaceSoft)

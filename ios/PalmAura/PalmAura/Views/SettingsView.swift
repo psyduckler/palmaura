@@ -3,7 +3,6 @@ import SwiftUI
 struct SettingsView: View {
     @AppStorage("disclaimerAccepted") private var disclaimerAccepted = true
     @State private var personalization = PersonalizationStore.load() ?? ReadingPersonalization()
-    @State private var lunarRemindersOn = true
     @State private var showResetAlert = false
     @State private var showClearHistoryAlert = false
     @State private var showEditProfile = false
@@ -17,11 +16,6 @@ struct SettingsView: View {
                         .padding(.horizontal, -DesignSystem.Spacing.lg)
 
                     profileCard
-                    section(title: "READING") {
-                        row(glyph: "☉", label: "Oracle voice",        detail: voiceDetail)
-                        row(glyph: "♀", label: "Question focus",      detail: "Asked each reading")
-                        toggleRow(glyph: "☽", label: "Lunar reminders", isOn: $lunarRemindersOn)
-                    }
                     section(title: "PERSONALIZATION") {
                         row(glyph: "♃", label: "Birthday",       detail: birthdayDetail)
                         row(glyph: "✦", label: "Energy",         detail: personalization.gender?.displayName ?? "Not set")
@@ -200,14 +194,6 @@ struct SettingsView: View {
         }
     }
 
-    private func toggleRow(glyph: String, label: String, isOn: Binding<Bool>) -> some View {
-        rowChrome(glyph: glyph) {
-            Text(label).font(DesignSystem.FontToken.display(16)).foregroundStyle(DesignSystem.ColorToken.textPrimary)
-            Spacer()
-            Toggle("", isOn: isOn).labelsHidden().tint(DesignSystem.ColorToken.goldCream)
-        }
-    }
-
     @ViewBuilder
     private func rowChrome<Content: View>(glyph: String, @ViewBuilder content: () -> Content) -> some View {
         HStack(spacing: 12) {
@@ -234,8 +220,6 @@ struct SettingsView: View {
         let lean = personalization.gender?.displayName ?? "—"
         return "\(readingsCount) · \(lean) energy"
     }
-
-    private var voiceDetail: String { "Mysterious" }
 
     private var birthdayDetail: String {
         guard let d = personalization.birthDate else { return "Not set" }
