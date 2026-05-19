@@ -1,12 +1,14 @@
 import Foundation
 
 enum ReadingFocus: String, Codable, CaseIterable, Identifiable {
-    case love, career, selfGrowth = "self", purpose, general
+    case love, career, money, family, selfGrowth = "self", purpose, general
     var id: String { rawValue }
     var displayName: String {
         switch self {
         case .love: return "Relationship"
         case .career: return "Career"
+        case .money: return "Money"
+        case .family: return "Family"
         case .selfGrowth: return "Self"
         case .purpose: return "The path"
         case .general: return "General"

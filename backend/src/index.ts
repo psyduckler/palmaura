@@ -10,7 +10,8 @@ export interface Env {
   VERSION?: string;
 }
 
-const Focus = z.enum(['love', 'career', 'self', 'purpose', 'general']);
+const Focus = z.enum(['love', 'career', 'money', 'family', 'self', 'purpose', 'general']);
+const ResponseFocus = z.enum(['love', 'career', 'self', 'purpose', 'general']);
 const LifeSeason = z.enum(['new_beginning', 'big_decision', 'healing', 'building_momentum', 'feeling_stuck', 'unknown']);
 const ReadingStyle = z.enum(['gentle', 'direct', 'mysterious', 'deep_spiritual']);
 const Handedness = z.enum(['left', 'right', 'ambidextrous']);
@@ -73,16 +74,30 @@ const AURA_COLOR_ALIASES: Record<string, string> = {
   lunar: 'moon',
   silver: 'moon',
 };
-const VALID_FOCUSES = new Set(['love', 'career', 'self', 'purpose', 'general']);
+const VALID_FOCUSES = new Set(['love', 'career', 'money', 'family', 'self', 'purpose', 'general']);
+const VALID_NEXT_READING_HOOK_FOCUSES = new Set(['love', 'career', 'self', 'purpose', 'general']);
 const FOCUS_ALIASES: Record<string, string> = {
   relationship: 'love',
   relationships: 'love',
   romance: 'love',
   work: 'career',
-  money: 'career',
+  // `money` and `family` are now first-class focuses (added 2026-05-19); the
+  // previous money→career and family→self aliases are intentionally removed so
+  // the prompt can distinguish them. Aliases below remain for typos / synonyms.
+  finances: 'money',
+  household: 'family',
   identity: 'self',
   personal: 'self',
   meaning: 'purpose',
+};
+const NEXT_READING_HOOK_FOCUS_ALIASES: Record<string, string> = {
+  ...FOCUS_ALIASES,
+  // Keep response hooks backward-compatible with shipped iOS clients whose
+  // strict ReadingFocus decoder does not know about money/family yet.
+  money: 'career',
+  finances: 'career',
+  family: 'self',
+  household: 'self',
 };
 
 const InferredScannedHandSchema = z.object({
@@ -126,7 +141,7 @@ const ReadingSchema = z.object({
     ritual: z.string().default(''),
   }).default({ aura: '', heartLine: '', headLine: '', lifeLine: '', fateLine: '', currentSeason: '', guidance: '', ritual: '' }),
   rejectionMessage: z.string().optional(),
-  nextReadingHook: z.object({ focus: Focus, teaser: z.string().max(MAX_NEXT_READING_HOOK_CHARS) }).optional(),
+  nextReadingHook: z.object({ focus: ResponseFocus, teaser: z.string().max(MAX_NEXT_READING_HOOK_CHARS) }).optional(),
 });
 
 type ReadingRequest = z.infer<typeof RequestSchema>;
@@ -548,7 +563,7 @@ function normalizeReadingToolInput(input: unknown): unknown {
 
   if (isRecord(output.nextReadingHook)) {
     const focus = typeof output.nextReadingHook.focus === 'string'
-      ? normalizeEnumValue(output.nextReadingHook.focus, VALID_FOCUSES, FOCUS_ALIASES, 'general')
+      ? normalizeEnumValue(output.nextReadingHook.focus, VALID_NEXT_READING_HOOK_FOCUSES, NEXT_READING_HOOK_FOCUS_ALIASES, 'general')
       : 'general';
     output.nextReadingHook = {
       ...output.nextReadingHook,

@@ -81,10 +81,10 @@ struct SettingsView: View {
             .shadow(color: DesignSystem.ColorToken.goldCream.opacity(0.4), radius: 18)
 
             VStack(alignment: .leading, spacing: 2) {
-                Text("Seeker")
+                Text(profileDescriptor.title)
                     .font(DesignSystem.FontToken.display(22))
                     .foregroundStyle(DesignSystem.ColorToken.textPrimary)
-                Text(profileSubtitle)
+                Text(profileDescriptor.subtitle)
                     .font(DesignSystem.FontToken.body(13, italic: true))
                     .foregroundStyle(DesignSystem.ColorToken.textSecondary)
             }
@@ -172,7 +172,6 @@ struct SettingsView: View {
             Text(label).font(DesignSystem.FontToken.display(16)).foregroundStyle(DesignSystem.ColorToken.textPrimary)
             Spacer()
             Text(detail).font(DesignSystem.FontToken.body(13, italic: true)).foregroundStyle(DesignSystem.ColorToken.textSecondary)
-            chevron
         }
     }
 
@@ -217,9 +216,8 @@ struct SettingsView: View {
 
     private var initialChar: String { "✦" }
 
-    private var profileSubtitle: String {
-        if let gender = personalization.gender { return "\(gender.displayName) energy" }
-        return "Profile not set"
+    private var profileDescriptor: MysticProfileDescriptor {
+        MysticProfileDescriptor.make(from: personalization)
     }
 
     private var birthdayDetail: String {
