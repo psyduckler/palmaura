@@ -14,7 +14,6 @@ struct OnboardingView: View {
     @State private var birthYear = Calendar.current.component(.year, from: Date()) - 30
     @State private var locationOverrideText = ""
     @State private var edgeContext: EdgeLocationContext?
-    @State private var showHome = false
 
     var body: some View {
         ZStack {
@@ -77,9 +76,6 @@ struct OnboardingView: View {
         .navigationBarBackButtonHidden(true)
         .onAppear(perform: preloadSavedPersonalization)
         .task { await loadEdgeContextHint() }
-        .navigationDestination(isPresented: $showHome) {
-            HomeView()
-        }
     }
 
     // MARK: - Intro
@@ -341,7 +337,13 @@ struct OnboardingView: View {
         ])
         switch completionDestination {
         case .home:
-            showHome = true
+            // No explicit navigation needed. `PersonalizationStore.save(...)`
+            // flips the `palmaura.profile.complete.v1` @AppStorage flag,
+            // which causes `RootView` to re-evaluate its gate and route to
+            // `HomeView` automatically. Pushing HomeView here would create
+            // a duplicate on the navigation stack (visible once swipe-back
+            // is enabled).
+            break
         case .dismiss:
             dismiss()
         }
