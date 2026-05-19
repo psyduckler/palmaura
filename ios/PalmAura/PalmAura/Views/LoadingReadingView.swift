@@ -26,9 +26,10 @@ struct LoadingReadingView: View {
     var body: some View {
         ZStack {
             DarkScreenBackground()
-            VStack(spacing: 28) {
-                InkLinesLoader()
-                    .frame(width: 230, height: 330)
+            VStack(spacing: 22) {
+                OrbitLoader()
+                LoadingPulseDots()
+                    .padding(.top, -8)
                 Text(phrases[phraseIndex])
                     .font(DesignSystem.FontToken.body(19, italic: true))
                     .foregroundStyle(DesignSystem.ColorToken.textPrimary)

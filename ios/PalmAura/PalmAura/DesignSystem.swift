@@ -326,21 +326,42 @@ struct OrbitLoader: View {
     }
 }
 
-struct InkLinesLoader: View {
+struct LoadingPulseDots: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     var body: some View {
-        TimelineView(.animation) { ctx in
-            let t = ctx.date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 4.0)
-            ZStack {
-                Image("PalmPlate").resizable().scaledToFit().opacity(0.48)
-                inkPath(progress: progress(t, dur: 2.2, delay: 0.0)) { s in Path { p in p.move(to: CGPoint(x: 74, y: 194)); p.addQuadCurve(to: CGPoint(x: 217, y: 198), control: CGPoint(x: 148, y: 188)) }.applying(.init(scaleX: s.width/260, y: s.height/390)) }
-                inkPath(progress: progress(t, dur: 2.2, delay: 0.6)) { s in Path { p in p.move(to: CGPoint(x: 63, y: 211)); p.addQuadCurve(to: CGPoint(x: 211, y: 214), control: CGPoint(x: 148, y: 228)) }.applying(.init(scaleX: s.width/260, y: s.height/390)) }
-                inkPath(progress: progress(t, dur: 2.4, delay: 1.2)) { s in Path { p in p.move(to: CGPoint(x: 114, y: 188)); p.addQuadCurve(to: CGPoint(x: 125, y: 320), control: CGPoint(x: 76, y: 236)) }.applying(.init(scaleX: s.width/260, y: s.height/390)) }
-            }.frame(width: 260, height: 390)
+        HStack(spacing: 8) {
+            ForEach(0..<3, id: \.self) { index in
+                if reduceMotion {
+                    Circle()
+                        .fill(DesignSystem.ColorToken.goldCream.opacity(0.72))
+                        .frame(width: 6, height: 6)
+                } else {
+                    LoadingPulseDot(delay: Double(index) * 0.18)
+                }
+            }
         }
     }
-    private func progress(_ t: TimeInterval, dur: TimeInterval, delay: TimeInterval) -> CGFloat { CGFloat(max(0, min(1, (t - delay) / dur))) }
-    private func inkPath(_ path: @escaping (CGSize) -> Path) -> some View { GeometryReader { geo in path(geo.size).trimmedPath(from: 0, to: 1).stroke(DesignSystem.ColorToken.goldCream, style: .init(lineWidth: 2.2, lineCap: .round)).shadow(color: DesignSystem.ColorToken.goldCream.opacity(0.35), radius: 6) } }
-    private func inkPath(progress: CGFloat, _ path: @escaping (CGSize) -> Path) -> some View { GeometryReader { geo in path(geo.size).trimmedPath(from: 0, to: progress).stroke(DesignSystem.ColorToken.goldCream, style: .init(lineWidth: 2.2, lineCap: .round)).shadow(color: DesignSystem.ColorToken.goldCream.opacity(0.35), radius: 6) } }
+}
+
+private struct LoadingPulseDot: View {
+    let delay: Double
+    @State private var scale: CGFloat = 0.7
+    @State private var opacity: Double = 0.25
+
+    var body: some View {
+        Circle()
+            .fill(DesignSystem.ColorToken.goldCream.opacity(0.6))
+            .frame(width: 6, height: 6)
+            .scaleEffect(scale)
+            .opacity(opacity)
+            .onAppear {
+                withAnimation(.easeInOut(duration: 0.7).repeatForever().delay(delay)) {
+                    scale = 1
+                    opacity = 1
+                }
+            }
+    }
 }
 
 extension View {

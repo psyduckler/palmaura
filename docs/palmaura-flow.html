@@ -166,6 +166,14 @@
   .dots { display:flex; gap:7px; justify-content:center; margin-top:12px; }
   .dot { height:6px; width:6px; border-radius:999px; background:rgba(243,221,168,.28); }
   .dot.on { width:22px; background:rgba(243,221,168,.9); }
+  .orbit-loader { width:260px;height:260px;margin:18px auto 4px; position:relative; display:flex; align-items:center; justify-content:center; }
+  .orbit-loader:before, .orbit-loader:after { content:""; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); border-radius:50%; border:1px dashed rgba(243,221,168,.22); }
+  .orbit-loader:before { width:116px; height:116px; }
+  .orbit-loader:after { width:232px; height:232px; }
+  .orbit-core { width:92px;height:92px;border-radius:50%; display:flex;align-items:center;justify-content:center; color:rgba(243,221,168,.88); font-size:48px; background:radial-gradient(circle, rgba(243,221,168,.26), rgba(243,221,168,.08) 50%, transparent 72%); text-shadow:0 0 22px rgba(243,221,168,.58); }
+  .planet { position:absolute; color:var(--gold-cream); font:500 22px "Cormorant Garamond", Georgia, serif; text-shadow:0 0 12px rgba(243,221,168,.62); }
+  .p1 { left:50%; top:16px; transform:translateX(-50%); } .p2 { right:18px; top:50%; transform:translateY(-50%); } .p3 { left:50%; bottom:16px; transform:translateX(-50%); } .p4 { left:18px; top:50%; transform:translateY(-50%); }
+  .p5 { left:74px; top:74px; } .p6 { right:74px; top:74px; } .p7 { right:74px; bottom:74px; }
   .map-canvas { height:380px; border-radius:28px; padding:8px; position:relative; overflow:hidden; background:rgba(0,0,0,.32); border:1px solid rgba(243,221,168,.28); }
   .map-canvas .photo { height:100%; border-radius:22px; opacity:.9; }
   .map-canvas:after { content:""; position:absolute; inset:8px; border-radius:22px; background:radial-gradient(circle at 50% 34%, rgba(243,221,168,.18), transparent 55%), linear-gradient(180deg, rgba(11,8,32,.02), rgba(11,8,32,.5)); pointer-events:none; }
@@ -274,8 +282,8 @@
         <div class="spacer"></div><button class="button">Read My Palm&nbsp; ›</button><button class="button ghost" style="margin-top:10px">Retake The Photo</button>
       </div></div></div></div>
 
-      <div class="phone-wrap"><div class="label"><b>08 · Loading</b><span>LoadingReadingView</span></div><div class="phone"><div class="screen"><div class="content center">
-        <div class="status"><span>9:41</span><span>●●●</span></div><div class="spacer"></div><div class="loader"></div><p class="body" style="font-size:19px;color:var(--text);">Mapping love, mind, life, and fate…</p><p class="body" style="color:rgba(243,221,168,.78)">Question: What should I understand about this relationship?</p><div class="spacer"></div>
+      <div class="phone-wrap"><div class="label"><b>08 · Loading</b><span>LoadingReadingView · OrbitLoader</span></div><div class="phone"><div class="screen"><div class="content center">
+        <div class="status"><span>9:41</span><span>●●●</span></div><div class="spacer"></div><div class="orbit-loader"><div class="orbit-core">☉</div><span class="planet p1">☽</span><span class="planet p2">♀</span><span class="planet p3">♂</span><span class="planet p4">♄</span><span class="planet p5">☿</span><span class="planet p6">♃</span><span class="planet p7">☉</span></div><div class="dots"><span class="dot on"></span><span class="dot"></span><span class="dot"></span></div><p class="body" style="font-size:19px;color:var(--text);">Mapping love, mind, life, and fate…</p><p class="body" style="color:rgba(243,221,168,.78)">Question: What should I understand about this relationship?</p><div class="spacer"></div>
       </div></div></div></div>
     </section>
 

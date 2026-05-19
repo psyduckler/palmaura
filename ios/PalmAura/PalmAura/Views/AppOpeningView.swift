@@ -39,12 +39,8 @@ struct AppOpeningView: View {
                     .padding(.horizontal, 24)
 
                 // Three pulsing dots beneath the status line.
-                HStack(spacing: 8) {
-                    ForEach(0..<3, id: \.self) { i in
-                        PulsingDot(delay: Double(i) * 0.18)
-                    }
-                }
-                .padding(.top, 12)
+                LoadingPulseDots()
+                    .padding(.top, 12)
 
                 Spacer()
                 DisclaimerFoot()
@@ -65,25 +61,6 @@ struct AppOpeningView: View {
     }
 }
 
-private struct PulsingDot: View {
-    let delay: Double
-    @State private var scale: CGFloat = 0.7
-    @State private var opacity: Double = 0.25
-
-    var body: some View {
-        Circle()
-            .fill(DesignSystem.ColorToken.goldCream.opacity(0.6))
-            .frame(width: 6, height: 6)
-            .scaleEffect(scale)
-            .opacity(opacity)
-            .onAppear {
-                withAnimation(.easeInOut(duration: 0.7).repeatForever().delay(delay)) {
-                    scale = 1
-                    opacity = 1
-                }
-            }
-    }
-}
 
 #Preview {
     NavigationStack { AppOpeningView() }
