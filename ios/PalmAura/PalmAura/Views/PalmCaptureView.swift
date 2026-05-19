@@ -105,7 +105,7 @@ struct PalmCaptureView: View {
                             .buttonStyle(.plain)
                         }
                     }
-                    .padding(.bottom, camera.canOpenSettings ? 24 : 54)
+                    .padding(.bottom, 54)
                 }
                 .allowsHitTesting(camera.canOpenSettings)
             }
