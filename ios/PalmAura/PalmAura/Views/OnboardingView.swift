@@ -159,10 +159,10 @@ struct OnboardingView: View {
                     ForEach(1...maxDayForSelectedMonth, id: \.self) { Text("\($0)").tag($0) }
                 }
             }
-            pickerCell(label: "YEAR", value: "\(birthYear)") {
+            pickerCell(label: "YEAR", value: String(birthYear)) {
                 Picker("Year", selection: $birthYear) {
-                    ForEach((1900...Calendar.current.component(.year, from: Date())).reversed(), id: \.self) {
-                        Text("\($0)").tag($0)
+                    ForEach((1900...Calendar.current.component(.year, from: Date())).reversed(), id: \.self) { year in
+                        Text(verbatim: String(year)).tag(year)
                     }
                 }
             }
@@ -182,7 +182,7 @@ struct OnboardingView: View {
                     .font(DesignSystem.FontToken.caps(7.5))
                     .tracking(1.8)
                     .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.55))
-                Text(value)
+                Text(verbatim: value)
                     .font(DesignSystem.FontToken.display(18))
                     .foregroundStyle(DesignSystem.ColorToken.textPrimary)
             }
