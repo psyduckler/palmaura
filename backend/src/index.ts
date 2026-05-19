@@ -55,6 +55,35 @@ const RequestSchema = z.object({
 
 const MAX_INFERRED_HAND_EVIDENCE_CHARS = 500;
 const MAX_NEXT_READING_HOOK_CHARS = 240;
+const VALID_AURA_COLORS = new Set(['violet', 'gold', 'fire', 'moon', 'water', 'rose']);
+const AURA_COLOR_ALIASES: Record<string, string> = {
+  earth: 'gold',
+  earthy: 'gold',
+  sun: 'gold',
+  solar: 'gold',
+  orange: 'fire',
+  red: 'fire',
+  flame: 'fire',
+  blue: 'water',
+  ocean: 'water',
+  aqua: 'water',
+  pink: 'rose',
+  purple: 'violet',
+  lavender: 'violet',
+  lunar: 'moon',
+  silver: 'moon',
+};
+const VALID_FOCUSES = new Set(['love', 'career', 'self', 'purpose', 'general']);
+const FOCUS_ALIASES: Record<string, string> = {
+  relationship: 'love',
+  relationships: 'love',
+  romance: 'love',
+  work: 'career',
+  money: 'career',
+  identity: 'self',
+  personal: 'self',
+  meaning: 'purpose',
+};
 
 const InferredScannedHandSchema = z.object({
   hand: z.enum(['left', 'right', 'unknown']).default('unknown'),
@@ -506,6 +535,10 @@ function normalizeReadingToolInput(input: unknown): unknown {
   if (!isRecord(input)) return input;
   const output: Record<string, unknown> = { ...input };
 
+  if (typeof output.auraColor === 'string') {
+    output.auraColor = normalizeEnumValue(output.auraColor, VALID_AURA_COLORS, AURA_COLOR_ALIASES, 'violet');
+  }
+
   if (isRecord(output.inferredScannedHand) && typeof output.inferredScannedHand.evidence === 'string') {
     output.inferredScannedHand = {
       ...output.inferredScannedHand,
@@ -513,14 +546,26 @@ function normalizeReadingToolInput(input: unknown): unknown {
     };
   }
 
-  if (isRecord(output.nextReadingHook) && typeof output.nextReadingHook.teaser === 'string') {
+  if (isRecord(output.nextReadingHook)) {
+    const focus = typeof output.nextReadingHook.focus === 'string'
+      ? normalizeEnumValue(output.nextReadingHook.focus, VALID_FOCUSES, FOCUS_ALIASES, 'general')
+      : 'general';
     output.nextReadingHook = {
       ...output.nextReadingHook,
-      teaser: truncateText(output.nextReadingHook.teaser, MAX_NEXT_READING_HOOK_CHARS),
+      focus,
+      teaser: typeof output.nextReadingHook.teaser === 'string'
+        ? truncateText(output.nextReadingHook.teaser, MAX_NEXT_READING_HOOK_CHARS)
+        : output.nextReadingHook.teaser,
     };
   }
 
   return output;
+}
+
+function normalizeEnumValue(value: string, validValues: Set<string>, aliases: Record<string, string>, fallback: string): string {
+  const key = value.trim().toLowerCase().replace(/[\s-]+/g, '_');
+  if (validValues.has(key)) return key;
+  return aliases[key] ?? fallback;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
