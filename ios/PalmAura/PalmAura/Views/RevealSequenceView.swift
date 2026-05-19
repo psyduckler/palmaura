@@ -7,6 +7,7 @@ struct RevealSequenceView: View {
     @AppStorage("hasCompletedFirstReveal") private var hasCompletedFirstReveal = false
     @State private var useFirstReveal: Bool
     @State private var step = 0
+    @Environment(\.navigationCoordinator) private var coordinator
 
     init(bundle: ReadingBundle) {
         self.bundle = bundle
@@ -126,8 +127,8 @@ struct RevealSequenceView: View {
             }
             .buttonStyle(.plain)
 
-            NavigationLink {
-                HomeView()
+            Button {
+                coordinator?.goHome()
             } label: {
                 Text("Return home")
                     .font(DesignSystem.FontToken.caps(9))
@@ -162,7 +163,7 @@ struct RevealSequenceView: View {
 
     private func glyphForAura(_ color: AuraColor) -> String {
         switch color {
-        case .violet: return "♀"
+        case .violet: return "♇"
         case .gold:   return "☉"
         case .fire:   return "♂"
         case .moon:   return "☽"

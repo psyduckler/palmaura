@@ -4,6 +4,10 @@ import UIKit
 enum PalmPhotoStore {
     static let pendingKey = "pending"
 
+    static func makePendingKey() -> String {
+        "pending-\(UUID().uuidString)"
+    }
+
     private static var directory: URL {
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
         return base.appendingPathComponent("PalmPhotos", isDirectory: true)
@@ -37,7 +41,7 @@ enum PalmPhotoStore {
     }
 
     @discardableResult
-    static func bind(to readingId: String) -> URL? {
+    static func bind(pendingKey: String = Self.pendingKey, to readingId: String) -> URL? {
         guard let pending = url(for: pendingKey) else { return nil }
         let destination = directory.appendingPathComponent(safe(readingId)).appendingPathExtension("jpg")
         do {

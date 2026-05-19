@@ -4,6 +4,7 @@ struct PalmReviewView: View {
     let image: UIImage
     let onboardingAnswers: OnboardingAnswers
     @State private var base64: String = ""
+    @State private var pendingPhotoKey = PalmPhotoStore.makePendingKey()
     @State private var pendingPhotoURL: URL?
     @Environment(\.dismiss) private var dismiss
 
@@ -47,11 +48,23 @@ struct PalmReviewView: View {
             }
         }
         .navigationBarBackButtonHidden(true)
-        .onAppear {
-            if let data = ImagePreprocessor.jpegDataForUpload(from: image) {
-                base64 = data.base64EncodedString()
+        .task(id: pendingPhotoKey) {
+            // Process image and write to disk on a background thread to prevent UI freezing.
+            // Each review attempt writes to its own pending key so an abandoned retake cannot
+            // overwrite a newer photo that is already being submitted.
+            let key = pendingPhotoKey
+            let (b64, url) = await Task.detached(priority: .userInitiated) {
+                let uploadData = ImagePreprocessor.jpegDataForUpload(from: image)
+                let base64String = uploadData?.base64EncodedString() ?? ""
+                let photoURL = PalmPhotoStore.save(image, key: key)
+                return (base64String, photoURL)
+            }.value
+
+            guard !Task.isCancelled else { return }
+            withAnimation {
+                self.base64 = b64
+                self.pendingPhotoURL = url
             }
-            pendingPhotoURL = PalmPhotoStore.save(image, key: PalmPhotoStore.pendingKey)
         }
     }
 
@@ -118,7 +131,7 @@ struct PalmReviewView: View {
     private var actions: some View {
         VStack(spacing: 12) {
             NavigationLink {
-                LoadingReadingView(imageBase64Jpeg: base64, pendingPhotoURL: pendingPhotoURL, onboardingAnswers: onboardingAnswers)
+                LoadingReadingView(imageBase64Jpeg: base64, pendingPhotoKey: pendingPhotoKey, pendingPhotoURL: pendingPhotoURL, onboardingAnswers: onboardingAnswers)
             } label: {
                 Text(base64.isEmpty ? "Preparing…" : "Read My Palm  ›")
                     .font(DesignSystem.FontToken.caps(11))

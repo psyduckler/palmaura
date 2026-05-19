@@ -24,7 +24,7 @@ struct ReadingResultView: View {
 
                     // Title block
                     VStack(alignment: .leading, spacing: 10) {
-                        Text(MoonPhaseProvider.currentCode + "  ·  " + romanDate())
+                        Text(MoonPhaseProvider.currentCode + "  ·  " + ReadingTimestampFormatter.romanDate(from: reading.createdAt))
                             .font(DesignSystem.FontToken.caps(9))
                             .tracking(DesignSystem.Tracking.caps)
                             .foregroundStyle(DesignSystem.ColorToken.textTertiary)
@@ -192,13 +192,5 @@ struct ReadingResultView: View {
                 .stroke(DesignSystem.ColorToken.goldCream.opacity(0.18), lineWidth: 1)
         )
         .clipShape(RoundedRectangle(cornerRadius: DesignSystem.Radius.cardLg, style: .continuous))
-    }
-
-    private func romanDate() -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "d MMM"
-        let prefix = formatter.string(from: Date())
-        let year = Calendar.current.component(.year, from: Date())
-        return "\(prefix) · \(BrandConfig.romanNumeral(year))"
     }
 }

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct DisclaimerView: View {
     @AppStorage("disclaimerAccepted") private var disclaimerAccepted = false
+    @State private var showPrivacySheet = false
 
     var body: some View {
         ZStack {
@@ -60,16 +61,25 @@ struct DisclaimerView: View {
                         Analytics.shared.track("disclaimer_accepted")
                         disclaimerAccepted = true
                     }
-                    Link("Privacy & terms", destination: URL(string: "https://palmaura.app/privacy.html")!)
-                        .font(DesignSystem.FontToken.caps(9))
-                        .tracking(2.5)
-                        .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.6))
+                    Button(action: {
+                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                        showPrivacySheet = true
+                    }) {
+                        Text("Privacy & terms")
+                            .font(DesignSystem.FontToken.caps(9))
+                            .tracking(2.5)
+                            .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.6))
+                    }
                 }
                 .padding(.horizontal, DesignSystem.Spacing.lg)
                 .padding(.bottom, 30)
             }
         }
         .navigationBarBackButtonHidden(true)
+        .sheet(isPresented: $showPrivacySheet) {
+            SafariView(url: URL(string: "https://palmaura.app/privacy.html")!)
+                .ignoresSafeArea()
+        }
     }
 
     private func bullet(glyph: String, body: String) -> some View {

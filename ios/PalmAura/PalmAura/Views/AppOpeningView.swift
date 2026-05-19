@@ -47,7 +47,7 @@ struct AppOpeningView: View {
                     .padding(.bottom, 30)
             }
         }
-        .onReceive(Timer.publish(every: 0.9, on: .main, in: .common).autoconnect()) { _ in
+        .onReceive(Timer.publish(every: 2.0, on: .main, in: .common).autoconnect()) { _ in
             guard !reduceMotion else { return }
             phraseIndex = (phraseIndex + 1) % phrases.count
         }

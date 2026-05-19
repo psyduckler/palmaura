@@ -3,6 +3,7 @@ import SwiftUI
 struct PalmCanvasView: View {
     let photoURL: URL?
     let auraColor: AuraColor
+    @State private var image: UIImage? = nil
 
     var body: some View {
         GeometryReader { geometry in
@@ -40,12 +41,29 @@ struct PalmCanvasView: View {
         .onAppear {
             Analytics.shared.track("palm_canvas_rendered", properties: ["mode": "photo_map"])
         }
+        .task(id: photoURL) {
+            guard let requestedPhotoURL = photoURL else {
+                image = nil
+                return
+            }
+            // Load the image on a background thread to prevent main-thread disk I/O blocking.
+            let loaded = await Task.detached(priority: .userInitiated) {
+                UIImage(contentsOfFile: requestedPhotoURL.path)
+            }.value
+            guard !Task.isCancelled, requestedPhotoURL == photoURL else { return }
+            withAnimation(.easeIn(duration: 0.2)) {
+                self.image = loaded
+            }
+        }
     }
 
     private var palmImage: some View {
         Group {
-            if let photoURL, let image = UIImage(contentsOfFile: photoURL.path) {
-                Image(uiImage: image).resizable().scaledToFill()
+            if let image {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
+                    .transition(.opacity)
             } else {
                 ZStack {
                     LinearGradient(
