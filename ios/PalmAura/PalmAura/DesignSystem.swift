@@ -102,45 +102,110 @@ struct ScreenHeader: View {
 
     @Environment(\.dismiss) private var dismiss
 
+    private var showsContext: Bool {
+        let normalized = eyebrow.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        return !normalized.isEmpty && normalized != "palmaura"
+    }
+
     var body: some View {
-        HStack {
-            if back {
-                Button(action: { if let onBack { onBack() } else { dismiss() } }) {
-                    Text("‹")
-                        .font(DesignSystem.FontToken.display(22))
-                        .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.9))
-                        .frame(width: 34, height: 34)
-                        .overlay(Circle().stroke(DesignSystem.ColorToken.goldCream.opacity(0.35), lineWidth: 1))
-                }.buttonStyle(.plain)
-            } else { Color.clear.frame(width: 34, height: 34) }
+        VStack(spacing: 6) {
+            HStack(alignment: .center) {
+                navIcon(systemName: "house", accessibilityLabel: "Home") {
+                    NotificationCenter.default.post(name: .palmAuraNavigateHome, object: nil)
+                }
 
-            Spacer()
-            Text(eyebrow)
-                .font(DesignSystem.FontToken.caps(12))
-                .tracking(DesignSystem.Tracking.capsLg)
-                .textCase(.uppercase)
-                .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.86))
-            Spacer()
+                Spacer(minLength: 8)
 
-            if let trailingText {
-                Button(trailingText) { onTrailing?() }
-                    .font(DesignSystem.FontToken.caps(9))
-                    .tracking(2.5)
-                    .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.78))
-                    .frame(width: 62, alignment: .trailing)
-            } else if moon {
-                VStack(spacing: 2) {
-                    MoonPhase(phase: MoonPhaseProvider.currentPhase)
-                    Text(MoonPhaseProvider.currentCode)
-                        .font(DesignSystem.FontToken.caps(6.5))
-                        .tracking(1.2)
-                        .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.7))
-                }.frame(width: 62, alignment: .trailing)
-            } else { Color.clear.frame(width: 62, height: 34) }
+                Button {
+                    NotificationCenter.default.post(name: .palmAuraNavigateHome, object: nil)
+                } label: {
+                    HStack(spacing: 8) {
+                        Text("PalmAura")
+                            .font(DesignSystem.FontToken.caps(12))
+                            .tracking(DesignSystem.Tracking.capsLg)
+                            .textCase(.uppercase)
+                            .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.9))
+                        VStack(spacing: 1) {
+                            MoonPhase(phase: MoonPhaseProvider.currentPhase)
+                            Text(MoonPhaseProvider.currentCode)
+                                .font(DesignSystem.FontToken.caps(5.8))
+                                .tracking(1.0)
+                                .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.64))
+                        }
+                        .frame(width: 24)
+                    }
+                    .padding(.vertical, 4)
+                    .padding(.horizontal, 10)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("PalmAura home")
+
+                Spacer(minLength: 8)
+
+                navIcon(systemName: "gearshape", accessibilityLabel: "Settings") {
+                    NotificationCenter.default.post(name: .palmAuraNavigateSettings, object: nil)
+                }
+            }
+
+            if showsContext || back || trailingText != nil {
+                HStack(spacing: 8) {
+                    if back {
+                        Button(action: { if let onBack { onBack() } else { dismiss() } }) {
+                            Text("‹ Back")
+                                .font(DesignSystem.FontToken.caps(8))
+                                .tracking(1.7)
+                                .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.58))
+                        }
+                        .buttonStyle(.plain)
+                        .frame(width: 62, alignment: .leading)
+                    } else {
+                        Color.clear.frame(width: 62, height: 16)
+                    }
+
+                    if showsContext {
+                        Text(eyebrow)
+                            .font(DesignSystem.FontToken.caps(8.5))
+                            .tracking(2.6)
+                            .textCase(.uppercase)
+                            .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.58))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                            .frame(maxWidth: .infinity)
+                    } else {
+                        Spacer(minLength: 0)
+                    }
+
+                    if let trailingText {
+                        Button(trailingText) { onTrailing?() }
+                            .font(DesignSystem.FontToken.caps(8))
+                            .tracking(1.8)
+                            .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.7))
+                            .frame(width: 62, alignment: .trailing)
+                    } else {
+                        Color.clear.frame(width: 62, height: 16)
+                    }
+                }
+                .frame(height: 18)
+            }
         }
         .padding(.horizontal, DesignSystem.Spacing.lg)
         .padding(.top, 12)
         .padding(.bottom, 10)
+    }
+
+    private func navIcon(systemName: String, accessibilityLabel: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: systemName)
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.92))
+                .frame(width: 36, height: 36)
+                .background(Circle().fill(DesignSystem.ColorToken.goldCream.opacity(0.055)))
+                .overlay(Circle().stroke(DesignSystem.ColorToken.goldCream.opacity(0.28), lineWidth: 0.8))
+                .contentShape(Circle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(accessibilityLabel)
     }
 }
 

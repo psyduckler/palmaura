@@ -139,10 +139,6 @@ struct HomeView: View {
             }
         }
         .navigationBarBackButtonHidden(true)
-        .toolbar {
-            NavigationLink("Settings") { SettingsView() }
-                .foregroundStyle(DesignSystem.ColorToken.goldCream)
-        }
         .onAppear {
             lastReading = LastReadingStore.load()
             hasProfile = PersonalizationStore.hasCompleteProfile()

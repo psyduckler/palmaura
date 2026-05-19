@@ -26,34 +26,42 @@ struct LoadingReadingView: View {
     var body: some View {
         ZStack {
             DarkScreenBackground()
-            VStack(spacing: 22) {
-                OrbitLoader()
-                LoadingPulseDots()
-                    .padding(.top, -8)
-                Text(phrases[phraseIndex])
-                    .font(DesignSystem.FontToken.body(19, italic: true))
-                    .foregroundStyle(DesignSystem.ColorToken.textPrimary)
-                    .multilineTextAlignment(.center)
-                    .contentTransition(.opacity)
-                if let intent = ReadingSessionIntent(answers: onboardingAnswers) {
-                    Text("Question: \(intent.displaySummary)")
-                        .font(DesignSystem.FontToken.body(13, italic: true))
-                        .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.78))
+            VStack(spacing: 0) {
+                ScreenHeader(eyebrow: "Reading")
+
+                Spacer(minLength: 24)
+
+                VStack(spacing: 22) {
+                    OrbitLoader()
+                    LoadingPulseDots()
+                        .padding(.top, -8)
+                    Text(phrases[phraseIndex])
+                        .font(DesignSystem.FontToken.body(19, italic: true))
+                        .foregroundStyle(DesignSystem.ColorToken.textPrimary)
                         .multilineTextAlignment(.center)
-                        .lineLimit(3)
-                        .padding(.horizontal, DesignSystem.Spacing.lg)
+                        .contentTransition(.opacity)
+                    if let intent = ReadingSessionIntent(answers: onboardingAnswers) {
+                        Text("Question: \(intent.displaySummary)")
+                            .font(DesignSystem.FontToken.body(13, italic: true))
+                            .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.78))
+                            .multilineTextAlignment(.center)
+                            .lineLimit(3)
+                            .padding(.horizontal, DesignSystem.Spacing.lg)
+                    }
+                    if let currentErrorMessage = errorMessage {
+                        Text(currentErrorMessage)
+                            .font(DesignSystem.FontToken.body(15, italic: true))
+                            .foregroundStyle(DesignSystem.ColorToken.goldCream)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, DesignSystem.Spacing.lg)
+                        GoldButton(title: "Try Again  ›") { errorMessage = nil; Task { await generate() } }
+                            .padding(.horizontal, DesignSystem.Spacing.lg)
+                    }
                 }
-                if let currentErrorMessage = errorMessage {
-                    Text(currentErrorMessage)
-                        .font(DesignSystem.FontToken.body(15, italic: true))
-                        .foregroundStyle(DesignSystem.ColorToken.goldCream)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, DesignSystem.Spacing.lg)
-                    GoldButton(title: "Try Again  ›") { errorMessage = nil; Task { await generate() } }
-                        .padding(.horizontal, DesignSystem.Spacing.lg)
-                }
+                .padding(24)
+
+                Spacer(minLength: 24)
             }
-            .padding(24)
         }
         .navigationBarBackButtonHidden(true)
         .task { await generate() }

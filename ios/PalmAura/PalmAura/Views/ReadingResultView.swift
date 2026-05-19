@@ -91,13 +91,6 @@ struct ReadingResultView: View {
             }
         }
         .navigationBarBackButtonHidden(true)
-        .toolbar {
-            NavigationLink { SettingsView() } label: {
-                Text("☉")
-                    .font(DesignSystem.FontToken.display(18))
-                    .foregroundStyle(DesignSystem.ColorToken.goldCream)
-            }
-        }
         .onAppear { UINotificationFeedbackGenerator().notificationOccurred(.success) }
     }
 

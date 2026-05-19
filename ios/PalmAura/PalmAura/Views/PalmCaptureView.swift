@@ -77,16 +77,6 @@ struct PalmCaptureView: View {
                 .stroke(DesignSystem.ColorToken.goldCream.opacity(0.18), lineWidth: 0.5)
                 .padding(8)
 
-            if !camera.showsLivePreview || camera.shouldShowPalmGuide {
-                Image("PalmPlateGold")
-                    .resizable()
-                    .scaledToFit()
-                    .opacity(camera.showsLivePreview ? 0.16 : 0.28)
-                    .padding(.horizontal, 28)
-                    .padding(.vertical, 28)
-                    .allowsHitTesting(false)
-            }
-
             if let message = camera.statusMessage {
                 VStack {
                     Spacer()
@@ -214,10 +204,6 @@ private final class PalmCameraController: NSObject, ObservableObject {
     private var isConfigured = false
 
     var showsLivePreview: Bool {
-        status == .ready || status == .capturing
-    }
-
-    var shouldShowPalmGuide: Bool {
         status == .ready || status == .capturing
     }
 
