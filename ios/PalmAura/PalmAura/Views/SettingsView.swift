@@ -65,7 +65,7 @@ struct SettingsView: View {
                 ReadingIntentStore.clearAll()
             }
         } message: {
-            Text("Your saved reading, palm photo, line map, and session question history will be cleared from this device.")
+            Text("Your saved reading, palm photo, palm map, and session question history will be cleared from this device.")
         }
     }
 
