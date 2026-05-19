@@ -24,7 +24,7 @@ struct AppOpeningView: View {
         ZStack {
             DarkScreenBackground()
             VStack(spacing: 0) {
-                ScreenHeader(eyebrow: "PalmAura", moon: true, compact: true)
+                ScreenHeader(eyebrow: "PalmAura", compact: true)
                 Spacer(minLength: 12)
                 OrbitLoader()
                 Spacer(minLength: 24)

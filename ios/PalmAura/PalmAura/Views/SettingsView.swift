@@ -12,7 +12,7 @@ struct SettingsView: View {
             DarkScreenBackground()
             ScrollView {
                 VStack(spacing: 22) {
-                    ScreenHeader(eyebrow: "Settings", moon: false, back: true)
+                    ScreenHeader(eyebrow: "Settings", back: true)
                         .padding(.horizontal, -DesignSystem.Spacing.lg)
 
                     profileCard

@@ -94,11 +94,11 @@ struct StarField: View {
 
 struct ScreenHeader: View {
     var eyebrow: String = "PalmAura"
-    var moon: Bool = true
     var back: Bool = false
     var onBack: (() -> Void)? = nil
     var trailingText: String? = nil
     var onTrailing: (() -> Void)? = nil
+    var showsHomeButton: Bool = true
     /// When true, suppress the persistent global-nav top row (Home/Settings
     /// icons + PalmAura title). Used on the splash, disclaimer, and first-run
     /// onboarding so the user can't bypass those gates by tapping into
@@ -141,8 +141,12 @@ struct ScreenHeader: View {
 
     private var globalNavRow: some View {
         HStack(alignment: .center) {
-            navIcon(systemName: "house", accessibilityLabel: "Home") {
-                coordinator?.goHome()
+            if showsHomeButton {
+                navIcon(systemName: "house", accessibilityLabel: "Home") {
+                    coordinator?.goHome()
+                }
+            } else {
+                Color.clear.frame(width: 36, height: 36)
             }
 
             Spacer(minLength: 8)
@@ -150,21 +154,11 @@ struct ScreenHeader: View {
             Button {
                 coordinator?.goHome()
             } label: {
-                HStack(spacing: 8) {
-                    Text("PalmAura")
-                        .font(DesignSystem.FontToken.caps(12))
-                        .tracking(DesignSystem.Tracking.capsLg)
-                        .textCase(.uppercase)
-                        .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.9))
-                    VStack(spacing: 2) {
-                        MoonPhase(phase: MoonPhaseProvider.currentPhase, size: 18)
-                        Text(MoonPhaseProvider.currentCode)
-                            .font(DesignSystem.FontToken.caps(7))
-                            .tracking(1.2)
-                            .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.72))
-                    }
-                    .frame(width: 44)
-                }
+                Text("PalmAura")
+                    .font(DesignSystem.FontToken.caps(12))
+                    .tracking(DesignSystem.Tracking.capsLg)
+                    .textCase(.uppercase)
+                    .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.9))
                 .padding(.vertical, 4)
                 .padding(.horizontal, 10)
                 .contentShape(Rectangle())
