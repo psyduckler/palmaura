@@ -199,17 +199,6 @@ struct ReadingResultView: View {
         formatter.dateFormat = "d MMM"
         let prefix = formatter.string(from: Date())
         let year = Calendar.current.component(.year, from: Date())
-        return "\(prefix) · \(roman(year))"
-    }
-
-    private func roman(_ n: Int) -> String {
-        let values = [(1000, "M"), (900, "CM"), (500, "D"), (400, "CD"), (100, "C"), (90, "XC"),
-                      (50, "L"), (40, "XL"), (10, "X"), (9, "IX"), (5, "V"), (4, "IV"), (1, "I")]
-        var num = n
-        var result = ""
-        for (v, s) in values {
-            while num >= v { result += s; num -= v }
-        }
-        return result
+        return "\(prefix) · \(BrandConfig.romanNumeral(year))"
     }
 }

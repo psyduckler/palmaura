@@ -78,16 +78,36 @@ struct PalmCaptureView: View {
                 .padding(8)
 
             if let message = camera.statusMessage {
-                VStack {
+                VStack(spacing: 0) {
                     Spacer()
-                    Text(message)
-                        .font(DesignSystem.FontToken.body(12, italic: true))
-                        .multilineTextAlignment(.center)
-                        .foregroundStyle(DesignSystem.ColorToken.textSecondary)
-                        .padding(.horizontal, 24)
-                        .padding(.bottom, 54)
+                    VStack(spacing: 14) {
+                        Text(message)
+                            .font(DesignSystem.FontToken.body(12, italic: true))
+                            .multilineTextAlignment(.center)
+                            .foregroundStyle(DesignSystem.ColorToken.textSecondary)
+                            .padding(.horizontal, 24)
+                        if camera.canOpenSettings {
+                            Button {
+                                if let url = URL(string: UIApplication.openSettingsURLString) {
+                                    UIApplication.shared.open(url)
+                                }
+                                Analytics.shared.track("camera_settings_deeplink_tapped")
+                            } label: {
+                                Text("OPEN SETTINGS")
+                                    .font(DesignSystem.FontToken.caps(9))
+                                    .tracking(2.5)
+                                    .foregroundStyle(DesignSystem.ColorToken.goldCream)
+                                    .padding(.vertical, 10)
+                                    .padding(.horizontal, 18)
+                                    .overlay(Capsule().stroke(DesignSystem.ColorToken.goldCream.opacity(0.6), lineWidth: 0.8))
+                                    .contentShape(Capsule())
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                    .padding(.bottom, 54)
                 }
-                .allowsHitTesting(false)
+                .allowsHitTesting(camera.canOpenSettings)
             }
 
             CornerTicks(color: DesignSystem.ColorToken.goldCream.opacity(0.85), inset: 16, size: 22, thickness: 1.5)
@@ -209,6 +229,12 @@ private final class PalmCameraController: NSObject, ObservableObject {
 
     var canCapture: Bool {
         status == .ready
+    }
+
+    /// True when the user has denied camera access and we can deep-link to
+    /// Settings.app so they can re-enable it.
+    var canOpenSettings: Bool {
+        status == .denied
     }
 
     var primaryActionTitle: String {

@@ -14,7 +14,6 @@ struct LoadingReadingView: View {
         "Igniting the tiny constellations in your palm…",
         "Listening to the mount of Venus…",
         "Reading your aura’s resonance…",
-        "Polishing the crystal ball’s Wi‑Fi signal…",
         "Mapping love, mind, life, and fate…",
         "Sensing your current season…",
         "Asking the moon for a second opinion…",
@@ -41,12 +40,12 @@ struct LoadingReadingView: View {
                         .multilineTextAlignment(.center)
                         .contentTransition(.opacity)
                     if let intent = ReadingSessionIntent(answers: onboardingAnswers) {
-                        Text("Question: \(intent.displaySummary)")
-                            .font(DesignSystem.FontToken.body(13, italic: true))
-                            .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.78))
-                            .multilineTextAlignment(.center)
-                            .lineLimit(3)
+                        Text("Focus  ·  \(intent.focus.uppercased())")
+                            .font(DesignSystem.FontToken.caps(9))
+                            .tracking(2.5)
+                            .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.72))
                             .padding(.horizontal, DesignSystem.Spacing.lg)
+                            .accessibilityLabel("Reading focus: \(intent.focus)")
                     }
                     if let currentErrorMessage = errorMessage {
                         Text(currentErrorMessage)

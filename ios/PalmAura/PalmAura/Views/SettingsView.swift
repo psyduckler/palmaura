@@ -23,9 +23,6 @@ struct SettingsView: View {
                         row(glyph: "⌖", label: "Location",       detail: locationDetail)
                         navRow(glyph: "☽", label: "Edit profile") { showEditProfile = true }
                     }
-                    section(title: "KEEPSAKES") {
-                        navRow(glyph: "✦", label: "Library of readings") { /* TODO: ReadingsLibraryView */ }
-                    }
                     section(title: "ACCOUNT") {
                         row(glyph: "♃", label: "Membership", detail: "Lifetime")
                         linkRow(glyph: "✉", label: "Support", url: URL(string: "mailto:support@palmaura.app")!)
@@ -216,9 +213,8 @@ struct SettingsView: View {
     private var initialChar: String { "✦" }
 
     private var profileSubtitle: String {
-        let readingsCount = LastReadingStore.load() != nil ? "1 reading" : "0 readings"
-        let lean = personalization.gender?.displayName ?? "—"
-        return "\(readingsCount) · \(lean) energy"
+        if let gender = personalization.gender { return "\(gender.displayName) energy" }
+        return "Profile not set"
     }
 
     private var birthdayDetail: String {
@@ -238,7 +234,8 @@ struct SettingsView: View {
 
     private var versionString: String {
         let v = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
-        return "PALMAURA · MMXXVI · v\(v)"
+        let year = Calendar.current.component(.year, from: Date())
+        return "PALMAURA · \(BrandConfig.romanNumeral(year)) · v\(v)"
     }
 }
 
