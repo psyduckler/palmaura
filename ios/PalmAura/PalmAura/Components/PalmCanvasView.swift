@@ -42,14 +42,15 @@ struct PalmCanvasView: View {
             Analytics.shared.track("palm_canvas_rendered", properties: ["mode": "photo_map"])
         }
         .task(id: photoURL) {
-            guard let photoURL else {
+            guard let requestedPhotoURL = photoURL else {
                 image = nil
                 return
             }
-            // Load the image on a background thread to prevent main-thread disk I/O blocking
+            // Load the image on a background thread to prevent main-thread disk I/O blocking.
             let loaded = await Task.detached(priority: .userInitiated) {
-                UIImage(contentsOfFile: photoURL.path)
+                UIImage(contentsOfFile: requestedPhotoURL.path)
             }.value
+            guard !Task.isCancelled, requestedPhotoURL == photoURL else { return }
             withAnimation(.easeIn(duration: 0.2)) {
                 self.image = loaded
             }

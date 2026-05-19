@@ -2,6 +2,7 @@ import SwiftUI
 
 struct LoadingReadingView: View {
     let imageBase64Jpeg: String
+    let pendingPhotoKey: String
     let pendingPhotoURL: URL?
     let onboardingAnswers: OnboardingAnswers
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -87,7 +88,7 @@ struct LoadingReadingView: View {
             if elapsed < DesignSystem.Motion.minimumReadingDuration { try? await Task.sleep(nanoseconds: UInt64((DesignSystem.Motion.minimumReadingDuration - elapsed) * 1_000_000_000)) }
             await MainActor.run {
                 if response.status == .ok {
-                    let boundURL = PalmPhotoStore.bind(to: response.readingId) ?? pendingPhotoURL
+                    let boundURL = PalmPhotoStore.bind(pendingKey: pendingPhotoKey, to: response.readingId) ?? pendingPhotoURL
                     if let inferredHand = response.inferredScannedHand {
                         Analytics.shared.track("hand_inferred", properties: [
                             "hand": inferredHand.hand.rawValue,
