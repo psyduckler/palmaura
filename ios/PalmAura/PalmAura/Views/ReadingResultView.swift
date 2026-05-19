@@ -91,6 +91,7 @@ struct ReadingResultView: View {
             }
         }
         .navigationBarBackButtonHidden(true)
+        .swipeBackEnabled()
         .onAppear { UINotificationFeedbackGenerator().notificationOccurred(.success) }
     }
 

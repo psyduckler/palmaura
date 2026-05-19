@@ -75,6 +75,7 @@ struct OnboardingView: View {
             }
         }
         .navigationBarBackButtonHidden(true)
+        .swipeBackEnabled()
         .onAppear(perform: preloadSavedPersonalization)
         .task { await loadEdgeContextHint() }
     }

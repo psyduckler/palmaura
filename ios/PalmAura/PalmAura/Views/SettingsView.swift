@@ -35,6 +35,7 @@ struct SettingsView: View {
             }
         }
         .navigationBarBackButtonHidden(true)
+        .swipeBackEnabled()
         .navigationDestination(isPresented: $showEditProfile) {
             OnboardingView(completionDestination: .dismiss)
         }

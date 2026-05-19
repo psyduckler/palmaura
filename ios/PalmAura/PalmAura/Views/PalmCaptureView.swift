@@ -44,6 +44,7 @@ struct PalmCaptureView: View {
             }
         }
         .navigationBarBackButtonHidden(true)
+        .swipeBackEnabled()
         .task { camera.prepare() }
         .onDisappear { camera.stop() }
         .onChange(of: selectedItem) { _, item in Task { await load(item) } }
