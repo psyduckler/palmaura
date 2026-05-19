@@ -98,16 +98,22 @@ struct HomeView: View {
                                     .font(DesignSystem.FontToken.body(15, italic: true))
                                     .foregroundStyle(DesignSystem.ColorToken.textSecondary)
                                     .lineSpacing(3)
-                                HStack(spacing: 8) {
-                                    if bundle.hasPhoto {
-                                        NavigationLink("Palm Map") { PalmMapView(bundle: bundle) }
-                                            .buttonStyle(.bordered).tint(DesignSystem.ColorToken.goldCream)
-                                    }
-                                    NavigationLink("Reveal Again") { RevealSequenceView(bundle: bundle) }
-                                        .buttonStyle(.bordered).tint(DesignSystem.ColorToken.goldCream)
-                                    NavigationLink("Full Report") { ReadingResultView(bundle: bundle) }
-                                        .buttonStyle(.bordered).tint(DesignSystem.ColorToken.goldCream)
+                                NavigationLink {
+                                    ReadingResultView(bundle: bundle)
+                                } label: {
+                                    Text("Full Report")
+                                        .font(DesignSystem.FontToken.caps(10))
+                                        .tracking(2.6)
+                                        .foregroundStyle(DesignSystem.ColorToken.skyDeep)
+                                        .frame(maxWidth: .infinity)
+                                        .padding(.vertical, 12)
+                                        .background(
+                                            Capsule()
+                                                .fill(DesignSystem.ColorToken.goldCream.opacity(0.94))
+                                        )
                                 }
+                                .buttonStyle(.plain)
+                                .padding(.top, 2)
                             }
                         }
                     }
