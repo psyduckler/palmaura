@@ -7,7 +7,7 @@ struct DisclaimerView: View {
         ZStack {
             DarkScreenBackground()
             VStack(spacing: 0) {
-                ScreenHeader(eyebrow: "PalmAura", moon: false)
+                ScreenHeader(eyebrow: "PalmAura", moon: false, compact: true)
                 Spacer(minLength: 8)
 
                 VStack(spacing: 18) {

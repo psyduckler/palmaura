@@ -21,7 +21,11 @@ struct OnboardingView: View {
             DarkScreenBackground()
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 22) {
-                    ScreenHeader(eyebrow: "Profile")
+                    // First-run onboarding (entered because profile is incomplete) hides the
+                    // persistent global nav so the user can't bypass profile setup via the
+                    // Settings/Home icons. When this screen is entered from Settings → Edit
+                    // profile (completionDestination == .dismiss) the global nav stays.
+                    ScreenHeader(eyebrow: "Profile", compact: completionDestination == .home)
                         .padding(.horizontal, -24)
 
                     intro
