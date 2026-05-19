@@ -111,34 +111,18 @@ struct RevealSequenceView: View {
 
     private var finalActions: some View {
         VStack(spacing: 10) {
-            if bundle.hasPhoto {
-                NavigationLink {
-                    PalmMapView(bundle: bundle)
-                } label: {
-                    Text("Explore your palm map  ›")
-                        .font(DesignSystem.FontToken.caps(11))
-                        .tracking(4)
-                        .textCase(.uppercase)
-                        .foregroundStyle(DesignSystem.ColorToken.skyDeep)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 15)
-                        .background(Capsule().fill(DesignSystem.ColorToken.goldCream.opacity(0.94)))
-                        .shadow(color: DesignSystem.ColorToken.goldCream.opacity(0.28), radius: 15)
-                }
-                .buttonStyle(.plain)
-            }
-
             NavigationLink {
                 ReadingResultView(bundle: bundle)
             } label: {
-                Text("Open full report")
-                    .font(DesignSystem.FontToken.caps(10))
-                    .tracking(3)
+                Text("Open full report  ›")
+                    .font(DesignSystem.FontToken.caps(11))
+                    .tracking(4)
                     .textCase(.uppercase)
-                    .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.86))
+                    .foregroundStyle(DesignSystem.ColorToken.skyDeep)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .overlay(Capsule().stroke(DesignSystem.ColorToken.goldCream.opacity(0.35), lineWidth: 1))
+                    .padding(.vertical, 15)
+                    .background(Capsule().fill(DesignSystem.ColorToken.goldCream.opacity(0.94)))
+                    .shadow(color: DesignSystem.ColorToken.goldCream.opacity(0.28), radius: 15)
             }
             .buttonStyle(.plain)
 
