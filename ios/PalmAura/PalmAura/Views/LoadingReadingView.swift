@@ -10,6 +10,8 @@ struct LoadingReadingView: View {
     @State private var bundle: ReadingBundle?
     @State private var errorMessage: String?
     @State private var showResult = false
+    @State private var isGenerating = false
+    @State private var hasSubmittedRequest = false
     private let phrases = [
         "Reading the shape of your palm…",
         "Igniting the tiny constellations in your palm…",
@@ -54,7 +56,7 @@ struct LoadingReadingView: View {
                             .foregroundStyle(DesignSystem.ColorToken.goldCream)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, DesignSystem.Spacing.lg)
-                        GoldButton(title: "Try Again  ›") { errorMessage = nil; Task { await generate() } }
+                        GoldButton(title: "Try Again  ›") { Task { await generate(allowRetry: true) } }
                             .padding(.horizontal, DesignSystem.Spacing.lg)
                     }
                 }
@@ -64,7 +66,7 @@ struct LoadingReadingView: View {
             }
         }
         .navigationBarBackButtonHidden(true)
-        .swipeBackEnabled()
+        .swipeBackEnabled(false)
         .task { await generate() }
         .onReceive(Timer.publish(every: DesignSystem.Motion.phraseInterval, on: .main, in: .common).autoconnect()) { _ in
             advancePhrase()
@@ -74,7 +76,16 @@ struct LoadingReadingView: View {
         }
     }
 
-    private func generate() async {
+    @MainActor
+    private func generate(allowRetry: Bool = false) async {
+        guard !isGenerating else { return }
+        guard allowRetry || !hasSubmittedRequest else { return }
+
+        isGenerating = true
+        hasSubmittedRequest = true
+        errorMessage = nil
+        defer { isGenerating = false }
+
         Analytics.shared.track("reading_requested")
         let started = Date()
         do {

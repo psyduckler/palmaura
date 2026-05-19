@@ -493,9 +493,11 @@ extension View {
     /// `interactivePopGestureRecognizer.delegate = nil`, which re-enables
     /// the gesture independently of the back button visibility.
     ///
-    /// Safe to apply more than once. Apply once per navigable screen.
-    func swipeBackEnabled() -> some View {
-        background(NavigationBackSwipeEnabler())
+    /// Safe to apply more than once. Apply once per navigable screen. Pass
+    /// `false` for terminal/in-flight screens where popping would duplicate a
+    /// submission or expose an invalid previous state.
+    func swipeBackEnabled(_ isEnabled: Bool = true) -> some View {
+        background(NavigationBackSwipeEnabler(isEnabled: isEnabled))
     }
 }
 
@@ -503,6 +505,8 @@ extension View {
 /// for the enclosing `UINavigationController`. See `View.swipeBackEnabled()`
 /// for the rationale.
 private struct NavigationBackSwipeEnabler: UIViewControllerRepresentable {
+    let isEnabled: Bool
+
     func makeUIViewController(context: Context) -> UIViewController {
         UIViewController()
     }
@@ -513,6 +517,10 @@ private struct NavigationBackSwipeEnabler: UIViewControllerRepresentable {
         DispatchQueue.main.async {
             guard let navController = uiViewController.parent?.navigationController
                 ?? uiViewController.navigationController else { return }
+            guard isEnabled, navController.viewControllers.count > 1 else {
+                navController.interactivePopGestureRecognizer?.isEnabled = false
+                return
+            }
             navController.interactivePopGestureRecognizer?.delegate = nil
             navController.interactivePopGestureRecognizer?.isEnabled = true
         }
