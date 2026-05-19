@@ -19,7 +19,7 @@ struct HomeView: View {
 
                     // Constellation palm hero
                     ConstellationPalm()
-                        .frame(maxWidth: 270)
+                        .frame(maxWidth: 216)
                         .padding(.top, -14)
 
                     // Title block
