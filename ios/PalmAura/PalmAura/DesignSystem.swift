@@ -107,6 +107,7 @@ struct ScreenHeader: View {
     var compact: Bool = false
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.navigationCoordinator) private var coordinator
 
     private var showsContext: Bool {
         let normalized = eyebrow.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
@@ -141,13 +142,13 @@ struct ScreenHeader: View {
     private var globalNavRow: some View {
         HStack(alignment: .center) {
             navIcon(systemName: "house", accessibilityLabel: "Home") {
-                NotificationCenter.default.post(name: .palmAuraNavigateHome, object: nil)
+                coordinator?.goHome()
             }
 
             Spacer(minLength: 8)
 
             Button {
-                NotificationCenter.default.post(name: .palmAuraNavigateHome, object: nil)
+                coordinator?.goHome()
             } label: {
                 HStack(spacing: 8) {
                     Text("PalmAura")
@@ -174,7 +175,7 @@ struct ScreenHeader: View {
             Spacer(minLength: 8)
 
             navIcon(systemName: "gearshape", accessibilityLabel: "Settings") {
-                NotificationCenter.default.post(name: .palmAuraNavigateSettings, object: nil)
+                coordinator?.goSettings()
             }
         }
     }
