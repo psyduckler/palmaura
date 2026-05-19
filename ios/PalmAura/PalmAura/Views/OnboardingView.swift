@@ -8,6 +8,7 @@ enum ProfileCompletionDestination { case home, dismiss }
 struct OnboardingView: View {
     var completionDestination: ProfileCompletionDestination = .home
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.navigationCoordinator) private var coordinator
     @State private var answers = OnboardingAnswers.default
     @State private var birthMonth: Int = Calendar.current.component(.month, from: Date())
     @State private var birthDay: Int = Calendar.current.component(.day, from: Date())
@@ -337,13 +338,15 @@ struct OnboardingView: View {
         ])
         switch completionDestination {
         case .home:
-            // No explicit navigation needed. `PersonalizationStore.save(...)`
-            // flips the `palmaura.profile.complete.v1` @AppStorage flag,
-            // which causes `RootView` to re-evaluate its gate and route to
-            // `HomeView` automatically. Pushing HomeView here would create
-            // a duplicate on the navigation stack (visible once swipe-back
-            // is enabled).
-            break
+            // `PersonalizationStore.save(...)` flips the root profile gate; also
+            // clear any pushed navigation state so Home/ReadingQuestion callers
+            // that entered profile setup from an existing stack are not left
+            // sitting on a completed onboarding screen.
+            if let coordinator {
+                coordinator.goHome()
+            } else {
+                dismiss()
+            }
         case .dismiss:
             dismiss()
         }
