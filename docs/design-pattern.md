@@ -288,13 +288,15 @@ the iOS share-sheet wraps `UIActivityViewController` which has its own).
 ## 6. Asset rules
 
 There is **one** hero illustration: the engraved palmistry plate from a
-19th-century reference. It ships in two pre-baked variants in the asset
-catalog:
+19th-century reference. It ships as `PalmPlate` in the asset catalog.
 
 - `PalmPlate` — original dark-ink engraving on transparent background. Use
-  on **parchment surfaces** (share card, photo review cards).
-- `PalmPlateGold` — gold-tinted version of the same engraving. Use on **dark
-  surfaces** (welcome, palm map, capture viewfinder, reveal sequence).
+  on parchment-style symbolic surfaces, including share cards, photo review
+  cards, and the home palm map.
+
+Do **not** place a hand silhouette over the live capture viewfinder. Capture
+must remain neutral for left or right hands; use the camera preview, gold
+frame, ticks, and copy as the guide.
 
 Custom palm illustrations are not allowed without a brand-level approval.
 Same plate everywhere is the brand.
