@@ -1,11 +1,13 @@
+import AVFoundation
 import PhotosUI
 import SwiftUI
+import UIKit
 
 struct PalmCaptureView: View {
     let onboardingAnswers: OnboardingAnswers
     @State private var selectedItem: PhotosPickerItem?
     @State private var selectedImage: UIImage?
-    @State private var showCamera = false
+    @StateObject private var camera = PalmCameraController()
 
     var body: some View {
         ZStack {
@@ -42,8 +44,13 @@ struct PalmCaptureView: View {
             }
         }
         .navigationBarBackButtonHidden(true)
-        .sheet(isPresented: $showCamera) { CameraPicker(image: $selectedImage) }
+        .task { camera.prepare() }
+        .onDisappear { camera.stop() }
         .onChange(of: selectedItem) { _, item in Task { await load(item) } }
+        .onChange(of: camera.capturedImage) { _, image in
+            guard let image else { return }
+            selectedImage = image
+        }
         .navigationDestination(isPresented: Binding(get: { selectedImage != nil }, set: { if !$0 { selectedImage = nil } })) {
             if let selectedImage {
                 PalmReviewView(image: selectedImage, onboardingAnswers: onboardingAnswers)
@@ -53,34 +60,51 @@ struct PalmCaptureView: View {
 
     private var viewfinderCard: some View {
         ZStack {
-            // Engraved frame
             RoundedRectangle(cornerRadius: 28, style: .continuous)
                 .fill(Color.black.opacity(0.42))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 28, style: .continuous)
-                        .stroke(DesignSystem.ColorToken.goldCream.opacity(0.35), lineWidth: 1)
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 22, style: .continuous)
-                        .stroke(DesignSystem.ColorToken.goldCream.opacity(0.18), lineWidth: 0.5)
-                        .padding(8)
-                )
 
-            // Corner ticks
+            if camera.showsLivePreview {
+                PalmCameraPreview(session: camera.session)
+                    .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+                    .overlay(Color.black.opacity(0.16))
+                    .padding(8)
+                    .transition(.opacity)
+            }
+
+            RoundedRectangle(cornerRadius: 28, style: .continuous)
+                .stroke(DesignSystem.ColorToken.goldCream.opacity(0.35), lineWidth: 1)
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .stroke(DesignSystem.ColorToken.goldCream.opacity(0.18), lineWidth: 0.5)
+                .padding(8)
+
+            if !camera.showsLivePreview || camera.shouldShowPalmGuide {
+                Image("PalmPlateGold")
+                    .resizable()
+                    .scaledToFit()
+                    .opacity(camera.showsLivePreview ? 0.16 : 0.28)
+                    .padding(.horizontal, 28)
+                    .padding(.vertical, 28)
+                    .allowsHitTesting(false)
+            }
+
+            if let message = camera.statusMessage {
+                VStack {
+                    Spacer()
+                    Text(message)
+                        .font(DesignSystem.FontToken.body(12, italic: true))
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(DesignSystem.ColorToken.textSecondary)
+                        .padding(.horizontal, 24)
+                        .padding(.bottom, 54)
+                }
+                .allowsHitTesting(false)
+            }
+
             CornerTicks(color: DesignSystem.ColorToken.goldCream.opacity(0.85), inset: 16, size: 22, thickness: 1.5)
 
-            // Palm silhouette guide
-            Image("PalmPlateGold")
-                .resizable()
-                .scaledToFit()
-                .opacity(0.28)
-                .padding(.horizontal, 28)
-                .padding(.vertical, 28)
-
-            // Alignment chip
             VStack {
                 Spacer()
-                Text("ALIGNING · OPEN PALM")
+                Text(camera.alignmentChipTitle)
                     .font(DesignSystem.FontToken.caps(9))
                     .tracking(2.5)
                     .foregroundStyle(DesignSystem.ColorToken.textPrimary)
@@ -92,11 +116,17 @@ struct PalmCaptureView: View {
             }
         }
         .frame(height: 440)
+        .animation(.easeInOut(duration: 0.25), value: camera.showsLivePreview)
     }
 
     private var actionStack: some View {
         VStack(spacing: 12) {
-            GoldButton(title: "Take Photo") { showCamera = true }
+            GoldButton(title: camera.primaryActionTitle) {
+                camera.capturePhoto()
+            }
+            .disabled(!camera.canCapture)
+            .opacity(camera.canCapture ? 1 : 0.5)
+
             PhotosPicker(selection: $selectedItem, matching: .images) {
                 HStack(spacing: 8) {
                     Text("❑").font(DesignSystem.FontToken.display(15))
@@ -162,27 +192,236 @@ private struct CornerTicks: View {
     enum Corner { case topLeading, topTrailing, bottomLeading, bottomTrailing }
 }
 
-struct ImageSelection: Identifiable { let id = UUID(); let image: UIImage }
-
-struct CameraPicker: UIViewControllerRepresentable {
-    @Binding var image: UIImage?
-    @Environment(\.dismiss) private var dismiss
-
-    func makeUIViewController(context: Context) -> UIImagePickerController {
-        let picker = UIImagePickerController()
-        picker.sourceType = UIImagePickerController.isSourceTypeAvailable(.camera) ? .camera : .photoLibrary
-        picker.delegate = context.coordinator
-        return picker
+private final class PalmCameraController: NSObject, ObservableObject {
+    enum Status: Equatable {
+        case idle
+        case requestingAccess
+        case configuring
+        case ready
+        case capturing
+        case denied
+        case unavailable
+        case failed(String)
     }
-    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
-    func makeCoordinator() -> Coordinator { Coordinator(self) }
-    final class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-        let parent: CameraPicker
-        init(_ parent: CameraPicker) { self.parent = parent }
-        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-            parent.image = info[.originalImage] as? UIImage
+
+    @Published private(set) var status: Status = .idle
+    @Published var capturedImage: UIImage?
+
+    let session = AVCaptureSession()
+
+    private let sessionQueue = DispatchQueue(label: "com.zonted.palmaura.camera.session")
+    private let photoOutput = AVCapturePhotoOutput()
+    private var isConfigured = false
+
+    var showsLivePreview: Bool {
+        status == .ready || status == .capturing
+    }
+
+    var shouldShowPalmGuide: Bool {
+        status == .ready || status == .capturing
+    }
+
+    var canCapture: Bool {
+        status == .ready
+    }
+
+    var primaryActionTitle: String {
+        switch status {
+        case .capturing:
+            "Holding Still…"
+        case .requestingAccess, .configuring, .idle:
+            "Opening Camera…"
+        case .denied:
+            "Camera Access Off"
+        case .unavailable:
+            "Camera Unavailable"
+        case .failed:
+            "Try Camera Again"
+        case .ready:
+            "Take Photo"
+        }
+    }
+
+    var alignmentChipTitle: String {
+        switch status {
+        case .ready:
+            "LIVE · OPEN PALM"
+        case .capturing:
+            "CAPTURING · HOLD STILL"
+        case .denied:
+            "CAMERA ACCESS NEEDED"
+        case .unavailable:
+            "CAMERA UNAVAILABLE"
+        case .failed:
+            "CAMERA PAUSED"
+        default:
+            "OPENING · CAMERA"
+        }
+    }
+
+    var statusMessage: String? {
+        switch status {
+        case .idle, .requestingAccess, .configuring:
+            "Opening the camera inside this frame…"
+        case .denied:
+            "Camera access is off. Enable it in Settings, or choose a palm photo from your library."
+        case .unavailable:
+            "Camera is not available here. On an iPhone, this frame becomes the live palm viewfinder."
+        case .failed(let message):
+            message
+        case .ready, .capturing:
+            nil
+        }
+    }
+
+    func prepare() {
+        switch AVCaptureDevice.authorizationStatus(for: .video) {
+        case .authorized:
+            configureAndStart()
+        case .notDetermined:
+            setStatus(.requestingAccess)
+            AVCaptureDevice.requestAccess(for: .video) { [weak self] granted in
+                guard let self else { return }
+                if granted {
+                    self.configureAndStart()
+                } else {
+                    self.setStatus(.denied)
+                }
+            }
+        case .denied, .restricted:
+            setStatus(.denied)
+        @unknown default:
+            setStatus(.failed("Camera permission returned an unknown state. Choose from library for now."))
+        }
+    }
+
+    func stop() {
+        sessionQueue.async { [weak self] in
+            guard let self, self.session.isRunning else { return }
+            self.session.stopRunning()
+        }
+    }
+
+    func capturePhoto() {
+        guard canCapture else { return }
+        setStatus(.capturing)
+        let settings = AVCapturePhotoSettings()
+        sessionQueue.async { [weak self] in
+            guard let self else { return }
+            self.photoOutput.capturePhoto(with: settings, delegate: self)
+        }
+    }
+
+    private func configureAndStart() {
+        setStatus(.configuring)
+
+        sessionQueue.async { [weak self] in
+            guard let self else { return }
+
+            do {
+                if !self.isConfigured {
+                    try self.configureSession()
+                    self.isConfigured = true
+                }
+
+                if !self.session.isRunning {
+                    self.session.startRunning()
+                }
+
+                self.setStatus(.ready)
+            } catch CameraError.unavailable {
+                self.setStatus(.unavailable)
+            } catch {
+                self.setStatus(.failed("Camera could not start. Try again, or choose from library."))
+            }
+        }
+    }
+
+    private func configureSession() throws {
+        guard let device = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back) ?? AVCaptureDevice.default(for: .video) else {
+            setStatus(.unavailable)
+            throw CameraError.unavailable
+        }
+
+        let input = try AVCaptureDeviceInput(device: device)
+
+        session.beginConfiguration()
+        session.sessionPreset = .photo
+        defer { session.commitConfiguration() }
+
+        guard session.canAddInput(input) else { throw CameraError.cannotAddInput }
+        session.addInput(input)
+
+        guard session.canAddOutput(photoOutput) else { throw CameraError.cannotAddOutput }
+        session.addOutput(photoOutput)
+    }
+
+    private func setStatus(_ status: Status) {
+        DispatchQueue.main.async { [weak self] in
+            self?.status = status
+        }
+    }
+
+    private enum CameraError: Error {
+        case unavailable
+        case cannotAddInput
+        case cannotAddOutput
+    }
+}
+
+extension PalmCameraController: AVCapturePhotoCaptureDelegate {
+    func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
+        if let error {
+            setStatus(.failed("Photo capture failed: \(error.localizedDescription)"))
+            return
+        }
+
+        guard let data = photo.fileDataRepresentation(), let image = UIImage(data: data) else {
+            setStatus(.failed("Photo capture failed. Try again, or choose from library."))
+            return
+        }
+
+        DispatchQueue.main.async { [weak self] in
+            self?.capturedImage = image
+            self?.status = .ready
             Analytics.shared.track("photo_captured")
-            parent.dismiss()
+        }
+    }
+}
+
+private struct PalmCameraPreview: UIViewRepresentable {
+    let session: AVCaptureSession
+
+    func makeUIView(context: Context) -> PreviewView {
+        let view = PreviewView()
+        view.previewLayer.session = session
+        view.previewLayer.videoGravity = .resizeAspectFill
+        return view
+    }
+
+    func updateUIView(_ uiView: PreviewView, context: Context) {
+        uiView.previewLayer.session = session
+        uiView.updateOrientation()
+    }
+
+    final class PreviewView: UIView {
+        override class var layerClass: AnyClass { AVCaptureVideoPreviewLayer.self }
+
+        var previewLayer: AVCaptureVideoPreviewLayer {
+            layer as! AVCaptureVideoPreviewLayer
+        }
+
+        override func layoutSubviews() {
+            super.layoutSubviews()
+            updateOrientation()
+        }
+
+        func updateOrientation() {
+            guard let connection = previewLayer.connection else { return }
+            let portraitRotation: CGFloat = 90
+            if connection.isVideoRotationAngleSupported(portraitRotation) {
+                connection.videoRotationAngle = portraitRotation
+            }
         }
     }
 }
