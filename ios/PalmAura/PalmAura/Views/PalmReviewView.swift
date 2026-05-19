@@ -50,7 +50,6 @@ struct PalmReviewView: View {
         .onAppear {
             if let data = ImagePreprocessor.jpegDataForUpload(from: image) {
                 base64 = data.base64EncodedString()
-                print("PalmAura upload JPEG bytes", data.count)
             }
             pendingPhotoURL = PalmPhotoStore.save(image, key: PalmPhotoStore.pendingKey)
         }
