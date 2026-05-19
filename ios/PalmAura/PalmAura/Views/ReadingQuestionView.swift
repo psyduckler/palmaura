@@ -36,6 +36,7 @@ struct ReadingQuestionView: View {
             }
         }
         .navigationBarBackButtonHidden(true)
+        .swipeBackEnabled()
         .onAppear { profile = PersonalizationStore.load() }
         .navigationDestination(isPresented: $showCapture) {
             PalmCaptureView(onboardingAnswers: buildAnswers())

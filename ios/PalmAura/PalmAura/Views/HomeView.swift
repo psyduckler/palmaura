@@ -139,6 +139,7 @@ struct HomeView: View {
             }
         }
         .navigationBarBackButtonHidden(true)
+        .swipeBackEnabled()
         .onAppear {
             lastReading = LastReadingStore.load()
             hasProfile = PersonalizationStore.hasCompleteProfile()

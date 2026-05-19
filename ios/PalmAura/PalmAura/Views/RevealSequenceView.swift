@@ -60,6 +60,7 @@ struct RevealSequenceView: View {
             }
         }
         .navigationBarBackButtonHidden(true)
+        .swipeBackEnabled()
         .navigationDestination(isPresented: $showFullReport) { ReadingResultView(bundle: bundle) }
         .onAppear {
             UINotificationFeedbackGenerator().notificationOccurred(.success)

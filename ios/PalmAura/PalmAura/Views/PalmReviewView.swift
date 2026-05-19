@@ -48,6 +48,7 @@ struct PalmReviewView: View {
             }
         }
         .navigationBarBackButtonHidden(true)
+        .swipeBackEnabled()
         .task(id: pendingPhotoKey) {
             // Process image and write to disk on a background thread to prevent UI freezing.
             // Each review attempt writes to its own pending key so an abandoned retake cannot

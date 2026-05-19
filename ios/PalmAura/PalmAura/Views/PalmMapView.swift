@@ -34,6 +34,7 @@ struct PalmMapView: View {
             }
         }
         .navigationBarBackButtonHidden(true)
+        .swipeBackEnabled()
         .navigationDestination(isPresented: $showFullReport) {
             ReadingResultView(bundle: bundle)
         }

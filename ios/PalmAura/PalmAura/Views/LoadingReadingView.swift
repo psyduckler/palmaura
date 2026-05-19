@@ -64,6 +64,7 @@ struct LoadingReadingView: View {
             }
         }
         .navigationBarBackButtonHidden(true)
+        .swipeBackEnabled()
         .task { await generate() }
         .onReceive(Timer.publish(every: DesignSystem.Motion.phraseInterval, on: .main, in: .common).autoconnect()) { _ in
             advancePhrase()

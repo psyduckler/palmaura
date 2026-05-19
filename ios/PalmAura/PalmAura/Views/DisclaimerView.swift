@@ -76,6 +76,7 @@ struct DisclaimerView: View {
             }
         }
         .navigationBarBackButtonHidden(true)
+        .swipeBackEnabled()
         .sheet(isPresented: $showPrivacySheet) {
             SafariView(url: URL(string: "https://palmaura.app/privacy.html")!)
                 .ignoresSafeArea()

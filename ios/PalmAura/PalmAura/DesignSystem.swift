@@ -477,4 +477,44 @@ private struct LoadingPulseDot: View {
 
 extension View {
     func darkScreen() -> some View { ZStack { DarkScreenBackground(); self } }
+
+    /// Re-enable the iOS interactive swipe-back gesture even when the
+    /// navigation back button is hidden via `.navigationBarBackButtonHidden(true)`.
+    ///
+    /// Background: SwiftUI ties the system left-edge swipe gesture to the
+    /// back button by default. When the back button is hidden — which every
+    /// PalmAura screen does in favour of the custom `ScreenHeader` chrome —
+    /// the swipe gesture is also disabled. iOS users expect the swipe to
+    /// work; without it, navigation feels broken.
+    ///
+    /// This modifier injects an invisible `UIViewControllerRepresentable`
+    /// that walks up to the hosting `UINavigationController` (which
+    /// `NavigationStack` uses under the hood as of iOS 16+) and sets the
+    /// `interactivePopGestureRecognizer.delegate = nil`, which re-enables
+    /// the gesture independently of the back button visibility.
+    ///
+    /// Safe to apply more than once. Apply once per navigable screen.
+    func swipeBackEnabled() -> some View {
+        background(NavigationBackSwipeEnabler())
+    }
+}
+
+/// Invisible UIKit shim that re-enables the system interactive pop gesture
+/// for the enclosing `UINavigationController`. See `View.swipeBackEnabled()`
+/// for the rationale.
+private struct NavigationBackSwipeEnabler: UIViewControllerRepresentable {
+    func makeUIViewController(context: Context) -> UIViewController {
+        UIViewController()
+    }
+
+    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {
+        // Defer to the next runloop tick so the view is attached to its
+        // navigation controller before we mutate the gesture delegate.
+        DispatchQueue.main.async {
+            guard let navController = uiViewController.parent?.navigationController
+                ?? uiViewController.navigationController else { return }
+            navController.interactivePopGestureRecognizer?.delegate = nil
+            navController.interactivePopGestureRecognizer?.isEnabled = true
+        }
+    }
 }
