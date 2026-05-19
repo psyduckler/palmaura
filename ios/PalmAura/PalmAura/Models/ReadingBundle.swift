@@ -3,14 +3,12 @@ import Foundation
 struct ReadingBundle: Equatable {
     let reading: PalmReadingResponse
     let photoURL: URL?
-    let lineSet: PalmLineSet
     let auraColor: AuraColor
     let sessionIntent: ReadingSessionIntent?
 
-    init(reading: PalmReadingResponse, photoURL: URL?, lineSet: PalmLineSet? = nil, sessionIntent: ReadingSessionIntent? = nil) {
+    init(reading: PalmReadingResponse, photoURL: URL?, sessionIntent: ReadingSessionIntent? = nil) {
         self.reading = reading
         self.photoURL = photoURL
-        self.lineSet = lineSet ?? reading.palmLines ?? PalmLineSet.fallback
         self.auraColor = reading.auraColor
         self.sessionIntent = sessionIntent ?? ReadingIntentStore.load(for: reading.readingId)
     }
@@ -19,7 +17,6 @@ struct ReadingBundle: Equatable {
         ReadingBundle(
             reading: reading,
             photoURL: PalmPhotoStore.url(for: reading.readingId),
-            lineSet: PalmLineSetStore.load(for: reading.readingId) ?? reading.palmLines,
             sessionIntent: ReadingIntentStore.load(for: reading.readingId)
         )
     }
@@ -28,8 +25,6 @@ struct ReadingBundle: Equatable {
         guard let photoURL else { return false }
         return FileManager.default.fileExists(atPath: photoURL.path)
     }
-
-    var shouldUsePreciseLines: Bool { lineSet.source == .aiDetected && lineSet.confidence >= 0.55 }
 }
 
 enum ReadingIntentStore {

@@ -6,22 +6,21 @@ struct LoadingReadingView: View {
     let onboardingAnswers: OnboardingAnswers
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var phraseIndex = 0
-    @State private var lineIgnitionProgress = 0.12
     @State private var bundle: ReadingBundle?
     @State private var errorMessage: String?
     @State private var showResult = false
     private let phrases = [
-        "Tracing your heart line…",
+        "Reading the shape of your palm…",
         "Igniting the tiny constellations in your palm…",
         "Listening to the mount of Venus…",
         "Reading your aura’s resonance…",
         "Polishing the crystal ball’s Wi‑Fi signal…",
-        "Aligning the lines of fate…",
+        "Mapping love, mind, life, and fate…",
         "Sensing your current season…",
         "Asking the moon for a second opinion…",
         "Drawing on ancient palmistry…",
         "Channeling the symbols in your palm…",
-        "Dusting stardust off your lifeline…"
+        "Dusting stardust off your map…"
     ]
 
     var body: some View {
@@ -56,7 +55,6 @@ struct LoadingReadingView: View {
             .padding(24)
         }
         .navigationBarBackButtonHidden(true)
-        .onAppear { ignitePalmLines() }
         .task { await generate() }
         .onReceive(Timer.publish(every: DesignSystem.Motion.phraseInterval, on: .main, in: .common).autoconnect()) { _ in
             advancePhrase()
@@ -82,17 +80,6 @@ struct LoadingReadingView: View {
             await MainActor.run {
                 if response.status == .ok {
                     let boundURL = PalmPhotoStore.bind(to: response.readingId) ?? pendingPhotoURL
-                    let snappedPalmLines = response.palmLines.map { lineSet -> PalmLineSet in
-                        let image = boundURL.flatMap { UIImage(contentsOfFile: $0.path) }
-                        return PalmLineSnapper().snap(lineSet, to: image)
-                    }
-                    let adjustedResponse = response.replacingPalmLines(snappedPalmLines)
-                    if let palmLines = snappedPalmLines {
-                        PalmLineSetStore.save(palmLines, for: response.readingId)
-                        Analytics.shared.track("palm_lines_received", properties: ["source": palmLines.source.rawValue, "confidence": String(format: "%.2f", palmLines.confidence), "snapped": "true"])
-                    } else {
-                        Analytics.shared.track("palm_lines_missing", properties: ["reason": "absent"])
-                    }
                     if let inferredHand = response.inferredScannedHand {
                         Analytics.shared.track("hand_inferred", properties: [
                             "hand": inferredHand.hand.rawValue,
@@ -101,14 +88,14 @@ struct LoadingReadingView: View {
                         ])
                     }
                     let intent = ReadingSessionIntent(answers: onboardingAnswers)
-                    ReadingIntentStore.save(intent, for: adjustedResponse.readingId)
-                    LastReadingStore.save(adjustedResponse)
+                    ReadingIntentStore.save(intent, for: response.readingId)
+                    LastReadingStore.save(response)
                     Analytics.shared.track("reading_completed", properties: [
                         "auraColor": response.auraColor.rawValue,
                         "focus": intent?.focus ?? onboardingAnswers.focus.displayName,
                         "questionProvided": String(intent?.question?.isEmpty == false)
                     ])
-                    bundle = ReadingBundle(reading: adjustedResponse, photoURL: boundURL, lineSet: snappedPalmLines, sessionIntent: intent)
+                    bundle = ReadingBundle(reading: response, photoURL: boundURL, sessionIntent: intent)
                     showResult = true
                 } else {
                     Analytics.shared.track(response.status == .notPalm ? "reading_rejected_not_palm" : "reading_rejected_bad_image")
@@ -120,17 +107,6 @@ struct LoadingReadingView: View {
                 Analytics.shared.track("reading_failed")
                 errorMessage = error.localizedDescription
             }
-        }
-    }
-
-    private func ignitePalmLines() {
-        guard !reduceMotion else {
-            lineIgnitionProgress = 1
-            return
-        }
-        lineIgnitionProgress = 0.12
-        withAnimation(.easeInOut(duration: DesignSystem.Motion.palmIgnitionDuration)) {
-            lineIgnitionProgress = 1
         }
     }
 

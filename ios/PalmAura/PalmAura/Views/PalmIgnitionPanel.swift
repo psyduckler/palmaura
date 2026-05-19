@@ -1,9 +1,5 @@
 import SwiftUI
 
-/// The "your lines have been charted" reveal interstitial. Restyled to the
-/// design system — `goldCream` replaces `.yellow`, `FontToken.display` replaces
-/// inline Georgia, `ParchmentPanel` replaces the `.white.opacity(0.08)`
-/// surface. Animation, analytics, photo URL passthrough preserved exactly.
 struct PalmIgnitionPanel: View {
     let bundle: ReadingBundle
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -18,10 +14,10 @@ struct PalmIgnitionPanel: View {
                     .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.86))
 
                 VStack(spacing: 4) {
-                    Text("Your lines")
+                    Text("Your palm map")
                         .font(DesignSystem.FontToken.display(30))
                         .foregroundStyle(DesignSystem.ColorToken.textPrimary)
-                    Text("have been charted.")
+                    Text("is ready.")
                         .font(DesignSystem.FontToken.display(30, italic: true))
                         .foregroundStyle(DesignSystem.ColorToken.goldCream)
                 }
@@ -29,17 +25,13 @@ struct PalmIgnitionPanel: View {
 
                 PalmCanvasView(
                     photoURL: bundle.photoURL,
-                    lineSet: bundle.lineSet,
-                    auraColor: bundle.auraColor,
-                    activeLine: nil,
-                    ignitionProgress: progress,
-                    renderingMode: bundle.shouldUsePreciseLines ? .preciseLines : .softGlow
+                    auraColor: bundle.auraColor
                 )
                 .frame(maxHeight: 430)
+                .opacity(0.72 + (0.28 * progress))
+                .scaleEffect(0.985 + (0.015 * progress))
 
-                Text(bundle.shouldUsePreciseLines
-                     ? "Tap in after the reveal to explore love, mind, life, and fate."
-                     : "The oracle caught the shape of your hand; explore the symbolic map next.")
+                Text("Explore love, mind, life, and fate while your photo stays clean.")
                     .font(DesignSystem.FontToken.body(14, italic: true))
                     .foregroundStyle(DesignSystem.ColorToken.textSecondary)
                     .multilineTextAlignment(.center)
@@ -49,15 +41,12 @@ struct PalmIgnitionPanel: View {
         }
         .onAppear {
             UINotificationFeedbackGenerator().notificationOccurred(.success)
-            Analytics.shared.track("palm_ignition_shown", properties: [
-                "source": bundle.lineSet.source.rawValue,
-                "confidence": String(format: "%.2f", bundle.lineSet.confidence)
-            ])
+            Analytics.shared.track("palm_ignition_shown", properties: ["mode": "photo_map"])
             if reduceMotion {
                 progress = 1
             } else {
                 progress = 0
-                withAnimation(.easeInOut(duration: 3.0)) { progress = 1 }
+                withAnimation(.easeInOut(duration: 1.4)) { progress = 1 }
             }
         }
     }

@@ -53,48 +53,12 @@ const RequestSchema = z.object({
   }),
 });
 
-const PointSchema = z.object({
-  x: z.number().min(0).max(1),
-  y: z.number().min(0).max(1),
-});
-
-const PalmLinePathSchema = z.object({
-  points: z.array(PointSchema).min(5).max(8),
-  midpoint: PointSchema,
-  confidence: z.number().min(0).max(1).default(0.7),
-});
-
-const PalmLineSetSchema = z.object({
-  heart: PalmLinePathSchema,
-  head: PalmLinePathSchema,
-  life: PalmLinePathSchema,
-  fate: PalmLinePathSchema,
-  source: z.enum(['ai_detected', 'fallback']).default('ai_detected'),
-  confidence: z.number().min(0).max(1).default(0.7),
-});
-
 const InferredScannedHandSchema = z.object({
   hand: z.enum(['left', 'right', 'unknown']).default('unknown'),
   confidence: z.number().min(0).max(1).default(0),
   role: z.enum(['dominant', 'non_dominant', 'ambidextrous', 'unknown']).default('unknown'),
   evidence: z.string().max(180).default(''),
 });
-
-const pointToolSchema = {
-  type: 'object',
-  properties: { x: { type: 'number', minimum: 0, maximum: 1 }, y: { type: 'number', minimum: 0, maximum: 1 } },
-  required: ['x', 'y'],
-} as const;
-
-const linePathToolSchema = {
-  type: 'object',
-  properties: {
-    points: { type: 'array', minItems: 5, maxItems: 8, items: pointToolSchema },
-    midpoint: pointToolSchema,
-    confidence: { type: 'number', minimum: 0, maximum: 1 },
-  },
-  required: ['points', 'midpoint', 'confidence'],
-} as const;
 
 const inferredScannedHandToolSchema = {
   type: 'object',
@@ -114,7 +78,6 @@ const ReadingSchema = z.object({
   oneLineSummary: z.string().default(''),
   auraColor: z.enum(['violet', 'gold', 'fire', 'moon', 'water', 'rose']).default('violet'),
   archetype: z.string().default(''),
-  palmLines: PalmLineSetSchema.optional(),
   inferredScannedHand: InferredScannedHandSchema.optional(),
   report: z.object({
     aura: z.string().default(''),
@@ -146,19 +109,6 @@ const TOOL = {
       oneLineSummary: { type: 'string' },
       auraColor: { type: 'string', enum: ['violet', 'gold', 'fire', 'moon', 'water', 'rose'] },
       archetype: { type: 'string' },
-      palmLines: {
-        type: 'object',
-        description: 'Normalized top-left-origin coordinates tracing visible palm creases. Required when status=ok if the lines are visible enough.',
-        properties: {
-          heart: linePathToolSchema,
-          head: linePathToolSchema,
-          life: linePathToolSchema,
-          fate: linePathToolSchema,
-          source: { type: 'string', enum: ['ai_detected', 'fallback'] },
-          confidence: { type: 'number', minimum: 0, maximum: 1 },
-        },
-        required: ['heart', 'head', 'life', 'fate', 'source', 'confidence'],
-      },
       inferredScannedHand: inferredScannedHandToolSchema,
       report: {
         type: 'object',
@@ -410,18 +360,6 @@ HAND INFERENCE:
 - If role is dominant, frame the reading as current choices, active path, and what the user is doing with their potential. If role is non_dominant, frame it as inherited tendencies, inner pattern, past, and potential. If role is ambidextrous, frame it as both currents/current-use energy.
 - Use a high-confidence inferred role in at least two report sections. If confidence is low, say less — do not pretend.
 
-PALM LINE COORDINATES:
-- When status = "ok", inspect the user's actual visible palm creases and return palmLines.
-- Coordinates must be normalized numbers from 0.0 to 1.0 relative to the image bounds, origin top-left.
-- Return 5-8 rough points per line so the iOS client can snap them to nearby dark crease pixels and smooth the curve.
-- Trace visible creases where possible. Do not use generic textbook placement if visible creases disagree.
-- Heart line: upper transverse crease under the fingers, typically from pinky side toward index/middle.
-- Head line: middle transverse/diagonal crease across the palm.
-- Life line: curved crease wrapping around the thumb mound.
-- Fate line: vertical/diagonal central line from wrist/lower palm toward middle finger, if visible.
-- If a line is faint/partially absent, estimate gently from visible palm structure and lower that line's confidence.
-- If coordinates would be speculative, still return status ok for the reading but set palmLines.source = "fallback" and confidence < 0.45.
-
 ORACLE VOICE:
 - Be cheeky, concrete, and memorable. Prefer crisp observations over soft reassurance.
 - Tie claims to visible palm cues when possible: line depth, curve, spacing, mounts, finger shape, thumb angle, or overall hand energy.
@@ -436,14 +374,14 @@ READING STYLE:
 - deep_spiritual: sacred, archetypal, transformational, not therapy-ish
 
 SPECIFICITY RULES:
-1. Evidence-grounding rule: every meaningful claim must be tied to at least one of: a visible palm feature from the image; palm line confidence/shape; focus/lifeSeason/readingStyle; dominant-hand context; saved birthday-derived sun sign or age band; saved gender context if relevant; or coarse location/timezone context for timing/place atmosphere if provided. If a claim cannot be grounded, do not make it.
+1. Evidence-grounding rule: every meaningful claim must be tied to at least one of: a visible palm feature from the image; line depth/curve/spacing seen in the photo; focus/lifeSeason/readingStyle; dominant-hand context; saved birthday-derived sun sign or age band; saved gender context if relevant; or coarse location/timezone context for timing/place atmosphere if provided. If a claim cannot be grounded, do not make it.
 2. Dominant/scanned hand rule: if the client provides scannedHand, use it. If not, infer the visible hand from the image, compare it with the dominant hand, and use the inferred role when confidence >= 0.55. Use known hand role in at least two report sections; if role is unknown/low-confidence, rely on dominant-hand context only and avoid pretending the photo is dominant.
 3. Sun sign rule: if sunSign is provided, reference it exactly once across the whole report. Do not turn the reading into a horoscope.
 4. Age-band rule: if ageBand is provided, adapt life-stage assumptions without over-explaining the age. under_25 = identity/first big choices; 25_34 = momentum/filtering/ambition vs burnout; 35_44 = leadership/reinvention; 45_54 = recalibration/second-act energy; 55_plus = wisdom/simplification/legacy.
 5. Gender context rule: do not stereotype or infer pronouns. Use saved gender only lightly when it helps phrasing; if prefer_not_to_say, avoid gendered framing entirely.
 6. Banned standalone adjectives: never use creative, intuitive, loyal, sensitive, resilient, or ambitious as freestanding descriptors. You may use one only when the same sentence explains the palm or context evidence behind it.
 7. Rule of softness: use "this season favors," "this pattern suggests," "your hand points toward," and "a useful move would be." Never use "you will," "you are destined to," or "this proves."
-8. Location context rule: if location context is provided, use it only for local season, time-of-day, and grounded place atmosphere. Never claim it improves palm-line detection, never mention precise location, and never imply continuous tracking.
+8. Location context rule: if location context is provided, use it only for local season, time-of-day, and grounded place atmosphere. Never claim it improves visual palm accuracy, never mention precise location, and never imply continuous tracking.
 
 SECTION INTENT:
 - aura: 2-3 sentences. Give an at-a-glance physical/visual impression; if sunSign is available, this is the best place for the single sun-sign mention.
@@ -463,7 +401,7 @@ GROUNDING:
 
 SESSION QUESTION:
 - If a session question is provided, the reading must answer it first and directly.
-- Use palm lines as evidence for the answer, not decoration.
+- Use visible hand and palm features as evidence for the answer, not decoration.
 - Keep durable profile context secondary: it calibrates the voice and lens, but the session question drives the output.
 - Do not generate share/export/social-card copy; this MVP is private by default.`;
 }
@@ -486,7 +424,7 @@ function buildLocationContext(personalization?: ReadingPersonalization, edgeLoca
   return `- Place hint: ${placeHint ?? 'not provided'}
 - Timezone: ${timezone ?? 'not provided'}
 - Source: ${source}
-- Location rule: use only for local season, time-of-day, and grounded place atmosphere. Never claim it improves palm-line detection, never mention precise location, and never imply continuous tracking.`;
+- Location rule: use only for local season, time-of-day, and grounded place atmosphere. Never claim it improves visual palm accuracy, never mention precise location, and never imply continuous tracking.`;
 }
 
 function buildUserPrompt(env: Env, data: ReadingRequest, edgeLocation: EdgeLocationContext = {}): string {
@@ -511,7 +449,7 @@ function buildUserPrompt(env: Env, data: ReadingRequest, edgeLocation: EdgeLocat
     ? `- User's question for this reading: ${sessionQuestion}`
     : '- User skipped a custom question; answer through the selected focus only.';
 
-  return `Session intent:\n- Seeking clarity on: ${data.onboarding.focus}\n${sessionIntent}\n- Current season: ${data.onboarding.lifeSeason}\n- Reading style: ${data.onboarding.readingStyle}\n\nSaved profile context:\n${genderContext}\n${handContext}\n\nBirthday context:\n${birthdayContext}\n\nLocation context:\n${locationContext}\n\nPalm evidence:\n- Client-side palm-line evidence: not provided in this client build; use the image itself and the palmLines you return in the same tool call.\n\nRead this palm if it is a clear human palm. If not, return the appropriate status and rejection message. The app domain is ${appDomain}.`;
+  return `Session intent:\n- Seeking clarity on: ${data.onboarding.focus}\n${sessionIntent}\n- Current season: ${data.onboarding.lifeSeason}\n- Reading style: ${data.onboarding.readingStyle}\n\nSaved profile context:\n${genderContext}\n${handContext}\n\nBirthday context:\n${birthdayContext}\n\nLocation context:\n${locationContext}\n\nPalm evidence:\n- Use the image itself for symbolic palm observations. The client renders a clean photo map.\n\nRead this palm if it is a clear human palm. If not, return the appropriate status and rejection message. The app domain is ${appDomain}.`;
 }
 
 async function generateReading(env: Env, data: ReadingRequest, edgeLocation: EdgeLocationContext = {}): Promise<Reading> {

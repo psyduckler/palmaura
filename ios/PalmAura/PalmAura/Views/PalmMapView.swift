@@ -21,12 +21,7 @@ struct PalmMapView: View {
 
                 PalmCanvasView(
                     photoURL: bundle.photoURL,
-                    lineSet: bundle.lineSet,
-                    auraColor: bundle.auraColor,
-                    activeLine: selectedLine,
-                    ignitionProgress: 1,
-                    renderingMode: bundle.shouldUsePreciseLines ? .preciseLines : .softGlow,
-                    onSelectLine: select
+                    auraColor: bundle.auraColor
                 )
                 .frame(maxHeight: 460)
                 .padding(.horizontal, DesignSystem.Spacing.lg)
@@ -43,11 +38,7 @@ struct PalmMapView: View {
             ReadingResultView(bundle: bundle)
         }
         .onAppear {
-            Analytics.shared.track("palm_map_opened", properties: [
-                "source": "map",
-                "lineSource": bundle.lineSet.source.rawValue,
-                "confidence": String(format: "%.2f", bundle.lineSet.confidence)
-            ])
+            Analytics.shared.track("palm_map_opened", properties: ["source": "map"])
         }
     }
 
@@ -56,16 +47,16 @@ struct PalmMapView: View {
     private var titleBlock: some View {
         VStack(alignment: .center, spacing: 6) {
             HStack(spacing: 6) {
-                Text("Four lines.")
+                Text("Your palm.")
                     .font(DesignSystem.FontToken.display(28))
-                Text("Six mounts.")
+                Text("Four lenses.")
                     .font(DesignSystem.FontToken.display(28, italic: true))
                     .foregroundStyle(DesignSystem.ColorToken.goldCream)
             }
             .foregroundStyle(DesignSystem.ColorToken.textPrimary)
             Text(bundle.sessionIntent?.question == nil
-                 ? (bundle.shouldUsePreciseLines ? "Tap a glowing line to read what it carries." : "Your map is symbolic — the lines are softly charted.")
-                 : "Tap a glowing line to read what it contributes to this question.")
+                 ? "The photo stays clean; choose a symbolic lens below."
+                 : "Choose which part of the map contributes to this question.")
                 .font(DesignSystem.FontToken.body(13, italic: true))
                 .foregroundStyle(DesignSystem.ColorToken.textSecondary)
                 .multilineTextAlignment(.center)
@@ -82,7 +73,6 @@ struct PalmMapView: View {
                     .lineLimit(2)
                     .padding(.bottom, 2)
             }
-            // Chip row of all 4 lines
             HStack(spacing: 8) {
                 ForEach(PalmLine.allCases) { line in
                     LineChip(line: line, selected: selectedLine == line) { select(line) }
@@ -103,9 +93,9 @@ struct PalmMapView: View {
                         .foregroundStyle(DesignSystem.ColorToken.textPrimary.opacity(0.92))
                         .lineSpacing(3)
                 }
-                GhostButton(title: "Next line", action: { cycleNext() }, leading: "›")
+                GhostButton(title: "Next lens", action: { cycleNext() }, leading: "›")
             } else {
-                Text("Choose a line to read the part of your answer it carries.")
+                Text("Choose a lens to read the part of your answer it carries.")
                     .font(DesignSystem.FontToken.body(14, italic: true))
                     .foregroundStyle(DesignSystem.ColorToken.textSecondary)
                     .lineSpacing(2)
@@ -123,7 +113,7 @@ struct PalmMapView: View {
     private func select(_ line: PalmLine) {
         selectedLine = line
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
-        Analytics.shared.track("palm_line_selected", properties: ["line": line.rawValue])
+        Analytics.shared.track("palm_map_lens_selected", properties: ["line": line.rawValue])
     }
 
     private func cycleNext() {
@@ -131,11 +121,10 @@ struct PalmMapView: View {
         let current = selectedLine ?? .heart
         let next = all[(all.firstIndex(of: current)! + 1) % all.count]
         selectedLine = next
-        Analytics.shared.track("palm_line_cycle_next", properties: ["from": current.rawValue, "to": next.rawValue])
+        Analytics.shared.track("palm_map_lens_cycle_next", properties: ["from": current.rawValue, "to": next.rawValue])
     }
 }
 
-/// Vintage glyph chip used to select one of the 4 palm lines.
 private struct LineChip: View {
     let line: PalmLine
     let selected: Bool

@@ -170,9 +170,9 @@ struct RevealSequenceView: View {
 
     private var nextTitle: String {
         if isFirstReveal {
-            return ["Show my aura  ›", "Chart my lines  ›", "Reveal archetype  ›"][safe: step] ?? "Continue"
+            return ["Show my aura  ›", "Open my map  ›", "Reveal archetype  ›"][safe: step] ?? "Continue"
         } else {
-            return ["Chart my lines  ›"][safe: step] ?? "Continue"
+            return ["Open my map  ›"][safe: step] ?? "Continue"
         }
     }
 

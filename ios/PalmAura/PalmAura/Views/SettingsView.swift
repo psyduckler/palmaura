@@ -61,7 +61,6 @@ struct SettingsView: View {
             Button("Cancel", role: .cancel) {}
             Button("Clear", role: .destructive) {
                 LastReadingStore.clear()
-                PalmLineSetStore.clearAll()
                 PalmPhotoStore.clearAll()
                 ReadingIntentStore.clearAll()
             }

@@ -1,6 +1,6 @@
 # PalmAura
 
-PalmAura is the committed name for our native iOS palm-reading app and supporting Cloudflare Worker backend. It turns a clear palm photo into a symbolic, entertainment-only reading with visible palm-line highlights.
+PalmAura is the committed name for our native iOS palm-reading app and supporting Cloudflare Worker backend. It turns a clear palm photo into a symbolic, entertainment-only reading with a clean palm-map view.
 
 - App/domain: `PalmAura` / `palmaura.app`
 - Public repo: <https://github.com/psyduckler/palmaura>
@@ -13,7 +13,7 @@ PalmAura is the committed name for our native iOS palm-reading app and supportin
 - Entertainment-only disclaimer and safety boundaries
 - Palm photo capture/import
 - Multimodal AI palm validation + structured reading
-- AI-routed palm-line geometry with local iOS line snapping/rendering
+- Clean palm photo map with symbolic love/mind/life/fate lenses
 - Cloudflare Worker backend proxy with KV rate limiting
 - Private palm-map exploration; share/export is paused for the MVP
 - No PalmAura server-side palm image storage

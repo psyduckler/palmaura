@@ -20,17 +20,12 @@ struct PalmReadingResponse: Codable, Equatable, Identifiable {
     let oneLineSummary: String
     let auraColor: AuraColor
     let archetype: String
-    let palmLines: PalmLineSet?
     let inferredScannedHand: InferredScannedHandContext?
     let report: ReadingReport
     let rejectionMessage: String?
     let nextReadingHook: NextReadingHook?
     let entertainmentDisclaimer: String
     let createdAt: String
-
-    func replacingPalmLines(_ palmLines: PalmLineSet?) -> PalmReadingResponse {
-        PalmReadingResponse(status: status, readingId: readingId, title: title, oneLineSummary: oneLineSummary, auraColor: auraColor, archetype: archetype, palmLines: palmLines, inferredScannedHand: inferredScannedHand, report: report, rejectionMessage: rejectionMessage, nextReadingHook: nextReadingHook, entertainmentDisclaimer: entertainmentDisclaimer, createdAt: createdAt)
-    }
 }
 
 struct ReadingReport: Codable, Equatable {

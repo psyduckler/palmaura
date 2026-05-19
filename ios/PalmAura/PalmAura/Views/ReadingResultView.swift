@@ -146,10 +146,7 @@ struct ReadingResultView: View {
         HStack(spacing: 14) {
             PalmCanvasView(
                 photoURL: bundle.photoURL,
-                lineSet: bundle.lineSet,
-                auraColor: bundle.auraColor,
-                ignitionProgress: 1,
-                renderingMode: bundle.shouldUsePreciseLines ? .preciseLines : .softGlow
+                auraColor: bundle.auraColor
             )
             .frame(width: 110, height: 150)
             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
@@ -158,10 +155,10 @@ struct ReadingResultView: View {
                     .font(DesignSystem.FontToken.caps(9))
                     .tracking(DesignSystem.Tracking.caps)
                     .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.78))
-                Text("Tap a line on your hand")
+                Text("Open your palm map")
                     .font(DesignSystem.FontToken.display(20))
                     .foregroundStyle(DesignSystem.ColorToken.textPrimary)
-                Text("Heart, head, life, and fate — your photograph, mapped.")
+                Text("Your photograph, kept clean — four symbolic lenses for the full reading.")
                     .font(DesignSystem.FontToken.body(13, italic: true))
                     .foregroundStyle(DesignSystem.ColorToken.textSecondary)
                     .lineLimit(3)

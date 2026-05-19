@@ -43,7 +43,7 @@ struct PalmAuraMark: View {
                 .frame(width: size, height: size)
                 .shadow(color: DesignSystem.ColorToken.solarGold.opacity(showGlow ? 0.32 : 0), radius: size * 0.14)
 
-            palmLines
+            markCreases
                 .trim(from: 0, to: ignitionProgress)
                 .stroke(
                     DesignSystem.ColorToken.moonlight.opacity(0.86),
@@ -70,8 +70,8 @@ struct PalmAuraMark: View {
         PalmShape()
     }
 
-    private var palmLines: some Shape {
-        PalmLinesShape()
+    private var markCreases: some Shape {
+        PalmMarkCreasesShape()
     }
 }
 
@@ -104,7 +104,7 @@ private struct PalmShape: Shape {
     }
 }
 
-private struct PalmLinesShape: Shape {
+private struct PalmMarkCreasesShape: Shape {
     func path(in rect: CGRect) -> Path {
         let w = rect.width
         let h = rect.height
