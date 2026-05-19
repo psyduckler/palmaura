@@ -53,11 +53,14 @@ const RequestSchema = z.object({
   }),
 });
 
+const MAX_INFERRED_HAND_EVIDENCE_CHARS = 500;
+const MAX_NEXT_READING_HOOK_CHARS = 240;
+
 const InferredScannedHandSchema = z.object({
   hand: z.enum(['left', 'right', 'unknown']).default('unknown'),
   confidence: z.number().min(0).max(1).default(0),
   role: z.enum(['dominant', 'non_dominant', 'ambidextrous', 'unknown']).default('unknown'),
-  evidence: z.string().max(180).default(''),
+  evidence: z.string().max(MAX_INFERRED_HAND_EVIDENCE_CHARS).default(''),
 });
 
 const inferredScannedHandToolSchema = {
@@ -67,7 +70,11 @@ const inferredScannedHandToolSchema = {
     hand: { type: 'string', enum: ['left', 'right', 'unknown'] },
     confidence: { type: 'number', minimum: 0, maximum: 1 },
     role: { type: 'string', enum: ['dominant', 'non_dominant', 'ambidextrous', 'unknown'] },
-    evidence: { type: 'string', description: 'Short visual reason, e.g. thumb appears on image-right so this looks like a left palm.' },
+    evidence: {
+      type: 'string',
+      maxLength: MAX_INFERRED_HAND_EVIDENCE_CHARS,
+      description: 'One short visual reason, e.g. thumb appears on image-right so this looks like a left palm. Keep under 180 characters when possible.',
+    },
   },
   required: ['hand', 'confidence', 'role', 'evidence'],
 } as const;
@@ -90,7 +97,7 @@ const ReadingSchema = z.object({
     ritual: z.string().default(''),
   }).default({ aura: '', heartLine: '', headLine: '', lifeLine: '', fateLine: '', currentSeason: '', guidance: '', ritual: '' }),
   rejectionMessage: z.string().optional(),
-  nextReadingHook: z.object({ focus: Focus, teaser: z.string().max(160) }).optional(),
+  nextReadingHook: z.object({ focus: Focus, teaser: z.string().max(MAX_NEXT_READING_HOOK_CHARS) }).optional(),
 });
 
 type ReadingRequest = z.infer<typeof RequestSchema>;
@@ -129,7 +136,7 @@ const TOOL = {
         type: 'object',
         properties: {
           focus: { type: 'string', enum: ['love', 'career', 'self', 'purpose', 'general'] },
-          teaser: { type: 'string' },
+          teaser: { type: 'string', maxLength: MAX_NEXT_READING_HOOK_CHARS },
         },
         required: ['focus', 'teaser'],
       },
@@ -488,8 +495,41 @@ async function generateReading(env: Env, data: ReadingRequest, edgeLocation: Edg
   const toolUse = result.content?.find((item) => item.type === 'tool_use');
   if (!toolUse) throw new Error('No tool_use returned');
 
-  const reading = ReadingSchema.parse(toolUse.input);
-  return reading;
+  const parsedReading = ReadingSchema.safeParse(normalizeReadingToolInput(toolUse.input));
+  if (!parsedReading.success) {
+    throw new Error(`Reading schema invalid: ${parsedReading.error.message}`);
+  }
+  return parsedReading.data;
+}
+
+function normalizeReadingToolInput(input: unknown): unknown {
+  if (!isRecord(input)) return input;
+  const output: Record<string, unknown> = { ...input };
+
+  if (isRecord(output.inferredScannedHand) && typeof output.inferredScannedHand.evidence === 'string') {
+    output.inferredScannedHand = {
+      ...output.inferredScannedHand,
+      evidence: truncateText(output.inferredScannedHand.evidence, MAX_INFERRED_HAND_EVIDENCE_CHARS),
+    };
+  }
+
+  if (isRecord(output.nextReadingHook) && typeof output.nextReadingHook.teaser === 'string') {
+    output.nextReadingHook = {
+      ...output.nextReadingHook,
+      teaser: truncateText(output.nextReadingHook.teaser, MAX_NEXT_READING_HOOK_CHARS),
+    };
+  }
+
+  return output;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function truncateText(value: string, maxLength: number): string {
+  if (value.length <= maxLength) return value;
+  return `${value.slice(0, Math.max(0, maxLength - 1)).trimEnd()}…`;
 }
 
 function json(body: unknown, options: { status?: number; headers?: HeadersInit; head?: boolean } = {}): Response {
