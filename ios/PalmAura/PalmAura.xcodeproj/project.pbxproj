@@ -18,6 +18,7 @@
 		34A3268B240FAD0478B8E003 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1720F2B3C55DB463CFA88037 /* OnboardingView.swift */; };
 		3D45B7B1F05F43D3E108A302 /* PalmCaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DDCED82A71521A213F06E6 /* PalmCaptureView.swift */; };
 		41CEBCA976CE95ECF50C237A /* ReadingResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A41B56D51D9821A8B4B23968 /* ReadingResultView.swift */; };
+		4CD63657758C124662FC3CFE /* SafariView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F13F64552D9CEC21942FCD75 /* SafariView.swift */; };
 		54991A7A5353D816A69D7DEA /* AppOpeningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1953DFB6C4E9688173108D85 /* AppOpeningView.swift */; };
 		58AEBFB6B73A5463441B644B /* ReadingBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = A861D489AE5C296722AFCB36 /* ReadingBundle.swift */; };
 		674273DBEEC0A3FA777615B3 /* PalmReadingResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07C6DA2991F59AA384A35613 /* PalmReadingResponse.swift */; };
@@ -111,6 +112,7 @@
 		DCFCBE931255201250AB14F3 /* ImagePreprocessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePreprocessor.swift; sourceTree = "<group>"; };
 		E9B6659E2F8036E6EC251C7D /* CormorantGaramond.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = CormorantGaramond.ttf; sourceTree = "<group>"; };
 		F0D83A52A7090845FF0861A4 /* PalmIgnitionPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PalmIgnitionPanel.swift; sourceTree = "<group>"; };
+		F13F64552D9CEC21942FCD75 /* SafariView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariView.swift; sourceTree = "<group>"; };
 		F92274F1EDA7CCF79E21D328 /* OnboardingAnswers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingAnswers.swift; sourceTree = "<group>"; };
 		FABCD888475E0BB7F499D2A5 /* ReadingAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingAPIClient.swift; sourceTree = "<group>"; };
 		FF35F9B0A99171A580772659 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
@@ -122,6 +124,7 @@
 			children = (
 				50F432167189DA99E25D8766 /* PalmAuraMark.swift */,
 				D5529B6060B0A6F65C79536A /* PalmCanvasView.swift */,
+				F13F64552D9CEC21942FCD75 /* SafariView.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -386,6 +389,7 @@
 				41CEBCA976CE95ECF50C237A /* ReadingResultView.swift in Sources */,
 				DDA92775B7A6C34DD2637CFD /* RevealSequenceView.swift in Sources */,
 				9638472F6319110026869817 /* RootView.swift in Sources */,
+				4CD63657758C124662FC3CFE /* SafariView.swift in Sources */,
 				7E4C63D11530E3201F11604D /* SettingsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

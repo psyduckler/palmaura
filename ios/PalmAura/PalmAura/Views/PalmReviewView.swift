@@ -47,11 +47,19 @@ struct PalmReviewView: View {
             }
         }
         .navigationBarBackButtonHidden(true)
-        .onAppear {
-            if let data = ImagePreprocessor.jpegDataForUpload(from: image) {
-                base64 = data.base64EncodedString()
+        .task {
+            // Process image and write to disk on a background thread to prevent UI freezing
+            let (b64, url) = await Task.detached(priority: .userInitiated) {
+                let uploadData = ImagePreprocessor.jpegDataForUpload(from: image)
+                let base64String = uploadData?.base64EncodedString() ?? ""
+                let photoURL = PalmPhotoStore.save(image, key: PalmPhotoStore.pendingKey)
+                return (base64String, photoURL)
+            }.value
+
+            withAnimation {
+                self.base64 = b64
+                self.pendingPhotoURL = url
             }
-            pendingPhotoURL = PalmPhotoStore.save(image, key: PalmPhotoStore.pendingKey)
         }
     }
 

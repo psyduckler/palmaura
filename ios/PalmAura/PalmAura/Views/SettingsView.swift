@@ -6,6 +6,7 @@ struct SettingsView: View {
     @State private var showResetAlert = false
     @State private var showClearHistoryAlert = false
     @State private var showEditProfile = false
+    @State private var showPrivacySheet = false
 
     var body: some View {
         ZStack {
@@ -26,7 +27,7 @@ struct SettingsView: View {
                     section(title: "ACCOUNT") {
                         row(glyph: "♃", label: "Membership", detail: "Lifetime")
                         linkRow(glyph: "✉", label: "Support", url: URL(string: "mailto:support@palmaura.app")!)
-                        linkRow(glyph: "♄", label: "Privacy & terms", url: URL(string: "https://palmaura.app/privacy.html")!)
+                        navRow(glyph: "♄", label: "Privacy & terms") { showPrivacySheet = true }
                     }
 
                     aboutCard
@@ -37,6 +38,10 @@ struct SettingsView: View {
         .navigationBarBackButtonHidden(true)
         .navigationDestination(isPresented: $showEditProfile) {
             OnboardingView(completionDestination: .dismiss)
+        }
+        .sheet(isPresented: $showPrivacySheet) {
+            SafariView(url: URL(string: "https://palmaura.app/privacy.html")!)
+                .ignoresSafeArea()
         }
         .onAppear { personalization = PersonalizationStore.load() ?? ReadingPersonalization() }
         .alert("Reset all personalization?", isPresented: $showResetAlert) {

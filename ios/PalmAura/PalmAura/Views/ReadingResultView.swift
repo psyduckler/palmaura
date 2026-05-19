@@ -195,10 +195,16 @@ struct ReadingResultView: View {
     }
 
     private func romanDate() -> String {
+        let date: Date
+        if let parsed = ISO8601DateFormatter().date(from: reading.createdAt) {
+            date = parsed
+        } else {
+            date = Date()
+        }
         let formatter = DateFormatter()
         formatter.dateFormat = "d MMM"
-        let prefix = formatter.string(from: Date())
-        let year = Calendar.current.component(.year, from: Date())
+        let prefix = formatter.string(from: date)
+        let year = Calendar.current.component(.year, from: date)
         return "\(prefix) · \(BrandConfig.romanNumeral(year))"
     }
 }
