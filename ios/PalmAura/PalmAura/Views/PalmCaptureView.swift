@@ -132,10 +132,10 @@ struct PalmCaptureView: View {
     private var actionStack: some View {
         VStack(spacing: 12) {
             GoldButton(title: camera.primaryActionTitle) {
-                camera.capturePhoto()
+                camera.primaryAction()
             }
-            .disabled(!camera.canCapture)
-            .opacity(camera.canCapture ? 1 : 0.5)
+            .disabled(!camera.primaryActionEnabled)
+            .opacity(camera.primaryActionEnabled ? 1 : 0.5)
 
             PhotosPicker(selection: $selectedItem, matching: .images) {
                 HStack(spacing: 8) {
@@ -235,6 +235,31 @@ private final class PalmCameraController: NSObject, ObservableObject {
     /// Settings.app so they can re-enable it.
     var canOpenSettings: Bool {
         status == .denied
+    }
+
+    /// True when we hit a transient failure and the user can ask the
+    /// controller to try again (re-run `prepare()`). The primary action
+    /// title in this state is "Try Camera Again" — make it actually work.
+    var canRetry: Bool {
+        if case .failed = status { return true }
+        return false
+    }
+
+    /// Whether the GoldButton's primary action should be tappable. True when
+    /// we can capture a photo OR we can retry from a failure.
+    var primaryActionEnabled: Bool {
+        canCapture || canRetry
+    }
+
+    /// Dispatch the primary GoldButton tap based on current state. Capture
+    /// when ready, retry when failed, no-op otherwise.
+    func primaryAction() {
+        if canCapture {
+            capturePhoto()
+        } else if canRetry {
+            Analytics.shared.track("camera_retry_tapped")
+            prepare()
+        }
     }
 
     var primaryActionTitle: String {

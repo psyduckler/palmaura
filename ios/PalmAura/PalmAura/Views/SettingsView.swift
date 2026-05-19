@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @AppStorage("disclaimerAccepted") private var disclaimerAccepted = true
     @State private var personalization = PersonalizationStore.load() ?? ReadingPersonalization()
     @State private var showResetAlert = false
     @State private var showClearHistoryAlert = false
@@ -13,7 +12,7 @@ struct SettingsView: View {
             DarkScreenBackground()
             ScrollView {
                 VStack(spacing: 22) {
-                    ScreenHeader(eyebrow: "Settings", back: true)
+                    ScreenHeader(eyebrow: "Settings", back: true, activeNavItem: .settings)
                         .padding(.horizontal, -DesignSystem.Spacing.lg)
 
                     profileCard

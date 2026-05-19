@@ -14,7 +14,7 @@ struct HomeView: View {
             DarkScreenBackground()
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 26) {
-                    ScreenHeader(eyebrow: "PalmAura", showsHomeButton: false)
+                    ScreenHeader(eyebrow: "PalmAura", showsHomeButton: false, activeNavItem: .home)
                         .padding(.horizontal, -DesignSystem.Spacing.lg)
 
                     // Constellation palm hero

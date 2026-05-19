@@ -92,6 +92,14 @@ struct StarField: View {
     }
 }
 
+/// Which persistent-nav destination the current screen represents. Used by
+/// `ScreenHeader` to dim and disable the matching nav icon (a "you are here"
+/// affordance) so users don't tap the icon for the screen they're already on.
+enum ActiveNavItem: String {
+    case home
+    case settings
+}
+
 struct ScreenHeader: View {
     var eyebrow: String = "PalmAura"
     var back: Bool = false
@@ -105,6 +113,11 @@ struct ScreenHeader: View {
     /// Settings or Home. The contextual row (back/eyebrow/trailing) still
     /// renders if it has content.
     var compact: Bool = false
+    /// Pass the matching `ActiveNavItem` so the corresponding nav icon is
+    /// rendered as "you are here" (muted appearance, no-op on tap, marked
+    /// `.isSelected` for VoiceOver). Pass `nil` (default) when the current
+    /// screen isn't one of the persistent-nav destinations.
+    var activeNavItem: ActiveNavItem? = nil
 
     @Environment(\.dismiss) private var dismiss
     @Environment(\.navigationCoordinator) private var coordinator
@@ -142,11 +155,11 @@ struct ScreenHeader: View {
     private var globalNavRow: some View {
         HStack(alignment: .center) {
             if showsHomeButton {
-                navIcon(systemName: "house", accessibilityLabel: "Home") {
+                navIcon(systemName: "house", accessibilityLabel: "Home", isActive: activeNavItem == .home) {
                     coordinator?.goHome()
                 }
             } else {
-                Color.clear.frame(width: 36, height: 36)
+                Color.clear.frame(width: 44, height: 44)
             }
 
             Spacer(minLength: 8)
@@ -168,7 +181,7 @@ struct ScreenHeader: View {
 
             Spacer(minLength: 8)
 
-            navIcon(systemName: "gearshape", accessibilityLabel: "Settings") {
+            navIcon(systemName: "gearshape", accessibilityLabel: "Settings", isActive: activeNavItem == .settings) {
                 coordinator?.goSettings()
             }
         }
@@ -221,18 +234,24 @@ struct ScreenHeader: View {
         }
     }
 
-    private func navIcon(systemName: String, accessibilityLabel: String, action: @escaping () -> Void) -> some View {
+    private func navIcon(systemName: String, accessibilityLabel: String, isActive: Bool = false, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: systemName)
                 .font(.system(size: 15, weight: .semibold))
-                .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.92))
+                .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(isActive ? 0.45 : 0.92))
                 .frame(width: 36, height: 36)
-                .background(Circle().fill(DesignSystem.ColorToken.goldCream.opacity(0.055)))
-                .overlay(Circle().stroke(DesignSystem.ColorToken.goldCream.opacity(0.28), lineWidth: 0.8))
-                .contentShape(Circle())
+                .background(Circle().fill(DesignSystem.ColorToken.goldCream.opacity(isActive ? 0.02 : 0.055)))
+                .overlay(Circle().stroke(DesignSystem.ColorToken.goldCream.opacity(isActive ? 0.12 : 0.28), lineWidth: 0.8))
+                // Visible chrome stays 36pt; the surrounding 44pt frame +
+                // rectangle content shape gives an HIG-compliant tap area
+                // without changing the look of the persistent header.
+                .frame(width: 44, height: 44)
+                .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .accessibilityLabel(accessibilityLabel)
+        .accessibilityAddTraits(isActive ? .isSelected : [])
+        .disabled(isActive)
     }
 }
 

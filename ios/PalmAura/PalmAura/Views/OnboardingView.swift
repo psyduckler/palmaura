@@ -8,13 +8,13 @@ enum ProfileCompletionDestination { case home, dismiss }
 struct OnboardingView: View {
     var completionDestination: ProfileCompletionDestination = .home
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.navigationCoordinator) private var coordinator
     @State private var answers = OnboardingAnswers.default
     @State private var birthMonth: Int = Calendar.current.component(.month, from: Date())
     @State private var birthDay: Int = Calendar.current.component(.day, from: Date())
     @State private var birthYear = Calendar.current.component(.year, from: Date()) - 30
     @State private var locationOverrideText = ""
     @State private var edgeContext: EdgeLocationContext?
-    @State private var showHome = false
 
     var body: some View {
         ZStack {
@@ -77,9 +77,6 @@ struct OnboardingView: View {
         .navigationBarBackButtonHidden(true)
         .onAppear(perform: preloadSavedPersonalization)
         .task { await loadEdgeContextHint() }
-        .navigationDestination(isPresented: $showHome) {
-            HomeView()
-        }
     }
 
     // MARK: - Intro
@@ -341,7 +338,15 @@ struct OnboardingView: View {
         ])
         switch completionDestination {
         case .home:
-            showHome = true
+            // `PersonalizationStore.save(...)` flips the root profile gate; also
+            // clear any pushed navigation state so Home/ReadingQuestion callers
+            // that entered profile setup from an existing stack are not left
+            // sitting on a completed onboarding screen.
+            if let coordinator {
+                coordinator.goHome()
+            } else {
+                dismiss()
+            }
         case .dismiss:
             dismiss()
         }
