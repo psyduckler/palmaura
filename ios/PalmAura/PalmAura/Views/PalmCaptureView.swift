@@ -50,9 +50,14 @@ struct PalmCaptureView: View {
         .onChange(of: selectedItem) { _, item in Task { await load(item) } }
         .onChange(of: camera.capturedImage) { _, image in
             guard let image else { return }
-            selectedImage = image
+            Task { await showReview(for: image) }
         }
-        .navigationDestination(isPresented: Binding(get: { selectedImage != nil }, set: { if !$0 { selectedImage = nil } })) {
+        .navigationDestination(isPresented: Binding(get: { selectedImage != nil }, set: {
+            if !$0 {
+                selectedImage = nil
+                camera.clearCapturedImage()
+            }
+        })) {
             if let selectedImage {
                 PalmReviewView(image: selectedImage, onboardingAnswers: onboardingAnswers)
             }
@@ -157,8 +162,18 @@ struct PalmCaptureView: View {
 
     private func load(_ item: PhotosPickerItem?) async {
         guard let data = try? await item?.loadTransferable(type: Data.self), let image = UIImage(data: data) else { return }
-        selectedImage = image
+        await showReview(for: image)
         Analytics.shared.track("photo_chosen")
+    }
+
+    private func showReview(for image: UIImage) async {
+        let reviewImage = await Task.detached(priority: .userInitiated) {
+            ImagePreprocessor.imageForReview(from: image)
+        }.value
+        guard !Task.isCancelled else { return }
+        await MainActor.run {
+            selectedImage = reviewImage
+        }
     }
 }
 
@@ -347,6 +362,12 @@ private final class PalmCameraController: NSObject, ObservableObject {
         sessionQueue.async { [weak self] in
             guard let self else { return }
             self.photoOutput.capturePhoto(with: settings, delegate: self)
+        }
+    }
+
+    func clearCapturedImage() {
+        DispatchQueue.main.async { [weak self] in
+            self?.capturedImage = nil
         }
     }
 

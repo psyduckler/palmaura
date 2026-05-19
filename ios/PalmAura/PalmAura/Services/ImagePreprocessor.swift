@@ -1,6 +1,10 @@
 import UIKit
 
 enum ImagePreprocessor {
+    static func imageForReview(from image: UIImage) -> UIImage {
+        resized(image, maxLongestEdge: 1024)
+    }
+
     static func jpegDataForUpload(from image: UIImage) -> Data? {
         let first = resized(image, maxLongestEdge: 1024).jpegData(compressionQuality: 0.7)
         if let first, first.count <= 800_000 { return first }
