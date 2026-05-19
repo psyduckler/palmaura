@@ -55,7 +55,7 @@ enum DesignSystem {
     enum Tracking { static let caps: CGFloat = 3.5; static let capsLg: CGFloat = 5 }
     enum Spacing { static let xxs: CGFloat = 4; static let xs: CGFloat = 8; static let sm: CGFloat = 12; static let md: CGFloat = 16; static let lg: CGFloat = 24; static let xl: CGFloat = 32; static let xxl: CGFloat = 48; static let screenInset: CGFloat = 24 }
     enum Radius { static let pill: CGFloat = 999; static let cardLg: CGFloat = 22; static let cardMd: CGFloat = 18; static let cardSm: CGFloat = 14; static let tab: CGFloat = 26; static let card: CGFloat = 22; static let hero: CGFloat = 32 }
-    enum Motion { static let phraseInterval: TimeInterval = 2.8; static let phraseFade: TimeInterval = 2.8; static let stepAdvance: TimeInterval = 0.22; static let palmIgnitionDuration: TimeInterval = 2.4; static let minimumReadingDuration: TimeInterval = 8 }
+    enum Motion { static let phraseInterval: TimeInterval = 2.8; static let phraseFade: TimeInterval = 2.8; static let stepAdvance: TimeInterval = 0.22; static let palmIgnitionDuration: TimeInterval = 2.4; static let minimumReadingDuration: TimeInterval = 5 }
 }
 
 struct DarkScreenBackground: View {
@@ -125,14 +125,14 @@ struct ScreenHeader: View {
                             .tracking(DesignSystem.Tracking.capsLg)
                             .textCase(.uppercase)
                             .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.9))
-                        VStack(spacing: 1) {
-                            MoonPhase(phase: MoonPhaseProvider.currentPhase)
+                        VStack(spacing: 2) {
+                            MoonPhase(phase: MoonPhaseProvider.currentPhase, size: 18)
                             Text(MoonPhaseProvider.currentCode)
-                                .font(DesignSystem.FontToken.caps(5.8))
-                                .tracking(1.0)
-                                .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.64))
+                                .font(DesignSystem.FontToken.caps(7))
+                                .tracking(1.2)
+                                .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.72))
                         }
-                        .frame(width: 24)
+                        .frame(width: 44)
                     }
                     .padding(.vertical, 4)
                     .padding(.horizontal, 10)
@@ -153,12 +153,15 @@ struct ScreenHeader: View {
                     if back {
                         Button(action: { if let onBack { onBack() } else { dismiss() } }) {
                             Text("‹ Back")
-                                .font(DesignSystem.FontToken.caps(8))
-                                .tracking(1.7)
-                                .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.58))
+                                .font(DesignSystem.FontToken.caps(9))
+                                .tracking(1.8)
+                                .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.82))
+                                .padding(.vertical, 12)
+                                .padding(.trailing, 12)
+                                .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
-                        .frame(width: 62, alignment: .leading)
+                        .frame(minWidth: 62, alignment: .leading)
                     } else {
                         Color.clear.frame(width: 62, height: 16)
                     }
@@ -186,7 +189,7 @@ struct ScreenHeader: View {
                         Color.clear.frame(width: 62, height: 16)
                     }
                 }
-                .frame(height: 18)
+                .frame(minHeight: 18)
             }
         }
         .padding(.horizontal, DesignSystem.Spacing.lg)
