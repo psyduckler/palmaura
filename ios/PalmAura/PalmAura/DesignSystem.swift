@@ -99,6 +99,12 @@ struct ScreenHeader: View {
     var onBack: (() -> Void)? = nil
     var trailingText: String? = nil
     var onTrailing: (() -> Void)? = nil
+    /// When true, suppress the persistent global-nav top row (Home/Settings
+    /// icons + PalmAura title). Used on the splash, disclaimer, and first-run
+    /// onboarding so the user can't bypass those gates by tapping into
+    /// Settings or Home. The contextual row (back/eyebrow/trailing) still
+    /// renders if it has content.
+    var compact: Bool = false
 
     @Environment(\.dismiss) private var dismiss
 
@@ -107,94 +113,117 @@ struct ScreenHeader: View {
         return !normalized.isEmpty && normalized != "palmaura"
     }
 
+    private var showsContextRow: Bool {
+        showsContext || back || trailingText != nil
+    }
+
     var body: some View {
-        VStack(spacing: 6) {
-            HStack(alignment: .center) {
-                navIcon(systemName: "house", accessibilityLabel: "Home") {
-                    NotificationCenter.default.post(name: .palmAuraNavigateHome, object: nil)
+        // In compact mode with nothing to show in the context row either,
+        // render nothing so the gating screens (splash, disclaimer) get the
+        // full available height.
+        if compact && !showsContextRow {
+            EmptyView()
+        } else {
+            VStack(spacing: 6) {
+                if !compact {
+                    globalNavRow
                 }
-
-                Spacer(minLength: 8)
-
-                Button {
-                    NotificationCenter.default.post(name: .palmAuraNavigateHome, object: nil)
-                } label: {
-                    HStack(spacing: 8) {
-                        Text("PalmAura")
-                            .font(DesignSystem.FontToken.caps(12))
-                            .tracking(DesignSystem.Tracking.capsLg)
-                            .textCase(.uppercase)
-                            .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.9))
-                        VStack(spacing: 2) {
-                            MoonPhase(phase: MoonPhaseProvider.currentPhase, size: 18)
-                            Text(MoonPhaseProvider.currentCode)
-                                .font(DesignSystem.FontToken.caps(7))
-                                .tracking(1.2)
-                                .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.72))
-                        }
-                        .frame(width: 44)
-                    }
-                    .padding(.vertical, 4)
-                    .padding(.horizontal, 10)
-                    .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel("PalmAura home")
-
-                Spacer(minLength: 8)
-
-                navIcon(systemName: "gearshape", accessibilityLabel: "Settings") {
-                    NotificationCenter.default.post(name: .palmAuraNavigateSettings, object: nil)
+                if showsContextRow {
+                    contextRow
                 }
             }
+            .padding(.horizontal, DesignSystem.Spacing.lg)
+            .padding(.top, 12)
+            .padding(.bottom, 10)
+        }
+    }
 
-            if showsContext || back || trailingText != nil {
+    private var globalNavRow: some View {
+        HStack(alignment: .center) {
+            navIcon(systemName: "house", accessibilityLabel: "Home") {
+                NotificationCenter.default.post(name: .palmAuraNavigateHome, object: nil)
+            }
+
+            Spacer(minLength: 8)
+
+            Button {
+                NotificationCenter.default.post(name: .palmAuraNavigateHome, object: nil)
+            } label: {
                 HStack(spacing: 8) {
-                    if back {
-                        Button(action: { if let onBack { onBack() } else { dismiss() } }) {
-                            Text("‹ Back")
-                                .font(DesignSystem.FontToken.caps(9))
-                                .tracking(1.8)
-                                .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.82))
-                                .padding(.vertical, 12)
-                                .padding(.trailing, 12)
-                                .contentShape(Rectangle())
-                        }
-                        .buttonStyle(.plain)
-                        .frame(minWidth: 62, alignment: .leading)
-                    } else {
-                        Color.clear.frame(width: 62, height: 16)
+                    Text("PalmAura")
+                        .font(DesignSystem.FontToken.caps(12))
+                        .tracking(DesignSystem.Tracking.capsLg)
+                        .textCase(.uppercase)
+                        .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.9))
+                    VStack(spacing: 2) {
+                        MoonPhase(phase: MoonPhaseProvider.currentPhase, size: 18)
+                        Text(MoonPhaseProvider.currentCode)
+                            .font(DesignSystem.FontToken.caps(7))
+                            .tracking(1.2)
+                            .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.72))
                     }
-
-                    if showsContext {
-                        Text(eyebrow)
-                            .font(DesignSystem.FontToken.caps(8.5))
-                            .tracking(2.6)
-                            .textCase(.uppercase)
-                            .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.58))
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.7)
-                            .frame(maxWidth: .infinity)
-                    } else {
-                        Spacer(minLength: 0)
-                    }
-
-                    if let trailingText {
-                        Button(trailingText) { onTrailing?() }
-                            .font(DesignSystem.FontToken.caps(8))
-                            .tracking(1.8)
-                            .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.7))
-                            .frame(width: 62, alignment: .trailing)
-                    } else {
-                        Color.clear.frame(width: 62, height: 16)
-                    }
+                    .frame(width: 44)
                 }
-                .frame(minHeight: 18)
+                .padding(.vertical, 4)
+                .padding(.horizontal, 10)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("PalmAura home")
+
+            Spacer(minLength: 8)
+
+            navIcon(systemName: "gearshape", accessibilityLabel: "Settings") {
+                NotificationCenter.default.post(name: .palmAuraNavigateSettings, object: nil)
             }
         }
-        .padding(.horizontal, DesignSystem.Spacing.lg)
-        .padding(.top, 12)
-        .padding(.bottom, 10)
+    }
+
+    @ViewBuilder
+    private var contextRow: some View {
+        if showsContextRow {
+            HStack(spacing: 8) {
+                if back {
+                    Button(action: { if let onBack { onBack() } else { dismiss() } }) {
+                        Text("‹ Back")
+                            .font(DesignSystem.FontToken.caps(9))
+                            .tracking(1.8)
+                            .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.82))
+                            .padding(.vertical, 12)
+                            .padding(.trailing, 12)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .frame(minWidth: 62, alignment: .leading)
+                } else {
+                    Color.clear.frame(width: 62, height: 16)
+                }
+
+                if showsContext {
+                    Text(eyebrow)
+                        .font(DesignSystem.FontToken.caps(8.5))
+                        .tracking(2.6)
+                        .textCase(.uppercase)
+                        .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.58))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                        .frame(maxWidth: .infinity)
+                } else {
+                    Spacer(minLength: 0)
+                }
+
+                if let trailingText {
+                    Button(trailingText) { onTrailing?() }
+                        .font(DesignSystem.FontToken.caps(8))
+                        .tracking(1.8)
+                        .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.7))
+                        .frame(width: 62, alignment: .trailing)
+                } else {
+                    Color.clear.frame(width: 62, height: 16)
+                }
+            }
+            .frame(minHeight: 18)
+        }
     }
 
     private func navIcon(systemName: String, accessibilityLabel: String, action: @escaping () -> Void) -> some View {
