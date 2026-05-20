@@ -150,7 +150,11 @@ struct PalmReviewView: View {
             .buttonStyle(.plain)
             .disabled(base64.isEmpty)
 
-            GhostButton(title: "Retake the Photo") {
+            // "Choose Another Photo" rather than "Retake" — popping back to
+            // PalmCaptureView surfaces both the live viewfinder AND the
+            // PhotosPicker, so users who entered via library aren't told
+            // they need to retake on a camera they didn't use.
+            GhostButton(title: "Choose Another Photo") {
                 dismiss()
             }
         }
