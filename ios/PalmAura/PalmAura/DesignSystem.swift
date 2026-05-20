@@ -446,48 +446,42 @@ struct OrbitLoader: View {
     private let outer: [(String, Double, Double)] = [("♀", 16, 0), ("♂", 18, 90), ("♃", 22, 180), ("♄", 26, 270)]
 
     var body: some View {
-        Group {
-            if reduceMotion {
-                reducedMotionLoader
-            } else {
-                animatedLoader
-            }
-        }
-        .accessibilityElement()
-        .accessibilityLabel("Mystical loading indicator")
-    }
-
-    /// Continuous-rotation variant. Used when Reduce Motion is off.
-    private var animatedLoader: some View {
+        // Keep `TimelineView(.animation)` at the body root. The earlier
+        // `Group { if reduceMotion { ... } else { TimelineView(...) } }`
+        // shape was fragile on real devices: SwiftUI can treat the wrapped
+        // accessibility element as effectively static and starve the timeline.
+        //
+        // Normal motion: glyphs continuously orbit the hand.
+        // Reduce Motion: freeze orbital travel/scale, but keep a gentle
+        // opacity heartbeat so the long LLM wait screen never looks dead.
         TimelineView(.animation) { ctx in
-            let t = ctx.date.timeIntervalSinceReferenceDate
+            let liveTime = ctx.date.timeIntervalSinceReferenceDate
+            let orbitalTime: TimeInterval = reduceMotion ? 0 : liveTime
             ZStack {
                 orbitChrome
-                ForEach(0..<inner.count, id: \.self) { i in orbit(inner[i], t, 70) }
-                ForEach(0..<outer.count, id: \.self) { i in orbit(outer[i], t, 130) }
-            }.frame(width: 320, height: 320)
-        }
-    }
-
-    /// Reduce-Motion variant. Avoids orbital travel/scale motion, but still
-    /// gives the long LLM wait screen a visible heartbeat via gentle opacity.
-    /// The PR #10 static version was too dead: with Reduce Motion enabled the
-    /// loading screen looked frozen during API calls.
-    private var reducedMotionLoader: some View {
-        TimelineView(.periodic(from: .now, by: 0.7)) { ctx in
-            let t = ctx.date.timeIntervalSinceReferenceDate
-            ZStack {
-                orbitChrome.opacity(0.84 + 0.10 * sin(t * .pi / 1.4))
+                    .opacity(reduceMotion ? 0.84 + 0.10 * sin(liveTime * .pi / 1.4) : 1)
                 ForEach(0..<inner.count, id: \.self) { i in
-                    staticOrbit(inner[i], 70)
-                        .opacity(reducedMotionOpacity(t: t, offset: Double(i) * 0.35))
+                    orbit(
+                        inner[i],
+                        orbitalTime,
+                        70,
+                        opacity: reduceMotion ? reducedMotionOpacity(t: liveTime, offset: Double(i) * 0.35) : 1,
+                        usesScale: !reduceMotion
+                    )
                 }
                 ForEach(0..<outer.count, id: \.self) { i in
-                    staticOrbit(outer[i], 130)
-                        .opacity(reducedMotionOpacity(t: t, offset: Double(i) * 0.28 + 0.2))
+                    orbit(
+                        outer[i],
+                        orbitalTime,
+                        130,
+                        opacity: reduceMotion ? reducedMotionOpacity(t: liveTime, offset: Double(i) * 0.28 + 0.2) : 1,
+                        usesScale: !reduceMotion
+                    )
                 }
             }.frame(width: 320, height: 320)
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Mystical loading indicator")
     }
 
     private var orbitChrome: some View {
@@ -499,18 +493,21 @@ struct OrbitLoader: View {
         }
     }
 
-    private func orbit(_ item: (String, Double, Double), _ t: TimeInterval, _ radius: CGFloat) -> some View {
+    private func orbit(
+        _ item: (String, Double, Double),
+        _ t: TimeInterval,
+        _ radius: CGFloat,
+        opacity: Double = 1,
+        usesScale: Bool = true
+    ) -> some View {
         let angle = (item.2 + (t / item.1) * 360) * .pi / 180
-        let pulse = 1 + 0.08 * sin(t * .pi / 1.2)
-        return Text(item.0).font(DesignSystem.FontToken.display(22)).foregroundStyle(DesignSystem.ColorToken.goldCream).shadow(color: DesignSystem.ColorToken.goldCream.opacity(0.55), radius: 6).scaleEffect(pulse).offset(x: cos(angle) * radius, y: sin(angle) * radius)
-    }
-
-    private func staticOrbit(_ item: (String, Double, Double), _ radius: CGFloat) -> some View {
-        let angle = item.2 * .pi / 180
+        let pulse = usesScale ? 1 + 0.08 * sin(t * .pi / 1.2) : 1
         return Text(item.0)
             .font(DesignSystem.FontToken.display(22))
             .foregroundStyle(DesignSystem.ColorToken.goldCream)
             .shadow(color: DesignSystem.ColorToken.goldCream.opacity(0.55), radius: 6)
+            .scaleEffect(pulse)
+            .opacity(opacity)
             .offset(x: cos(angle) * radius, y: sin(angle) * radius)
     }
 
