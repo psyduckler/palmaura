@@ -446,61 +446,31 @@ struct OrbitLoader: View {
     private let outer: [(String, Double, Double)] = [("♀", 16, 0), ("♂", 18, 90), ("♃", 22, 180), ("♄", 26, 270)]
 
     var body: some View {
-        Group {
-            if reduceMotion {
-                staticLoader
-            } else {
-                animatedLoader
-            }
-        }
-        .accessibilityElement()
-        .accessibilityLabel("Mystical loading indicator")
-    }
-
-    /// Continuous-rotation variant. Used when Reduce Motion is off.
-    private var animatedLoader: some View {
+        // Keep the `TimelineView(.animation)` at the body root so SwiftUI
+        // can't lose track of it through wrapper-view identity changes.
+        // When Reduce Motion is enabled we freeze the timeline reference to
+        // a constant 0 — planets sit at their initial angles with no
+        // rotation or scale pulse — but the TimelineView itself is still
+        // ticking, which keeps the animation pipeline alive.
         TimelineView(.animation) { ctx in
-            let t = ctx.date.timeIntervalSinceReferenceDate
+            let t: TimeInterval = reduceMotion ? 0 : ctx.date.timeIntervalSinceReferenceDate
             ZStack {
-                orbitChrome
+                Circle().stroke(DesignSystem.ColorToken.goldCream.opacity(0.18), style: .init(lineWidth: 1, dash: [2,4])).frame(width: 140, height: 140)
+                Circle().stroke(DesignSystem.ColorToken.goldCream.opacity(0.14), style: .init(lineWidth: 1, dash: [2,4])).frame(width: 260, height: 260)
+                Circle().fill(RadialGradient(colors: [DesignSystem.ColorToken.goldCream.opacity(0.25), .clear], center: .center, startRadius: 0, endRadius: 55)).frame(width: 110, height: 110)
+                Image("PalmPlate").resizable().scaledToFit().frame(width: 82, height: 82).opacity(0.72)
                 ForEach(0..<inner.count, id: \.self) { i in orbit(inner[i], t, 70) }
                 ForEach(0..<outer.count, id: \.self) { i in orbit(outer[i], t, 130) }
             }.frame(width: 320, height: 320)
         }
-    }
-
-    /// Reduce-Motion variant. Planets sit at their initial angles with no
-    /// rotation or scale pulse. Same visual composition, no animation.
-    private var staticLoader: some View {
-        ZStack {
-            orbitChrome
-            ForEach(0..<inner.count, id: \.self) { i in staticOrbit(inner[i], 70) }
-            ForEach(0..<outer.count, id: \.self) { i in staticOrbit(outer[i], 130) }
-        }.frame(width: 320, height: 320)
-    }
-
-    private var orbitChrome: some View {
-        ZStack {
-            Circle().stroke(DesignSystem.ColorToken.goldCream.opacity(0.18), style: .init(lineWidth: 1, dash: [2,4])).frame(width: 140, height: 140)
-            Circle().stroke(DesignSystem.ColorToken.goldCream.opacity(0.14), style: .init(lineWidth: 1, dash: [2,4])).frame(width: 260, height: 260)
-            Circle().fill(RadialGradient(colors: [DesignSystem.ColorToken.goldCream.opacity(0.25), .clear], center: .center, startRadius: 0, endRadius: 55)).frame(width: 110, height: 110)
-            Image("PalmPlate").resizable().scaledToFit().frame(width: 82, height: 82).opacity(0.72)
-        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Mystical loading indicator")
     }
 
     private func orbit(_ item: (String, Double, Double), _ t: TimeInterval, _ radius: CGFloat) -> some View {
         let angle = (item.2 + (t / item.1) * 360) * .pi / 180
         let pulse = 1 + 0.08 * sin(t * .pi / 1.2)
         return Text(item.0).font(DesignSystem.FontToken.display(22)).foregroundStyle(DesignSystem.ColorToken.goldCream).shadow(color: DesignSystem.ColorToken.goldCream.opacity(0.55), radius: 6).scaleEffect(pulse).offset(x: cos(angle) * radius, y: sin(angle) * radius)
-    }
-
-    private func staticOrbit(_ item: (String, Double, Double), _ radius: CGFloat) -> some View {
-        let angle = item.2 * .pi / 180
-        return Text(item.0)
-            .font(DesignSystem.FontToken.display(22))
-            .foregroundStyle(DesignSystem.ColorToken.goldCream)
-            .shadow(color: DesignSystem.ColorToken.goldCream.opacity(0.55), radius: 6)
-            .offset(x: cos(angle) * radius, y: sin(angle) * radius)
     }
 }
 
