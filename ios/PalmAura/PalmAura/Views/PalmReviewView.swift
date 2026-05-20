@@ -11,40 +11,47 @@ struct PalmReviewView: View {
     var body: some View {
         ZStack {
             DarkScreenBackground()
-            VStack(spacing: 0) {
-                ScreenHeader(eyebrow: "Review", back: true)
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 0) {
+                    ScreenHeader(eyebrow: "Review", back: true)
 
-                VStack(alignment: .center, spacing: 6) {
-                    Text("Is this your")
-                        .font(DesignSystem.FontToken.display(34))
-                        .foregroundStyle(DesignSystem.ColorToken.textPrimary)
-                    Text("hand?")
-                        .font(DesignSystem.FontToken.display(34, italic: true))
-                        .foregroundStyle(DesignSystem.ColorToken.goldCream)
-                    Text("We'll only read what we can see clearly.")
-                        .font(DesignSystem.FontToken.body(14, italic: true))
-                        .foregroundStyle(DesignSystem.ColorToken.textSecondary)
-                        .padding(.top, 2)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.horizontal, DesignSystem.Spacing.lg)
-                .padding(.top, 6)
-                .padding(.bottom, 22)
-
-                photoCard
+                    VStack(alignment: .center, spacing: 6) {
+                        Text("Is this your")
+                            .font(DesignSystem.FontToken.display(34))
+                            .foregroundStyle(DesignSystem.ColorToken.textPrimary)
+                        Text("hand?")
+                            .font(DesignSystem.FontToken.display(34, italic: true))
+                            .foregroundStyle(DesignSystem.ColorToken.goldCream)
+                        Text("We'll only read what we can see clearly.")
+                            .font(DesignSystem.FontToken.body(14, italic: true))
+                            .foregroundStyle(DesignSystem.ColorToken.textSecondary)
+                            .padding(.top, 2)
+                    }
+                    .frame(maxWidth: .infinity)
                     .padding(.horizontal, DesignSystem.Spacing.lg)
+                    .padding(.top, 6)
+                    .padding(.bottom, 18)
 
-                if let intent = ReadingSessionIntent(answers: onboardingAnswers) {
-                    intentChip(intent)
+                    photoCard
                         .padding(.horizontal, DesignSystem.Spacing.lg)
-                        .padding(.top, 14)
-                }
 
-                Spacer(minLength: 16)
-
-                actions
+                    GhostButton(title: "Take Another Photo") {
+                        dismiss()
+                    }
                     .padding(.horizontal, DesignSystem.Spacing.lg)
-                    .padding(.bottom, 30)
+                    .padding(.top, 12)
+
+                    if let intent = ReadingSessionIntent(answers: onboardingAnswers) {
+                        intentChip(intent)
+                            .padding(.horizontal, DesignSystem.Spacing.lg)
+                            .padding(.top, 14)
+                    }
+
+                    actions
+                        .padding(.horizontal, DesignSystem.Spacing.lg)
+                        .padding(.top, 18)
+                }
+                .padding(.bottom, 30)
             }
         }
         .navigationBarBackButtonHidden(true)
@@ -82,7 +89,8 @@ struct PalmReviewView: View {
 
             Image(uiImage: image)
                 .resizable()
-                .scaledToFill()
+                .scaledToFit()
+                .padding(10)
                 .clipShape(RoundedRectangle(cornerRadius: DesignSystem.Radius.cardLg, style: .continuous))
                 .saturation(0.78)
                 .contrast(1.05)
@@ -110,7 +118,7 @@ struct PalmReviewView: View {
                 .padding(.bottom, 14)
             }
         }
-        .frame(height: 480)
+        .frame(height: 360)
     }
 
     private func intentChip(_ intent: ReadingSessionIntent) -> some View {
@@ -150,13 +158,6 @@ struct PalmReviewView: View {
             .buttonStyle(.plain)
             .disabled(base64.isEmpty)
 
-            // "Choose Another Photo" rather than "Retake" — popping back to
-            // PalmCaptureView surfaces both the live viewfinder AND the
-            // PhotosPicker, so users who entered via library aren't told
-            // they need to retake on a camera they didn't use.
-            GhostButton(title: "Choose Another Photo") {
-                dismiss()
-            }
         }
     }
 }
