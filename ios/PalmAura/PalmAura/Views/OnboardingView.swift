@@ -287,6 +287,7 @@ struct OnboardingView: View {
             Text("🜍")
                 .font(DesignSystem.FontToken.display(18))
                 .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.75))
+                .accessibilityHidden(true)
             Text("Saved only on your device. These answers shape future readings, but your per-reading question stays separate.")
                 .font(DesignSystem.FontToken.body(12.5, italic: true))
                 .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.78))

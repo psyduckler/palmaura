@@ -98,6 +98,7 @@ struct PalmReviewView: View {
                 Spacer()
                 HStack(spacing: 8) {
                     Text("✦").font(DesignSystem.FontToken.display(13)).foregroundStyle(DesignSystem.ColorToken.goldCream)
+                        .accessibilityHidden(true)
                     Text("Your palm fills the frame.")
                         .font(DesignSystem.FontToken.body(13, italic: true))
                         .foregroundStyle(DesignSystem.ColorToken.textPrimary)
@@ -117,6 +118,7 @@ struct PalmReviewView: View {
             Text("✦")
                 .font(DesignSystem.FontToken.display(16))
                 .foregroundStyle(DesignSystem.ColorToken.goldCream)
+                .accessibilityHidden(true)
             Text(intent.displaySummary)
                 .font(DesignSystem.FontToken.body(13, italic: true))
                 .foregroundStyle(DesignSystem.ColorToken.textPrimary.opacity(0.9))

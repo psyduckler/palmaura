@@ -125,6 +125,7 @@ struct ReadingResultView: View {
             Text("☽")
                 .font(DesignSystem.FontToken.display(14))
                 .foregroundStyle(DesignSystem.ColorToken.goldCream)
+                .accessibilityHidden(true)
             Text(reading.archetype.uppercased())
                 .font(DesignSystem.FontToken.caps(10))
                 .tracking(3)

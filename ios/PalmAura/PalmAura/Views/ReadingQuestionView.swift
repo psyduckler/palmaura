@@ -3,12 +3,21 @@ import SwiftUI
 /// Per-reading intent screen. Durable profile context stays in `PersonalizationStore`;
 /// this screen only captures the focus/question for the next scan.
 struct ReadingQuestionView: View {
-    @State private var selectedOption: SessionFocusOption = .relationship
+    /// Optional pre-selected focus, e.g. when the user lands here from a
+    /// HomeView focus chip. Defaults to the first option (Relationship).
+    var initialFocus: ReadingFocus = .love
+
+    @State private var selectedOption: SessionFocusOption
     @State private var questionText: String = ""
     @State private var showCapture = false
     @State private var skipQuestion = false
     @State private var profile = PersonalizationStore.load()
     @FocusState private var questionFocused: Bool
+
+    init(initialFocus: ReadingFocus = .love) {
+        self.initialFocus = initialFocus
+        _selectedOption = State(initialValue: SessionFocusOption.option(matching: initialFocus))
+    }
 
     private var hasProfile: Bool { profile?.isCompleteProfile == true }
 
@@ -162,6 +171,7 @@ struct ReadingQuestionView: View {
             Text("✦")
                 .font(DesignSystem.FontToken.display(18))
                 .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.78))
+                .accessibilityHidden(true)
             Text("This question travels with the next reading only. It is not saved to your profile.")
                 .font(DesignSystem.FontToken.body(12.5, italic: true))
                 .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.78))
@@ -274,6 +284,13 @@ private struct SessionFocusOption: Identifiable, Equatable {
         .init(id: "family", title: "Family", glyph: "☽", suggestedQuestion: "What should I see more clearly in my family life?", backendFocus: .family, lifeSeason: .healing),
         .init(id: "the_path", title: "The path", glyph: "✦", suggestedQuestion: "What is the next right step on my path?", backendFocus: .purpose, lifeSeason: .unknown)
     ]
+
+    /// Look up the focus option whose backend enum matches the given
+    /// `ReadingFocus`. Falls back to `.relationship` if no exact match
+    /// (e.g. `.general`, which isn't a focus chip).
+    static func option(matching focus: ReadingFocus) -> SessionFocusOption {
+        all.first(where: { $0.backendFocus == focus }) ?? .relationship
+    }
 }
 
 #Preview { NavigationStack { ReadingQuestionView() } }
