@@ -11,6 +11,7 @@ struct ReadingQuestionView: View {
     @State private var questionText: String = ""
     @State private var showCapture = false
     @State private var skipQuestion = false
+    @State private var showQuestionEditor = false
     @State private var profile = PersonalizationStore.load()
     @FocusState private var questionFocused: Bool
 
@@ -26,7 +27,7 @@ struct ReadingQuestionView: View {
             DarkScreenBackground()
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 22) {
-                    ScreenHeader(eyebrow: "For this reading", back: true)
+                    ScreenHeader(eyebrow: "", back: true)
                         .padding(.horizontal, -DesignSystem.Spacing.lg)
 
                     if hasProfile {
@@ -54,11 +55,6 @@ struct ReadingQuestionView: View {
 
     private var intro: some View {
         VStack(spacing: 10) {
-            Text("·  SESSION INTENT  ·")
-                .font(DesignSystem.FontToken.caps(10))
-                .tracking(DesignSystem.Tracking.caps)
-                .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.72))
-
             VStack(spacing: 2) {
                 Text("What should the palm")
                     .font(DesignSystem.FontToken.display(34))
@@ -113,48 +109,85 @@ struct ReadingQuestionView: View {
 
     private var questionBox: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Text("Whisper your question")
-                    .font(DesignSystem.FontToken.caps(9))
-                    .tracking(2.4)
-                    .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.72))
-                Spacer()
-                Text("MAX 200")
-                    .font(DesignSystem.FontToken.caps(7.5))
-                    .tracking(1.6)
-                    .foregroundStyle(DesignSystem.ColorToken.textTertiary)
-            }
-
-            ZStack(alignment: .topLeading) {
-                TextEditor(text: $questionText)
-                    .font(DesignSystem.FontToken.body(17, italic: true))
-                    .foregroundStyle(DesignSystem.ColorToken.textPrimary)
-                    .scrollContentBackground(.hidden)
-                    .focused($questionFocused)
-                    .frame(minHeight: 112)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 6)
-
-                if questionText.isEmpty && !questionFocused {
-                    Text(selectedOption.suggestedQuestion)
-                        .font(DesignSystem.FontToken.body(17, italic: true))
-                        .foregroundStyle(DesignSystem.ColorToken.textTertiary)
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 14)
-                        .allowsHitTesting(false)
+            Button {
+                withAnimation(.snappy(duration: 0.24)) {
+                    showQuestionEditor.toggle()
                 }
+            } label: {
+                HStack(spacing: 10) {
+                    Text("✎")
+                        .font(DesignSystem.FontToken.display(18))
+                        .accessibilityHidden(true)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Optionally whisper your question")
+                            .font(DesignSystem.FontToken.caps(9))
+                            .tracking(2.4)
+                            .textCase(.uppercase)
+                        Text(questionText.isEmpty ? "Tap to add a specific question." : questionText)
+                            .font(DesignSystem.FontToken.body(13, italic: true))
+                            .lineLimit(2)
+                            .multilineTextAlignment(.leading)
+                    }
+                    Spacer(minLength: 8)
+                    Image(systemName: showQuestionEditor ? "chevron.up" : "chevron.down")
+                        .font(.system(size: 12, weight: .semibold))
+                }
+                .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.86))
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(14)
+                .background(DesignSystem.ColorToken.goldCream.opacity(0.065))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .stroke(DesignSystem.ColorToken.goldCream.opacity(showQuestionEditor ? 0.58 : 0.3), lineWidth: 1)
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
             }
-            .frame(minHeight: 112)
-            .background(DesignSystem.ColorToken.goldCream.opacity(0.065))
-            .overlay(
-                RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .stroke(DesignSystem.ColorToken.goldCream.opacity(questionFocused ? 0.65 : 0.28), lineWidth: 1)
-            )
-            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-            .contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-            .onTapGesture { questionFocused = true }
-            .onChange(of: questionText) { _, newValue in
-                if newValue.count > 200 { questionText = String(newValue.prefix(200)) }
+            .buttonStyle(.plain)
+            .accessibilityHint(showQuestionEditor ? "Hides the optional question field" : "Shows the optional question field")
+
+            if showQuestionEditor {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Spacer()
+                        Text("MAX 200")
+                            .font(DesignSystem.FontToken.caps(7.5))
+                            .tracking(1.6)
+                            .foregroundStyle(DesignSystem.ColorToken.textTertiary)
+                    }
+
+                    ZStack(alignment: .topLeading) {
+                        TextEditor(text: $questionText)
+                            .font(DesignSystem.FontToken.body(17, italic: true))
+                            .foregroundStyle(DesignSystem.ColorToken.textPrimary)
+                            .scrollContentBackground(.hidden)
+                            .focused($questionFocused)
+                            .frame(minHeight: 112)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 6)
+
+                        if questionText.isEmpty && !questionFocused {
+                            Text(selectedOption.suggestedQuestion)
+                                .font(DesignSystem.FontToken.body(17, italic: true))
+                                .foregroundStyle(DesignSystem.ColorToken.textTertiary)
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 14)
+                                .allowsHitTesting(false)
+                        }
+                    }
+                    .frame(minHeight: 112)
+                    .background(DesignSystem.ColorToken.goldCream.opacity(0.065))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 18, style: .continuous)
+                            .stroke(DesignSystem.ColorToken.goldCream.opacity(questionFocused ? 0.65 : 0.28), lineWidth: 1)
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                    .contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                    .onTapGesture { questionFocused = true }
+                    .onChange(of: questionText) { _, newValue in
+                        if newValue.count > 200 { questionText = String(newValue.prefix(200)) }
+                    }
+                }
+                .transition(.move(edge: .top).combined(with: .opacity))
             }
         }
         .padding(16)
@@ -164,6 +197,13 @@ struct ReadingQuestionView: View {
                 .stroke(DesignSystem.ColorToken.borderSoft, lineWidth: 1)
         )
         .clipShape(RoundedRectangle(cornerRadius: DesignSystem.Radius.cardLg, style: .continuous))
+        .onChange(of: showQuestionEditor) { _, isShowing in
+            if isShowing {
+                DispatchQueue.main.async { questionFocused = true }
+            } else {
+                questionFocused = false
+            }
+        }
     }
 
     private var privacyNote: some View {
@@ -192,8 +232,12 @@ struct ReadingQuestionView: View {
             GoldButton(title: "Open My Palm  ›") {
                 beginReading(skip: false)
             }
-            GhostButton(title: "Skip question") {
-                beginReading(skip: true)
+            if showQuestionEditor || !questionText.isEmpty {
+                GhostButton(title: "Continue Without Question") {
+                    questionText = ""
+                    showQuestionEditor = false
+                    beginReading(skip: true)
+                }
             }
         }
     }
@@ -271,7 +315,7 @@ private struct SessionFocusOption: Identifiable, Equatable {
     static let relationship = SessionFocusOption(
         id: "relationship",
         title: "Relationship",
-        glyph: "♥",
+        glyph: "♀",
         suggestedQuestion: "What should I understand about this relationship?",
         backendFocus: .love,
         lifeSeason: .bigDecision
