@@ -33,19 +33,33 @@ enum DesignSystem {
     }
 
     enum FontToken {
+        /// Display (Cormorant Garamond) — headlines and emphasized sentences.
+        /// Scales relative to `.title` so headings grow with Dynamic Type but
+        /// the visual hierarchy stays correct against body text.
         static func display(_ size: CGFloat, italic: Bool = false, weight: Font.Weight = .medium) -> Font {
-            .custom(italic ? "CormorantGaramond-MediumItalic" : "CormorantGaramond-Medium", size: size).weight(weight)
+            .custom(italic ? "CormorantGaramond-MediumItalic" : "CormorantGaramond-Medium", size: size, relativeTo: .title).weight(weight)
         }
+        /// Body (EB Garamond) — paragraphs, captions, italic asides. Scales
+        /// with the user's Dynamic Type setting. This is the primary
+        /// accessibility surface — keep `relativeTo: .body` so it expands at
+        /// xxxLarge and Accessibility sizes the way iOS users expect.
         static func body(_ size: CGFloat = 14, italic: Bool = false) -> Font {
-            .custom(italic ? "EBGaramond-Italic" : "EBGaramond-Regular", size: size)
+            .custom(italic ? "EBGaramond-Italic" : "EBGaramond-Regular", size: size, relativeTo: .body)
         }
+        /// Caps (Cinzel) — eyebrows, button labels, glyph annotations. Kept
+        /// at fixed point size deliberately: caps live inside fixed-width
+        /// chrome (pill buttons, headers, focus chips) and scaling them
+        /// breaks the layout. Body and display carry the Dynamic Type
+        /// contract for these screens.
         static func caps(_ size: CGFloat = 11) -> Font {
             // Cinzel ships as a variable font with named instances at Regular/Bold/Black only;
             // SemiBold is reached by setting the wght axis via .weight(.semibold).
             .custom("Cinzel-Regular", size: size).weight(.semibold)
         }
+        /// Hand (Caveat) — currently unused in user-facing copy; reserved
+        /// for handwritten asides. Scales with body.
         static func hand(_ size: CGFloat = 16) -> Font {
-            .custom("Caveat-Regular", size: size)
+            .custom("Caveat-Regular", size: size, relativeTo: .body)
         }
         static let title = display(26)
         static let footnote = Font.footnote
@@ -329,6 +343,10 @@ struct GlyphCircle: View {
             .frame(width: size, height: size)
             .background(Circle().fill(DesignSystem.ColorToken.goldCream.opacity(selected ? 0.15 : 0.06)))
             .overlay(Circle().stroke(DesignSystem.ColorToken.goldCream.opacity(selected ? 0.65 : 0.35), lineWidth: 1))
+            // All callers pair this with a labelled row, chapter title, etc.
+            // VoiceOver should announce the row's text, not the decorative
+            // glyph (which it would otherwise read as "Heart" / "Sun" / etc.).
+            .accessibilityHidden(true)
     }
 }
 
@@ -354,6 +372,7 @@ struct OrnamentRule: View {
             Text("✦").font(DesignSystem.FontToken.display(13)).foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.65))
             Rectangle().fill(DesignSystem.ColorToken.goldCream.opacity(0.35)).frame(height: 0.6)
         }
+        .accessibilityHidden(true)
     }
 }
 
@@ -411,25 +430,67 @@ enum MoonPhaseProvider {
 }
 
 struct OrbitLoader: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     private let inner: [(String, Double, Double)] = [("☉", 7, 0), ("☽", 9, 120), ("☿", 11, 240)]
     private let outer: [(String, Double, Double)] = [("♀", 16, 0), ("♂", 18, 90), ("♃", 22, 180), ("♄", 26, 270)]
+
     var body: some View {
+        Group {
+            if reduceMotion {
+                staticLoader
+            } else {
+                animatedLoader
+            }
+        }
+        .accessibilityElement()
+        .accessibilityLabel("Mystical loading indicator")
+    }
+
+    /// Continuous-rotation variant. Used when Reduce Motion is off.
+    private var animatedLoader: some View {
         TimelineView(.animation) { ctx in
             let t = ctx.date.timeIntervalSinceReferenceDate
             ZStack {
-                Circle().stroke(DesignSystem.ColorToken.goldCream.opacity(0.18), style: .init(lineWidth: 1, dash: [2,4])).frame(width: 140, height: 140)
-                Circle().stroke(DesignSystem.ColorToken.goldCream.opacity(0.14), style: .init(lineWidth: 1, dash: [2,4])).frame(width: 260, height: 260)
-                Circle().fill(RadialGradient(colors: [DesignSystem.ColorToken.goldCream.opacity(0.25), .clear], center: .center, startRadius: 0, endRadius: 55)).frame(width: 110, height: 110)
-                Image("PalmPlate").resizable().scaledToFit().frame(width: 82, height: 82).opacity(0.72)
+                orbitChrome
                 ForEach(0..<inner.count, id: \.self) { i in orbit(inner[i], t, 70) }
                 ForEach(0..<outer.count, id: \.self) { i in orbit(outer[i], t, 130) }
             }.frame(width: 320, height: 320)
         }
     }
+
+    /// Reduce-Motion variant. Planets sit at their initial angles with no
+    /// rotation or scale pulse. Same visual composition, no animation.
+    private var staticLoader: some View {
+        ZStack {
+            orbitChrome
+            ForEach(0..<inner.count, id: \.self) { i in staticOrbit(inner[i], 70) }
+            ForEach(0..<outer.count, id: \.self) { i in staticOrbit(outer[i], 130) }
+        }.frame(width: 320, height: 320)
+    }
+
+    private var orbitChrome: some View {
+        ZStack {
+            Circle().stroke(DesignSystem.ColorToken.goldCream.opacity(0.18), style: .init(lineWidth: 1, dash: [2,4])).frame(width: 140, height: 140)
+            Circle().stroke(DesignSystem.ColorToken.goldCream.opacity(0.14), style: .init(lineWidth: 1, dash: [2,4])).frame(width: 260, height: 260)
+            Circle().fill(RadialGradient(colors: [DesignSystem.ColorToken.goldCream.opacity(0.25), .clear], center: .center, startRadius: 0, endRadius: 55)).frame(width: 110, height: 110)
+            Image("PalmPlate").resizable().scaledToFit().frame(width: 82, height: 82).opacity(0.72)
+        }
+    }
+
     private func orbit(_ item: (String, Double, Double), _ t: TimeInterval, _ radius: CGFloat) -> some View {
         let angle = (item.2 + (t / item.1) * 360) * .pi / 180
         let pulse = 1 + 0.08 * sin(t * .pi / 1.2)
         return Text(item.0).font(DesignSystem.FontToken.display(22)).foregroundStyle(DesignSystem.ColorToken.goldCream).shadow(color: DesignSystem.ColorToken.goldCream.opacity(0.55), radius: 6).scaleEffect(pulse).offset(x: cos(angle) * radius, y: sin(angle) * radius)
+    }
+
+    private func staticOrbit(_ item: (String, Double, Double), _ radius: CGFloat) -> some View {
+        let angle = item.2 * .pi / 180
+        return Text(item.0)
+            .font(DesignSystem.FontToken.display(22))
+            .foregroundStyle(DesignSystem.ColorToken.goldCream)
+            .shadow(color: DesignSystem.ColorToken.goldCream.opacity(0.55), radius: 6)
+            .offset(x: cos(angle) * radius, y: sin(angle) * radius)
     }
 }
 

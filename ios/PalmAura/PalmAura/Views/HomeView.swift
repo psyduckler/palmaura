@@ -33,16 +33,33 @@ struct HomeView: View {
                     }
                     .multilineTextAlignment(.center)
 
-                    // Theme chips
+                    // Theme chips — interactive launchers into ReadingQuestionView
+                    // with the matching focus pre-selected. Falls back to
+                    // OnboardingView for users without a complete profile so the
+                    // gate isn't bypassed (matches the primary CTA's behaviour).
                     HStack(spacing: 10) {
-                        ForEach(["LOVE", "WORK", "MONEY", "THE PATH"], id: \.self) { chip in
-                            Text(chip)
-                                .font(DesignSystem.FontToken.caps(9))
-                                .tracking(2.5)
-                                .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.78))
-                                .padding(.vertical, 7)
-                                .padding(.horizontal, 11)
-                                .overlay(Capsule().stroke(DesignSystem.ColorToken.borderSoft, lineWidth: 1))
+                        ForEach(HomeFocusChip.all) { chip in
+                            NavigationLink {
+                                if hasProfile {
+                                    ReadingQuestionView(initialFocus: chip.focus)
+                                } else {
+                                    OnboardingView()
+                                }
+                            } label: {
+                                Text(chip.label)
+                                    .font(DesignSystem.FontToken.caps(9))
+                                    .tracking(2.5)
+                                    .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.78))
+                                    .padding(.vertical, 7)
+                                    .padding(.horizontal, 11)
+                                    .overlay(Capsule().stroke(DesignSystem.ColorToken.borderSoft, lineWidth: 1))
+                                    .contentShape(Capsule())
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("Start a \(chip.label.lowercased()) reading")
+                            .simultaneousGesture(TapGesture().onEnded {
+                                Analytics.shared.track("home_focus_chip_tapped", properties: ["focus": chip.focus.rawValue])
+                            })
                         }
                     }
 
@@ -266,6 +283,23 @@ private struct ConstellationPalm: View {
         case .none:   return CGPoint(x: baseX, y: baseY)
         }
     }
+}
+
+/// Visible chip labels on the Home theme strip, each routed into
+/// `ReadingQuestionView` with the matching focus pre-selected. Labels stay
+/// short on purpose so all four fit on a phone width; the question screen
+/// presents the full 5-chip vocabulary (including Family).
+private struct HomeFocusChip: Identifiable {
+    let id: String
+    let label: String
+    let focus: ReadingFocus
+
+    static let all: [HomeFocusChip] = [
+        .init(id: "love",    label: "LOVE",     focus: .love),
+        .init(id: "work",    label: "WORK",     focus: .career),
+        .init(id: "money",   label: "MONEY",    focus: .money),
+        .init(id: "path",    label: "THE PATH", focus: .purpose),
+    ]
 }
 
 private struct HomeBullet: View {
