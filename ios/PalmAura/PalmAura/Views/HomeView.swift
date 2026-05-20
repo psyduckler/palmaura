@@ -14,7 +14,10 @@ struct HomeView: View {
             DarkScreenBackground()
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 26) {
-                    ScreenHeader(eyebrow: "PalmAura", showsHomeButton: false, activeNavItem: .home)
+                    // `showsHomeButton: false` already hides the Home icon on
+                    // this screen, so an `activeNavItem: .home` dim treatment
+                    // has nothing to dim. Pass `showsHomeButton: false` alone.
+                    ScreenHeader(eyebrow: "PalmAura", showsHomeButton: false)
                         .padding(.horizontal, -DesignSystem.Spacing.lg)
 
                     // Constellation palm hero

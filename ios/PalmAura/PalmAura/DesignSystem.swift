@@ -397,26 +397,30 @@ struct ParchmentPanel<Content: View>: View {
     }
 }
 
-struct MoonPhase: View {
-    let phase: Double
-    var size: CGFloat = 28
-    var body: some View {
-        ZStack {
-            Circle().fill(DesignSystem.ColorToken.goldCream.opacity(0.10))
-            Circle().stroke(DesignSystem.ColorToken.goldCream.opacity(0.4), lineWidth: 0.7)
-            Circle().trim(from: 0, to: max(0.08, min(0.92, phase))).fill(DesignSystem.ColorToken.goldCream.opacity(0.75)).rotationEffect(.degrees(-90))
-        }.frame(width: size, height: size)
-    }
-}
-
+/// Lunar phase calculation. Used in `ReadingResultView` as a keepsake
+/// timestamp; should reflect the moon at *reading time*, not view time, so
+/// a saved reading opened weeks later shows the moon the reading was born
+/// under. The previous `MoonPhase` visual disc was removed when the
+/// persistent header dropped lunar chrome (commit 02fe980).
 enum MoonPhaseProvider {
-    static var currentPhase: Double {
-        let knownNewMoon = Date(timeIntervalSince1970: 947182440) // 2000-01-06
-        let days = Date().timeIntervalSince(knownNewMoon) / 86400
-        return (days.truncatingRemainder(dividingBy: 29.53058867)) / 29.53058867
+    /// Reference new-moon used to anchor the synodic cycle (2000-01-06).
+    private static let referenceNewMoon = Date(timeIntervalSince1970: 947182440)
+    /// Length of the synodic month in days.
+    private static let synodicMonth: Double = 29.53058867
+
+    /// Phase value in `[0, 1)` for an arbitrary date. 0 = new moon,
+    /// 0.5 = full moon. Negative-spanning differences are folded back into
+    /// the valid range so far-past dates work the same as recent ones.
+    static func phase(for date: Date) -> Double {
+        let days = date.timeIntervalSince(referenceNewMoon) / 86400
+        let fractional = days.truncatingRemainder(dividingBy: synodicMonth) / synodicMonth
+        return fractional >= 0 ? fractional : fractional + 1
     }
-    static var currentCode: String {
-        switch Int((currentPhase * 8).rounded()) % 8 {
+
+    /// Eight-segment label (NEW · MOON, WAX · CRES, etc.) for an arbitrary
+    /// date.
+    static func code(for date: Date) -> String {
+        switch Int((phase(for: date) * 8).rounded()) % 8 {
         case 0: return "NEW · MOON"
         case 1: return "WAX · CRES"
         case 2: return "1ST · QTR"
@@ -427,6 +431,12 @@ enum MoonPhaseProvider {
         default: return "WAN · CRES"
         }
     }
+
+    /// Convenience for "today's moon" — used only where a live indicator
+    /// makes sense; keepsake views should pass the reading-time date via
+    /// `code(for:)`.
+    static var currentPhase: Double { phase(for: Date()) }
+    static var currentCode: String { code(for: Date()) }
 }
 
 struct OrbitLoader: View {

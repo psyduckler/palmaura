@@ -22,9 +22,11 @@ struct ReadingResultView: View {
                     ScreenHeader(eyebrow: "Your Reading", back: true)
                         .padding(.horizontal, -DesignSystem.Spacing.lg)
 
-                    // Title block
+                    // Title block — moon phase is frozen at reading-time so
+                    // a saved reading opened weeks later shows the moon it
+                    // was born under, not today's.
                     VStack(alignment: .leading, spacing: 10) {
-                        Text(MoonPhaseProvider.currentCode + "  ·  " + ReadingTimestampFormatter.romanDate(from: reading.createdAt))
+                        Text(readingTimestampHeader)
                             .font(DesignSystem.FontToken.caps(9))
                             .tracking(DesignSystem.Tracking.caps)
                             .foregroundStyle(DesignSystem.ColorToken.textTertiary)
@@ -97,6 +99,17 @@ struct ReadingResultView: View {
 
     private var directAnswerTitle: String {
         bundle?.sessionIntent?.question == nil ? "Guidance" : "Direct Answer"
+    }
+
+    /// Moon-phase + romanized date, both frozen at reading-time using
+    /// `reading.createdAt`. Falls back to "now" only if the timestamp
+    /// fails to parse (which `ReadingTimestampFormatter.date` covers
+    /// with both fractional and standard ISO8601 formats).
+    private var readingTimestampHeader: String {
+        let readingDate = ReadingTimestampFormatter.date(from: reading.createdAt) ?? Date()
+        let moon = MoonPhaseProvider.code(for: readingDate)
+        let romanDate = ReadingTimestampFormatter.romanDate(from: reading.createdAt)
+        return "\(moon)  ·  \(romanDate)"
     }
 
     private func intentCard(_ intent: ReadingSessionIntent) -> some View {
