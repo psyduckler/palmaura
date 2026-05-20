@@ -29,7 +29,6 @@ struct PalmReadingResponse: Codable, Equatable, Identifiable {
 }
 
 struct ReadingReport: Codable, Equatable {
-    let aura: String
     let heartLine: String
     let headLine: String
     let lifeLine: String

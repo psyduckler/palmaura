@@ -131,7 +131,6 @@ const ReadingSchema = z.object({
   archetype: z.string().default(''),
   inferredScannedHand: InferredScannedHandSchema.optional(),
   report: z.object({
-    aura: z.string().default(''),
     heartLine: z.string().default(''),
     headLine: z.string().default(''),
     lifeLine: z.string().default(''),
@@ -139,7 +138,7 @@ const ReadingSchema = z.object({
     currentSeason: z.string().default(''),
     guidance: z.string().default(''),
     ritual: z.string().default(''),
-  }).default({ aura: '', heartLine: '', headLine: '', lifeLine: '', fateLine: '', currentSeason: '', guidance: '', ritual: '' }),
+  }).default({ heartLine: '', headLine: '', lifeLine: '', fateLine: '', currentSeason: '', guidance: '', ritual: '' }),
   rejectionMessage: z.string().optional(),
   nextReadingHook: z.object({ focus: ResponseFocus, teaser: z.string().max(MAX_NEXT_READING_HOOK_CHARS) }).optional(),
 });
@@ -164,7 +163,6 @@ const TOOL = {
       report: {
         type: 'object',
         properties: {
-          aura: { type: 'string' },
           heartLine: { type: 'string' },
           headLine: { type: 'string' },
           lifeLine: { type: 'string' },
@@ -173,7 +171,7 @@ const TOOL = {
           guidance: { type: 'string' },
           ritual: { type: 'string' },
         },
-        required: ['aura', 'heartLine', 'headLine', 'lifeLine', 'fateLine', 'currentSeason', 'guidance', 'ritual'],
+        required: ['heartLine', 'headLine', 'lifeLine', 'fateLine', 'currentSeason', 'guidance', 'ritual'],
       },
       rejectionMessage: { type: 'string' },
       nextReadingHook: {
@@ -427,7 +425,7 @@ READING STYLE:
 SPECIFICITY RULES:
 1. Evidence-grounding rule: every meaningful claim must be tied to at least one of: a visible palm feature from the image; line depth/curve/spacing seen in the photo; focus/lifeSeason/readingStyle; dominant-hand context; saved birthday-derived sun sign or age band; saved gender context if relevant; or coarse location/timezone context for timing/place atmosphere if provided. If a claim cannot be grounded, do not make it.
 2. Dominant/scanned hand rule: if the client provides scannedHand, use it. If not, infer the visible hand from the image, compare it with the dominant hand, and use the inferred role when confidence >= 0.55. Use known hand role in at least two report sections; if role is unknown/low-confidence, rely on dominant-hand context only and avoid pretending the photo is dominant.
-3. Sun sign rule: if sunSign is provided, reference it exactly once across the whole report. Do not turn the reading into a horoscope.
+3. Sun sign rule: if sunSign is provided, reference it exactly once across the whole report, preferably in currentSeason or guidance. Do not turn the reading into a horoscope.
 4. Age-band rule: if ageBand is provided, adapt life-stage assumptions without over-explaining the age. under_25 = identity/first big choices; 25_34 = momentum/filtering/ambition vs burnout; 35_44 = leadership/reinvention; 45_54 = recalibration/second-act energy; 55_plus = wisdom/simplification/legacy.
 5. Gender context rule: do not stereotype or infer pronouns. Use saved gender only lightly when it helps phrasing; if prefer_not_to_say, avoid gendered framing entirely.
 6. Banned standalone adjectives: never use creative, intuitive, loyal, sensitive, resilient, or ambitious as freestanding descriptors. You may use one only when the same sentence explains the palm or context evidence behind it.
@@ -435,7 +433,6 @@ SPECIFICITY RULES:
 8. Location context rule: if location context is provided, use it only for local season, time-of-day, and grounded place atmosphere. Never claim it improves visual palm accuracy, never mention precise location, and never imply continuous tracking.
 
 SECTION INTENT:
-- aura: 2-3 sentences. Give an at-a-glance physical/visual impression; if sunSign is available, this is the best place for the single sun-sign mention.
 - heartLine: ground in the visible heart line and the user's focus when relevant.
 - headLine: ground in the head line and how the user approaches decisions.
 - lifeLine: ground in the life line plus lifeSeason and ageBand when available.

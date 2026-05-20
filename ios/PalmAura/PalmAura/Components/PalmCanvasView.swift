@@ -35,7 +35,7 @@ struct PalmCanvasView: View {
             .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
             .overlay(RoundedRectangle(cornerRadius: 28, style: .continuous).stroke(.white.opacity(0.12), lineWidth: 1))
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("Palm photo map with aura glow.")
+            .accessibilityLabel("Palm photo map with symbolic glow.")
         }
         .aspectRatio(0.72, contentMode: .fit)
         .onAppear {

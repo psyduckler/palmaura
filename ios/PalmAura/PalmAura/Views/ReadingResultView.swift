@@ -56,7 +56,6 @@ struct ReadingResultView: View {
 
                     // Chapters
                     chapter(glyph: "☽", title: directAnswerTitle, body: reading.report.guidance)
-                    chapter(glyph: "✦", title: "Aura", body: reading.report.aura)
                     chapter(glyph: "♥", title: "Heart Line", body: reading.report.heartLine)
                     chapter(glyph: "☿", title: "Head Line", body: reading.report.headLine)
                     chapter(glyph: "♃", title: "Life Line", body: reading.report.lifeLine)

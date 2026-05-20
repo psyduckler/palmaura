@@ -618,7 +618,7 @@ Use `UIPasteboard` with `com.instagram.sharedSticker.backgroundImage`, then open
 
 - “Tracing your heart line…”
 - “Listening to the mount of Venus…”
-- “Reading your aura’s resonance…”
+- “Reading the season around your hand…”
 - “Aligning the lines of fate…”
 - “Sensing your current season…”
 - “Drawing on ancient palmistry…”

@@ -19,18 +19,13 @@ struct RevealSequenceView: View {
     }
 
     private var isFirstReveal: Bool { useFirstReveal }
-    private var lastStep: Int { isFirstReveal ? 3 : 1 }
+    private var lastStep: Int { isFirstReveal ? 2 : 1 }
 
     var body: some View {
         ZStack {
             DarkScreenBackground()
             VStack(spacing: 0) {
-                ScreenHeader(
-                    eyebrow: isFirstReveal ? "First Reveal" : "Your Reveal",
-                    back: false,
-                    trailingText: "FULL",
-                    onTrailing: { showFullReport = true }
-                )
+                ScreenHeader(eyebrow: "Your Reading", back: false)
 
                 Spacer(minLength: 6)
 
@@ -39,13 +34,15 @@ struct RevealSequenceView: View {
                     .contentTransition(.opacity)
                     .animation(.easeInOut(duration: 0.28), value: step)
                     .padding(.horizontal, DesignSystem.Spacing.lg)
+                    .gesture(horizontalRevealSwipe)
+                    .accessibilityAction(named: Text("Next reveal card")) { advanceStep() }
+                    .accessibilityAction(named: Text("Previous reveal card")) { retreatStep() }
 
                 Spacer(minLength: 16)
 
                 if step < lastStep {
                     GoldButton(title: nextTitle) {
-                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                        withAnimation { step += 1 }
+                        advanceStep()
                     }
                     .padding(.horizontal, DesignSystem.Spacing.lg)
                 } else {
@@ -61,14 +58,11 @@ struct RevealSequenceView: View {
         }
         .navigationBarBackButtonHidden(true)
         .swipeBackEnabled(false)
-        .navigationDestination(isPresented: $showFullReport) { ReadingResultView(bundle: bundle) }
         .onAppear {
             UINotificationFeedbackGenerator().notificationOccurred(.success)
             Analytics.shared.track("reveal_sequence_started", properties: ["mode": isFirstReveal ? "first" : "returning"])
         }
     }
-
-    @State private var showFullReport = false
 
     @ViewBuilder
     private var revealContent: some View {
@@ -77,10 +71,8 @@ struct RevealSequenceView: View {
             case 0:
                 CeremonyPanel(glyph: "✦", eyebrow: answerEyebrow, title: answerTitle, detail: answerDetail)
             case 1:
-                CeremonyPanel(glyph: glyphForAura(reading.auraColor), eyebrow: "Aura color", title: reading.auraColor.rawValue.capitalized, detail: reading.report.aura)
-            case 2:
                 PalmIgnitionPanel(bundle: bundle)
-            case 3:
+            case 2:
                 CeremonyPanel(glyph: "☽", eyebrow: "Archetype", title: reading.archetype, detail: reading.report.guidance)
             default:
                 EmptyView()
@@ -88,7 +80,7 @@ struct RevealSequenceView: View {
         } else {
             switch step {
             case 0:
-                CeremonyPanel(glyph: glyphForAura(reading.auraColor), eyebrow: answerEyebrow, title: answerTitle, detail: answerDetail)
+                CeremonyPanel(glyph: "✦", eyebrow: answerEyebrow, title: answerTitle, detail: answerDetail)
             case 1:
                 PalmIgnitionPanel(bundle: bundle)
             default:
@@ -156,22 +148,38 @@ struct RevealSequenceView: View {
 
     private var nextTitle: String {
         if isFirstReveal {
-            return ["Show my aura  ›", "Open my map  ›", "Reveal archetype  ›"][safe: step] ?? "Continue"
+            return ["Open my map  ›", "Reveal archetype  ›"][safe: step] ?? "Continue"
         } else {
             return ["Open my map  ›"][safe: step] ?? "Continue"
         }
     }
 
-    private func glyphForAura(_ color: AuraColor) -> String {
-        switch color {
-        case .violet: return "♇"
-        case .gold:   return "☉"
-        case .fire:   return "♂"
-        case .moon:   return "☽"
-        case .water:  return "♆"
-        case .rose:   return "♀"
-        }
+    private var horizontalRevealSwipe: some Gesture {
+        DragGesture(minimumDistance: 30, coordinateSpace: .local)
+            .onEnded { value in
+                let horizontal = value.translation.width
+                let vertical = value.translation.height
+                guard abs(horizontal) > 44, abs(horizontal) > abs(vertical) else { return }
+                if horizontal < 0 {
+                    advanceStep()
+                } else {
+                    retreatStep()
+                }
+            }
     }
+
+    private func advanceStep() {
+        guard step < lastStep else { return }
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        withAnimation { step += 1 }
+    }
+
+    private func retreatStep() {
+        guard step > 0 else { return }
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        withAnimation { step -= 1 }
+    }
+
 }
 
 private struct CeremonyPanel: View {

@@ -268,7 +268,7 @@ struct OnboardingView: View {
                     if newValue.count > 80 { locationOverrideText = String(newValue.prefix(80)) }
                 }
 
-            Text("Leave blank to use automatic network and time-zone hints. Readings still work without it.")
+            Text("Edit this if it’s off. Readings still work without exact location.")
                 .font(DesignSystem.FontToken.body(12, italic: true))
                 .foregroundStyle(DesignSystem.ColorToken.textSecondary)
                 .lineSpacing(2)
@@ -394,8 +394,11 @@ struct OnboardingView: View {
 
     private func loadEdgeContextHint() async {
         guard edgeContext == nil else { return }
-        guard let context = await EdgeContextService.fetchIfFast(), context.displayName != nil else { return }
+        guard let context = await EdgeContextService.fetchIfFast(), let displayName = context.displayName else { return }
         edgeContext = context
+        if locationOverrideText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            locationOverrideText = displayName
+        }
     }
 
     private func monthName(_ month: Int) -> String {

@@ -16,7 +16,7 @@ struct LoadingReadingView: View {
         "Reading the shape of your palm…",
         "Igniting the tiny constellations in your palm…",
         "Listening to the mount of Venus…",
-        "Reading your aura’s resonance…",
+        "Reading the season around your hand…",
         "Mapping love, mind, life, and fate…",
         "Sensing your current season…",
         "Asking the moon for a second opinion…",
