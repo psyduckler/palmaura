@@ -448,7 +448,7 @@ struct OrbitLoader: View {
     var body: some View {
         Group {
             if reduceMotion {
-                staticLoader
+                reducedMotionLoader
             } else {
                 animatedLoader
             }
@@ -469,14 +469,25 @@ struct OrbitLoader: View {
         }
     }
 
-    /// Reduce-Motion variant. Planets sit at their initial angles with no
-    /// rotation or scale pulse. Same visual composition, no animation.
-    private var staticLoader: some View {
-        ZStack {
-            orbitChrome
-            ForEach(0..<inner.count, id: \.self) { i in staticOrbit(inner[i], 70) }
-            ForEach(0..<outer.count, id: \.self) { i in staticOrbit(outer[i], 130) }
-        }.frame(width: 320, height: 320)
+    /// Reduce-Motion variant. Avoids orbital travel/scale motion, but still
+    /// gives the long LLM wait screen a visible heartbeat via gentle opacity.
+    /// The PR #10 static version was too dead: with Reduce Motion enabled the
+    /// loading screen looked frozen during API calls.
+    private var reducedMotionLoader: some View {
+        TimelineView(.periodic(from: .now, by: 0.7)) { ctx in
+            let t = ctx.date.timeIntervalSinceReferenceDate
+            ZStack {
+                orbitChrome.opacity(0.84 + 0.10 * sin(t * .pi / 1.4))
+                ForEach(0..<inner.count, id: \.self) { i in
+                    staticOrbit(inner[i], 70)
+                        .opacity(reducedMotionOpacity(t: t, offset: Double(i) * 0.35))
+                }
+                ForEach(0..<outer.count, id: \.self) { i in
+                    staticOrbit(outer[i], 130)
+                        .opacity(reducedMotionOpacity(t: t, offset: Double(i) * 0.28 + 0.2))
+                }
+            }.frame(width: 320, height: 320)
+        }
     }
 
     private var orbitChrome: some View {
@@ -502,6 +513,10 @@ struct OrbitLoader: View {
             .shadow(color: DesignSystem.ColorToken.goldCream.opacity(0.55), radius: 6)
             .offset(x: cos(angle) * radius, y: sin(angle) * radius)
     }
+
+    private func reducedMotionOpacity(t: TimeInterval, offset: Double) -> Double {
+        0.58 + 0.38 * ((sin((t + offset) * .pi / 1.4) + 1) / 2)
+    }
 }
 
 struct LoadingPulseDots: View {
@@ -510,13 +525,7 @@ struct LoadingPulseDots: View {
     var body: some View {
         HStack(spacing: 8) {
             ForEach(0..<3, id: \.self) { index in
-                if reduceMotion {
-                    Circle()
-                        .fill(DesignSystem.ColorToken.goldCream.opacity(0.72))
-                        .frame(width: 6, height: 6)
-                } else {
-                    LoadingPulseDot(delay: Double(index) * 0.18)
-                }
+                LoadingPulseDot(delay: Double(index) * 0.18, usesScale: !reduceMotion)
             }
         }
     }
@@ -524,6 +533,7 @@ struct LoadingPulseDots: View {
 
 private struct LoadingPulseDot: View {
     let delay: Double
+    var usesScale: Bool = true
     @State private var scale: CGFloat = 0.7
     @State private var opacity: Double = 0.25
 
@@ -531,7 +541,7 @@ private struct LoadingPulseDot: View {
         Circle()
             .fill(DesignSystem.ColorToken.goldCream.opacity(0.6))
             .frame(width: 6, height: 6)
-            .scaleEffect(scale)
+            .scaleEffect(usesScale ? scale : 1)
             .opacity(opacity)
             .onAppear {
                 withAnimation(.easeInOut(duration: 0.7).repeatForever().delay(delay)) {

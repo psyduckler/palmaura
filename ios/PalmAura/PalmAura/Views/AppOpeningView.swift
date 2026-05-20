@@ -34,7 +34,7 @@ struct AppOpeningView: View {
                     .multilineTextAlignment(.center)
                     .contentTransition(.opacity)
                     .id(phraseIndex)
-                    .animation(.easeInOut(duration: 0.4), value: phraseIndex)
+                    .animation(reduceMotion ? nil : .easeInOut(duration: 0.4), value: phraseIndex)
                     .frame(minHeight: 56)
                     .padding(.horizontal, 24)
 
@@ -48,7 +48,6 @@ struct AppOpeningView: View {
             }
         }
         .onReceive(Timer.publish(every: 2.0, on: .main, in: .common).autoconnect()) { _ in
-            guard !reduceMotion else { return }
             phraseIndex = (phraseIndex + 1) % phrases.count
         }
         .task {
