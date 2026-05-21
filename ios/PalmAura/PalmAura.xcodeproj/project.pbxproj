@@ -475,7 +475,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.zonted.palmaura;
+				PRODUCT_BUNDLE_IDENTIFIER = app.palmaura;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -492,7 +492,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.zonted.PalmAuraTests;
+				PRODUCT_BUNDLE_IDENTIFIER = app.palmaura.PalmAuraTests;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PalmAura.app/PalmAura";
@@ -576,7 +576,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.zonted.PalmAuraTests;
+				PRODUCT_BUNDLE_IDENTIFIER = app.palmaura.PalmAuraTests;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PalmAura.app/PalmAura";
@@ -593,7 +593,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.zonted.palmaura;
+				PRODUCT_BUNDLE_IDENTIFIER = app.palmaura;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

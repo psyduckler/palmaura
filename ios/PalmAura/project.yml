@@ -1,6 +1,6 @@
 name: PalmAura
 options:
-  bundleIdPrefix: com.zonted
+  bundleIdPrefix: app.palmaura
   deploymentTarget:
     iOS: "17.0"
 settings:
@@ -47,7 +47,7 @@ targets:
           - Caveat.ttf
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.zonted.palmaura
+        PRODUCT_BUNDLE_IDENTIFIER: app.palmaura
         INFOPLIST_FILE: PalmAura/Info.plist
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
   PalmAuraTests:
@@ -58,7 +58,7 @@ targets:
     info:
       path: PalmAuraTests/Info.plist
       properties:
-        CFBundleIdentifier: com.zonted.palmauraTests
+        CFBundleIdentifier: app.palmaura.tests
     settings:
       base:
         GENERATE_INFOPLIST_FILE: YES
