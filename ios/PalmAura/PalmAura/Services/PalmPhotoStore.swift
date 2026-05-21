@@ -69,6 +69,14 @@ enum PalmPhotoStore {
             .count
     }
 
+    /// Delete the photo associated with a specific key (typically a
+    /// readingId). Used by `ReadingHistoryStore` to cascade a per-reading
+    /// delete. Idempotent: deleting an unknown key is a no-op.
+    static func delete(key: String) {
+        let path = directory.appendingPathComponent(safe(key)).appendingPathExtension("jpg")
+        try? FileManager.default.removeItem(at: path)
+    }
+
     static func clearAll() {
         guard let files = try? FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil) else { return }
         for file in files { try? FileManager.default.removeItem(at: file) }

@@ -6,6 +6,7 @@ struct SettingsView: View {
     @State private var showClearHistoryAlert = false
     @State private var showEditProfile = false
     @State private var showPrivacySheet = false
+    @State private var showLibrary = false
 
     var body: some View {
         ZStack {
@@ -27,6 +28,9 @@ struct SettingsView: View {
                         rowDivider
                         navRow(glyph: "☽", label: "Edit profile") { showEditProfile = true }
                     }
+                    section(title: "KEEPSAKES") {
+                        navRow(glyph: "✦", label: "Library of readings") { showLibrary = true }
+                    }
                     section(title: "ACCOUNT") {
                         row(glyph: "♃", label: "Membership", detail: "Lifetime")
                         rowDivider
@@ -45,6 +49,9 @@ struct SettingsView: View {
         .navigationDestination(isPresented: $showEditProfile) {
             OnboardingView(completionDestination: .dismiss)
         }
+        .navigationDestination(isPresented: $showLibrary) {
+            ReadingsLibraryView()
+        }
         .sheet(isPresented: $showPrivacySheet) {
             SafariView(url: URL(string: "https://palmaura.app/privacy.html")!)
                 .ignoresSafeArea()
@@ -62,12 +69,12 @@ struct SettingsView: View {
         .alert("Clear reading history?", isPresented: $showClearHistoryAlert) {
             Button("Cancel", role: .cancel) {}
             Button("Clear", role: .destructive) {
-                LastReadingStore.clear()
+                ReadingHistoryStore.clearAll()
                 PalmPhotoStore.clearAll()
                 ReadingIntentStore.clearAll()
             }
         } message: {
-            Text("Your saved reading, palm photo, palm map, and session question history will be cleared from this device.")
+            Text("Your saved readings, palm photos, palm maps, and session question history will be cleared from this device.")
         }
     }
 

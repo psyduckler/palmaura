@@ -5,8 +5,9 @@ import SwiftUI
 /// theme chips + primary/secondary CTAs. For returning users, shows the
 /// last reading panel as well.
 struct HomeView: View {
-    @State private var lastReading = LastReadingStore.load()
+    @State private var lastReading = ReadingHistoryStore.mostRecent
     @State private var hasProfile = PersonalizationStore.hasCompleteProfile()
+    @State private var showLibrary = false
     private var lastBundle: ReadingBundle? { lastReading.map { ReadingBundle.restore(reading: $0) } }
 
     var body: some View {
@@ -83,13 +84,16 @@ struct HomeView: View {
                         }
                         .buttonStyle(.plain)
 
-                        if let bundle = lastBundle {
-                            NavigationLink {
-                                ReadingResultView(bundle: bundle)
+                        if lastReading != nil {
+                            Button {
+                                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                                showLibrary = true
                             } label: {
                                 HStack(spacing: 8) {
-                                    Text("☽").font(DesignSystem.FontToken.display(15))
-                                    Text("Revisit Past Answers")
+                                    Text("☽")
+                                        .font(DesignSystem.FontToken.display(15))
+                                        .accessibilityHidden(true)
+                                    Text("Past Readings")
                                         .font(DesignSystem.FontToken.caps(10))
                                         .tracking(3)
                                         .textCase(.uppercase)
@@ -98,8 +102,10 @@ struct HomeView: View {
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 12)
                                 .overlay(Capsule().stroke(DesignSystem.ColorToken.goldCream.opacity(0.35), lineWidth: 1))
+                                .contentShape(Capsule())
                             }
                             .buttonStyle(.plain)
+                            .accessibilityHint("Opens the full list of past readings saved on this device")
                         }
                     }
 
@@ -160,8 +166,11 @@ struct HomeView: View {
         }
         .navigationBarBackButtonHidden(true)
         .swipeBackEnabled()
+        .navigationDestination(isPresented: $showLibrary) {
+            ReadingsLibraryView()
+        }
         .onAppear {
-            lastReading = LastReadingStore.load()
+            lastReading = ReadingHistoryStore.mostRecent
             hasProfile = PersonalizationStore.hasCompleteProfile()
         }
     }
