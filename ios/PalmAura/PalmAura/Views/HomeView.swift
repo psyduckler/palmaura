@@ -120,8 +120,7 @@ struct HomeView: View {
                                 Text(lastReading.title)
                                     .font(DesignSystem.FontToken.display(28))
                                     .foregroundStyle(DesignSystem.ColorToken.textPrimary)
-                                Text(lastReading.oneLineSummary)
-                                    .font(DesignSystem.FontToken.body(15, italic: true))
+                                Text(InlineMarkdownFormatter.bodyAttributedString(from: lastReading.oneLineSummary, size: 15, baseItalic: true))
                                     .foregroundStyle(DesignSystem.ColorToken.textSecondary)
                                     .lineSpacing(3)
                                 NavigationLink {

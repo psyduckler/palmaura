@@ -35,8 +35,7 @@ struct ReadingResultView: View {
                             .font(DesignSystem.FontToken.display(42))
                             .foregroundStyle(DesignSystem.ColorToken.textPrimary)
                             .lineSpacing(2)
-                        Text(reading.oneLineSummary)
-                            .font(DesignSystem.FontToken.body(18, italic: true))
+                        Text(InlineMarkdownFormatter.bodyAttributedString(from: reading.oneLineSummary, size: 18, baseItalic: true))
                             .foregroundStyle(DesignSystem.ColorToken.textSecondary)
                             .lineSpacing(3)
                         archetypeChip
@@ -216,8 +215,7 @@ struct ReadingResultView: View {
                     .tracking(3)
                     .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.88))
             }
-            Text(body)
-                .font(DesignSystem.FontToken.body(15))
+            Text(InlineMarkdownFormatter.bodyAttributedString(from: body, size: 15))
                 .foregroundStyle(DesignSystem.ColorToken.textPrimary.opacity(0.92))
                 .lineSpacing(4)
         }

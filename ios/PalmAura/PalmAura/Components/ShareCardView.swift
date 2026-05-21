@@ -44,8 +44,13 @@ struct ShareCardView: View {
 
                 Spacer(minLength: 14)
 
-                Text(reading.oneLineSummary)
-                    .font(.custom("EBGaramond-Italic", size: 16))
+                Text(InlineMarkdownFormatter.attributedString(
+                    from: reading.oneLineSummary,
+                    baseFont: .custom("EBGaramond-Italic", size: 16),
+                    emphasizedFont: .custom("EBGaramond-Italic", size: 16),
+                    stronglyEmphasizedFont: .custom("EBGaramond-Italic", size: 16).weight(.semibold),
+                    stronglyEmphasizedAndEmphasizedFont: .custom("EBGaramond-Italic", size: 16).weight(.semibold)
+                ))
                     .foregroundStyle(DesignSystem.ColorToken.textSecondary)
                     .multilineTextAlignment(.center)
                     .lineSpacing(3)

@@ -89,8 +89,7 @@ struct PalmMapView: View {
                         .font(DesignSystem.FontToken.caps(9))
                         .tracking(2.5)
                         .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.72))
-                    Text(bundle.reading.reportText(for: selectedLine))
-                        .font(DesignSystem.FontToken.body(14))
+                    Text(InlineMarkdownFormatter.bodyAttributedString(from: bundle.reading.reportText(for: selectedLine), size: 14))
                         .foregroundStyle(DesignSystem.ColorToken.textPrimary.opacity(0.92))
                         .lineSpacing(3)
                 }

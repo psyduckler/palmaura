@@ -13,6 +13,7 @@
 		07F2BE08C847A3ADDFE6E6DA /* MysticProfileDescriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A66A0A30036F2FB6A4FD7E7A /* MysticProfileDescriptor.swift */; };
 		08667B571912BDFD50085CF2 /* ContractEncodingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79E369BE5EFD310427760B72 /* ContractEncodingTests.swift */; };
 		187D0E00897DDC1B3085BE31 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8C96DF93E0D366B5956611DF /* Assets.xcassets */; };
+		1B14CEF7E825127E2F73F951 /* InlineMarkdownFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA361C2994A7D4798913DA26 /* InlineMarkdownFormatterTests.swift */; };
 		21874DE111D16DA3530052E3 /* ImagePreprocessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFCBE931255201250AB14F3 /* ImagePreprocessor.swift */; };
 		2D217A09A92BB28AB083D748 /* ShareOptionsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5B070BAFB11FD7738871EDD /* ShareOptionsSheet.swift */; };
 		2D69682D5DBD29FC8DE17C3E /* ShareCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BB6B109316EF196B557A7B6 /* ShareCardView.swift */; };
@@ -62,6 +63,7 @@
 		E3D09EC24C2B30CFC8E50737 /* PalmReadingResponseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8F12EF70C3329DD05F7A2BF /* PalmReadingResponseTests.swift */; };
 		E8FCC5B4C428496E827ED448 /* ReadingHistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 793D09B97E76E9DB3972248D /* ReadingHistoryStore.swift */; };
 		E96415D53D66F337A7166AFF /* BrandConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = D88CA57CAEA60AA44CD51585 /* BrandConfig.swift */; };
+		ED6AA6BC35D458DCE8741F6F /* InlineMarkdownFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFAA84C1DC35A7D9CDE1B63B /* InlineMarkdownFormatter.swift */; };
 		F38B43A0FFF5A72E8D9825E0 /* PalmIgnitionPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0D83A52A7090845FF0861A4 /* PalmIgnitionPanel.swift */; };
 		F91FA25CF6F4D7728A896CDB /* CormorantGaramond.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E9B6659E2F8036E6EC251C7D /* CormorantGaramond.ttf */; };
 		FBD16D155FF5B809EB57D41C /* PalmCanvasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5529B6060B0A6F65C79536A /* PalmCanvasView.swift */; };
@@ -122,6 +124,7 @@
 		A8F12EF70C3329DD05F7A2BF /* PalmReadingResponseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PalmReadingResponseTests.swift; sourceTree = "<group>"; };
 		AC72B8E2100B1B2DD7EA7CFC /* PalmAuraApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PalmAuraApp.swift; sourceTree = "<group>"; };
 		AF459A5F9333106CA5AF9CC2 /* Caveat.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Caveat.ttf; sourceTree = "<group>"; };
+		AFAA84C1DC35A7D9CDE1B63B /* InlineMarkdownFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InlineMarkdownFormatter.swift; sourceTree = "<group>"; };
 		AFEB3CB059CC4EBA570D575F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		C6BF4B44BF3896F04E926637 /* NavigationCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationCoordinatorTests.swift; sourceTree = "<group>"; };
 		C6C4A59DCEC53DECE2F47641 /* ShareReportPayloadTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareReportPayloadTests.swift; sourceTree = "<group>"; };
@@ -137,6 +140,7 @@
 		DAC09EE82157381E4E8DF16A /* EBGaramond.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = EBGaramond.ttf; sourceTree = "<group>"; };
 		DCFCBE931255201250AB14F3 /* ImagePreprocessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePreprocessor.swift; sourceTree = "<group>"; };
 		E9B6659E2F8036E6EC251C7D /* CormorantGaramond.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = CormorantGaramond.ttf; sourceTree = "<group>"; };
+		EA361C2994A7D4798913DA26 /* InlineMarkdownFormatterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InlineMarkdownFormatterTests.swift; sourceTree = "<group>"; };
 		F0D83A52A7090845FF0861A4 /* PalmIgnitionPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PalmIgnitionPanel.swift; sourceTree = "<group>"; };
 		F13F64552D9CEC21942FCD75 /* SafariView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariView.swift; sourceTree = "<group>"; };
 		F92274F1EDA7CCF79E21D328 /* OnboardingAnswers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingAnswers.swift; sourceTree = "<group>"; };
@@ -162,6 +166,7 @@
 				79E369BE5EFD310427760B72 /* ContractEncodingTests.swift */,
 				41EDB47AB8DE4AE6BDE1794A /* ImagePreprocessorTests.swift */,
 				055BDCC8D1CC9A05842EB2C0 /* Info.plist */,
+				EA361C2994A7D4798913DA26 /* InlineMarkdownFormatterTests.swift */,
 				9FC7B35A4BDF4903640A31BF /* MysticProfileDescriptorTests.swift */,
 				C6BF4B44BF3896F04E926637 /* NavigationCoordinatorTests.swift */,
 				0601EB8C33A7ACEEE28C92BF /* PalmPhotoStoreTests.swift */,
@@ -277,6 +282,7 @@
 				9C06DC0387CF6DC2E0AACD6D /* DeviceID.swift */,
 				595599E4A63503E9695A1037 /* EdgeContextService.swift */,
 				DCFCBE931255201250AB14F3 /* ImagePreprocessor.swift */,
+				AFAA84C1DC35A7D9CDE1B63B /* InlineMarkdownFormatter.swift */,
 				10F10588D6E3349643B6DF68 /* PalmPhotoStore.swift */,
 				FABCD888475E0BB7F499D2A5 /* ReadingAPIClient.swift */,
 				793D09B97E76E9DB3972248D /* ReadingHistoryStore.swift */,
@@ -389,6 +395,7 @@
 			files = (
 				08667B571912BDFD50085CF2 /* ContractEncodingTests.swift in Sources */,
 				030D46DF6271BAA4DF23851B /* ImagePreprocessorTests.swift in Sources */,
+				1B14CEF7E825127E2F73F951 /* InlineMarkdownFormatterTests.swift in Sources */,
 				73008B58CDA2E9AB711B3F3F /* MysticProfileDescriptorTests.swift in Sources */,
 				5FEAFB5477F52D3335A3539E /* NavigationCoordinatorTests.swift in Sources */,
 				FEF994DE316BC2352376669C /* PalmPhotoStoreTests.swift in Sources */,
@@ -413,6 +420,7 @@
 				A138F64FF792046C09393DFB /* EdgeContextService.swift in Sources */,
 				2F1A7CA21CE6440D09E418A1 /* HomeView.swift in Sources */,
 				21874DE111D16DA3530052E3 /* ImagePreprocessor.swift in Sources */,
+				ED6AA6BC35D458DCE8741F6F /* InlineMarkdownFormatter.swift in Sources */,
 				9BF18F45D246D5D3062FF1C1 /* LoadingReadingView.swift in Sources */,
 				07F2BE08C847A3ADDFE6E6DA /* MysticProfileDescriptor.swift in Sources */,
 				BAD1044A75BAF5E83C811256 /* OnboardingAnswers.swift in Sources */,
