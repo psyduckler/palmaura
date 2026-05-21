@@ -154,7 +154,7 @@ struct HomeView: View {
                                     .foregroundStyle(DesignSystem.ColorToken.textTertiary)
                                 HomeBullet(numeral: "I",   title: "Ask one question",     detail: "Pick a focus and bring the one thing you want the palm to look into.")
                                 HomeBullet(numeral: "II",  title: "Photograph your palm", detail: "Open hand, fingers spread, soft even light.")
-                                HomeBullet(numeral: "III", title: "Receive the answer",   detail: "A private reading, palm map, and full report — no share step.")
+                                HomeBullet(numeral: "III", title: "Receive the answer",   detail: "A private reading, palm map, and full report you can keep or share.")
                             }
                         }
                     }

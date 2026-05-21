@@ -7,6 +7,7 @@ struct RevealSequenceView: View {
     @AppStorage("hasCompletedFirstReveal") private var hasCompletedFirstReveal = false
     @State private var useFirstReveal: Bool
     @State private var step = 0
+    @State private var showShareSheet = false
     @Environment(\.navigationCoordinator) private var coordinator
 
     init(bundle: ReadingBundle) {
@@ -61,6 +62,9 @@ struct RevealSequenceView: View {
         .onAppear {
             UINotificationFeedbackGenerator().notificationOccurred(.success)
             Analytics.shared.track("reveal_sequence_started", properties: ["mode": isFirstReveal ? "first" : "returning"])
+        }
+        .sheet(isPresented: $showShareSheet) {
+            ShareOptionsSheet(reading: reading)
         }
     }
 
@@ -119,6 +123,25 @@ struct RevealSequenceView: View {
                     .shadow(color: DesignSystem.ColorToken.goldCream.opacity(0.28), radius: 15)
             }
             .buttonStyle(.plain)
+
+            Button {
+                showShareSheet = true
+            } label: {
+                HStack(spacing: 8) {
+                    Image(systemName: "square.and.arrow.up")
+                        .font(.system(size: 13, weight: .semibold))
+                    Text("Share")
+                        .font(DesignSystem.FontToken.caps(10))
+                        .tracking(3)
+                        .textCase(.uppercase)
+                }
+                .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.86))
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+                .overlay(Capsule().stroke(DesignSystem.ColorToken.goldCream.opacity(0.35), lineWidth: 1))
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Share this reading")
 
             Button {
                 coordinator?.goHome()
