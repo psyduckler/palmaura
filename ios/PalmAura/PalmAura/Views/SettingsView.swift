@@ -34,7 +34,7 @@ struct SettingsView: View {
                     section(title: "ACCOUNT") {
                         row(glyph: "♃", label: "Membership", detail: "Lifetime")
                         rowDivider
-                        linkRow(glyph: "✉", label: "Support", url: URL(string: "mailto:support@palmaura.app")!)
+                        linkRow(glyph: "✉", label: "Support", url: URL(string: "mailto:hello@palmaura.app")!)
                         rowDivider
                         navRow(glyph: "♄", label: "Privacy & terms") { showPrivacySheet = true }
                     }

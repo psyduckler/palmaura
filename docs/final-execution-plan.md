@@ -179,7 +179,7 @@ enum BrandConfig {
     static let domain = "palmaura.app"
     static let websiteURL = "https://palmaura.app"
     static let socialHandle = "@PalmAuraApp"
-    static let supportEmail = "support@palmaura.app"
+    static let supportEmail = "hello@palmaura.app"
 
     static let entertainmentDisclaimer = "PalmAura readings are symbolic entertainment and self-reflection only. They are not medical, legal, financial, psychological, or life-critical advice."
 }
