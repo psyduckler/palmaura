@@ -24,10 +24,12 @@ struct SettingsView: View {
                         row(glyph: "☉", label: "Dominant hand",  detail: personalization.handedness?.displayName ?? "Not set")
                         rowDivider
                         row(glyph: "⌖", label: "Location",       detail: locationDetail)
+                        rowDivider
                         navRow(glyph: "☽", label: "Edit profile") { showEditProfile = true }
                     }
                     section(title: "ACCOUNT") {
                         row(glyph: "♃", label: "Membership", detail: "Lifetime")
+                        rowDivider
                         linkRow(glyph: "✉", label: "Support", url: URL(string: "mailto:support@palmaura.app")!)
                         rowDivider
                         navRow(glyph: "♄", label: "Privacy & terms") { showPrivacySheet = true }
