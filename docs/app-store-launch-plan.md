@@ -90,7 +90,7 @@ WHAT TO EXPECT
 
 • Receive a private reading. Heart line, head line, life line, fate line — plus a palm-map keepsake and a personal archetype.
 
-• Keep or share. Save the reading to your private library, or send a beautiful share card to a friend. Your raw question stays on-device.
+• Keep or share. Save the reading to your private library, or send a beautiful share card to a friend. Your question is used only to shape that reading and never appears on share cards.
 
 PRIVATE BY DESIGN
 
@@ -157,46 +157,47 @@ App Store Connect ▸ App Privacy. This is the most error-prone part of submissi
 
 | Data type | Linked to user? | Used for tracking? | Purposes |
 |---|---|---|---|
-| **Device ID** | No (not linked) | No | Analytics, App Functionality (rate limiting) |
-| **Product Interaction** (usage data) | No (not linked) | No | Analytics |
-| **Crash Data** | No (not linked) | No | App Functionality |
-| **Performance Data** | No (not linked) | No | App Functionality |
+| **Device ID** | No (not linked) | No | App Functionality |
 | **Photos** (palm image) | No (not linked) | No | App Functionality |
+| **Coarse Location** | No (not linked) | No | Product Personalization, App Functionality |
+| **Other User Content** (optional question/profile context) | No (not linked) | No | Product Personalization, App Functionality |
+| **Other Data Types** (reading preferences/context) | No (not linked) | No | Product Personalization, App Functionality |
 
 ### Data types NOT collected (declare these as "No")
 
 - Contact Info (name, email, phone, address, other user contact info)
 - Health & Fitness
 - Financial Info
-- Location (precise or coarse) — PalmAura asks for an optional textual region but never device GPS
+- Precise Location — PalmAura never requests iOS GPS/Location permission
 - Sensitive Info
 - Contacts
-- User Content other than photos
 - Search History
 - Browsing History
 - Identifiers other than Device ID
 - Purchases
 - Audio Data
 - Customer Support
-- Other Data Types
+- Product Interaction
+- Crash Data
+- Performance Data
 
 ### Critical sub-questions
 
-- **Photos** ▸ "Are photos linked to the user's identity?" → **No.** PalmAura has no user identity. Photos are bound to a device-generated ID only.
+- **Photos** ▸ "Are photos linked to the user's identity?" → **No.** PalmAura has no account system or user identity. Photos are associated only with the device/session needed to generate the reading.
 - **Photos** ▸ "Are photos used for tracking?" → **No.**
 - **Photos** ▸ "Used for ad targeting?" → **No.**
-- **Photos** ▸ "Used for product personalization?" → **No** for 0.1.0. (Reconsider if you ever pin readings to a saved profile vector.)
+- **Coarse Location** ▸ **Yes, collected** if Cloudflare edge context is available; **not precise GPS** and **not linked**.
+- **Other User Content** ▸ the optional per-reading question and profile context are sent to shape the generated reading; **not linked** and **not tracking**.
+- **Product Interaction / Crash Data / Performance Data** → **No** for 0.1.0 because no production analytics or crash SDK ships.
 - **Tracking** declaration → **No.** PalmAura does not call `ATTrackingManager.requestTrackingAuthorization` and ships no IDFA-using SDKs.
 
 ### Privacy summary preview
 
-After filling the questionnaire, App Store Connect will produce a preview. It should read:
+After filling the questionnaire, App Store Connect should show all declared categories under:
 
 > **Data Not Linked to You**
-> The following data may be collected but it is not linked to your identity:
-> Identifiers · Usage Data · Diagnostics · User Content
 
-If anything appears under "Data Linked to You", **stop and recheck** — that would mean we accidentally said something is linked to identity, which isn't true for 0.1.0.
+Expected category families: Identifiers, User Content, Location, and Other Data. If anything appears under "Data Linked to You" or "Data Used to Track You", **stop and recheck** — that would mean the questionnaire no longer matches the 0.1.0 app.
 
 ---
 
@@ -337,7 +338,7 @@ PalmAura is a symbolic palm-reading app framed entirely as entertainment and sel
 
 How to test:
 1. Launch the app. Tap "I understand — begin" on the disclaimer.
-2. Complete the 3 onboarding questions (birthday, energy, dominant hand). Use any values — they only personalize copy.
+2. Complete onboarding: birthday, gender, dominant hand, and optional location/place text. Use any values — they personalize wording only. PalmAura never asks for iOS Location permission; coarse city/region/timezone may be inferred from Cloudflare edge context if available.
 3. Tap "Ask the Palm" on the home screen.
 4. Choose a focus chip (e.g. "Heart") and optionally type a question.
 5. Tap "Take Photo" — point the simulator camera at the included sample palm image, or use any palm-like photo from the simulator's photo library via the "Choose from Library" option.
@@ -345,9 +346,9 @@ How to test:
 7. The reading view includes 7 chapters (heart/head/life/fate lines, current season, guidance, ritual) and a palm-map keepsake. Tap "Share this reading" to see the share card and Save-to-Photos flow.
 8. Settings ▸ Library of readings shows the on-device history (saved locally only — never uploaded).
 
-Privacy: PalmAura does not require an account, does not sell data, does not track across apps, and does not request location or contacts. The only network call is a single POST to https://palmaura.app/api/read which sends the palm image to our Cloudflare Worker for processing. Photos are not retained server-side after the reading is generated.
+Privacy: PalmAura does not require an account, does not sell data, does not track across apps, and does not request GPS Location, Contacts, Health, Calendar, or microphone access. Reading generation sends the palm image, optional question, onboarding context, and coarse edge/timezone context to https://palmaura.app/api/read for processing. PalmAura does not retain palm photos server-side after generation.
 
-Rate limit: 3 readings per device per day. After the third, the API returns a friendly "rest" message — please test this if needed.
+Rate limit: the public launch limit is 3 reading attempts per device per day. If you need more attempts during review, contact hello@palmaura.app and we will assist immediately.
 
 Disclaimer placement: see the disclaimer screen (first launch), the entertainment disclaimer footer at the bottom of every reading, and the "FOR ENTERTAINMENT ONLY" line on every share card.
 ```
@@ -381,8 +382,8 @@ Run before tapping **Submit for Review**.
   - [ ] `NSPhotoLibraryUsageDescription`
   - [ ] `NSPhotoLibraryAddUsageDescription`
   - [ ] `ITSAppUsesNonExemptEncryption = false`
-- [ ] Privacy policy URL returns 200: `curl -I https://palmaura.app/privacy.html`
-- [ ] Support URL returns 200
+- [ ] Privacy policy URL returns 200 and contains the current app data-flow language: `curl -L https://palmaura.app/privacy.html`
+- [ ] Support URL returns 200 and contains a real support page, not the homepage
 - [ ] App Privacy questionnaire submitted and matches Section 4 above
 - [ ] Age Rating questionnaire submitted with 12+ outcome
 - [ ] All required screenshot slots filled (minimum 3 at 6.7" iPhone size)
@@ -411,7 +412,6 @@ Expected: matches **only** in `copy-guardrails.md`, `BrandConfig.entertainmentDi
 ### Nice-to-have
 
 - [ ] At least one internal TestFlight tester has used the app on their own device within the last 7 days
-- [ ] Latest 25 analytics events reviewed for any `reading_failed` / `share_save_failed` clusters
 - [ ] Cloudflare Worker rate-limit and rejection flows verified live (see `phone-testflight-handoff.md`)
 
 ---
@@ -438,7 +438,6 @@ If rejected, **do not** argue with App Review on first contact. Read the rejecti
 
 - [ ] App is marked "Available" in App Store Connect (not in Hold for Developer Release)
 - [ ] Cloudflare Worker rate limit dashboard open in another tab; watch for unexpected spikes
-- [ ] Analytics events flowing (run app from a device that's never opened it, confirm `app_opened` fires)
 - [ ] `palmaura.app` homepage shows the App Store badge / link
 - [ ] `palmaura.app/privacy.html` reachable
 - [ ] `hello@palmaura.app` inbox checked

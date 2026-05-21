@@ -146,7 +146,7 @@ const ReadingSchema = z.object({
 type ReadingRequest = z.infer<typeof RequestSchema>;
 type Reading = z.infer<typeof ReadingSchema>;
 
-const DAILY_SCAN_LIMIT = 100;
+const DAILY_SCAN_LIMIT = 3;
 
 const TOOL = {
   name: 'return_reading',
