@@ -160,19 +160,32 @@ enum ReadingHistoryStore {
     static func migrateFromLastReadingIfNeeded() {
         let defaults = UserDefaults.standard
         guard !defaults.bool(forKey: migrationKey) else { return }
-        // Mark the migration complete unconditionally — even if the user
-        // had no legacy data, we don't want to keep checking.
-        defer { defaults.set(true, forKey: migrationKey) }
 
-        guard let data = defaults.data(forKey: legacyKey),
-              let reading = try? JSONDecoder().decode(PalmReadingResponse.self, from: data) else {
+        guard let data = defaults.data(forKey: legacyKey) else {
+            // No legacy data exists, so this one-time migration can be
+            // marked complete and skipped on future launches.
+            defaults.set(true, forKey: migrationKey)
             return
         }
-        // Don't overwrite a same-id reading that's already in the new
-        // store (extremely unlikely, but cheap to guard against).
-        if load(readingId: reading.readingId) == nil {
-            save(reading)
+
+        guard let reading = try? JSONDecoder().decode(PalmReadingResponse.self, from: data) else {
+            // The legacy key is present but not readable as a saved reading.
+            // Mark complete so app launch doesn't retry forever, but keep
+            // the raw key for any future forensic/manual recovery.
+            defaults.set(true, forKey: migrationKey)
+            return
         }
+
+        // Don't overwrite a same-id reading that's already in the new
+        // store (extremely unlikely, but cheap to guard against). If the
+        // new store write fails, do not mark migration complete or delete
+        // the only legacy copy — otherwise a transient disk/full permission
+        // error would permanently lose the user's latest reading.
+        if load(readingId: reading.readingId) == nil, !save(reading) {
+            return
+        }
+
         defaults.removeObject(forKey: legacyKey)
+        defaults.set(true, forKey: migrationKey)
     }
 }

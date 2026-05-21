@@ -184,6 +184,29 @@ final class ReadingHistoryStoreTests: XCTestCase {
         XCTAssertTrue(UserDefaults.standard.bool(forKey: migrationKey))
     }
 
+    func testMigrationKeepsLegacyDataWhenNewStoreWriteFails() throws {
+        let legacy = makeReading(id: "legacy-fail", createdAt: "2026-05-10T00:00:00Z")
+        let data = try JSONEncoder().encode(legacy)
+        UserDefaults.standard.set(data, forKey: legacyKey)
+
+        // Force `ReadingHistoryStore.save(_:)` to fail by occupying the
+        // exact destination path with a directory. The migration should not
+        // mark itself complete or clear the only legacy copy when this
+        // transient filesystem write fails.
+        let applicationSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+        let blockingPath = applicationSupport
+            .appendingPathComponent("Readings", isDirectory: true)
+            .appendingPathComponent("legacy-fail")
+            .appendingPathExtension("json")
+        try FileManager.default.createDirectory(at: blockingPath, withIntermediateDirectories: true)
+
+        ReadingHistoryStore.migrateFromLastReadingIfNeeded()
+
+        XCTAssertFalse(UserDefaults.standard.bool(forKey: migrationKey))
+        XCTAssertNotNil(UserDefaults.standard.data(forKey: legacyKey))
+        XCTAssertNil(ReadingHistoryStore.load(readingId: "legacy-fail"))
+    }
+
     // MARK: - Helpers
 
     private func makeReading(id: String, createdAt: String) -> PalmReadingResponse {
