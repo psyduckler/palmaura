@@ -238,7 +238,7 @@ private final class PalmCameraController: NSObject, ObservableObject {
 
     let session = AVCaptureSession()
 
-    private let sessionQueue = DispatchQueue(label: "com.zonted.palmaura.camera.session")
+    private let sessionQueue = DispatchQueue(label: "app.palmaura.camera.session")
     private let photoOutput = AVCapturePhotoOutput()
     private var isConfigured = false
 

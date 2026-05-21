@@ -20,7 +20,7 @@ Settings ▸ App Information in App Store Connect.
 | **Subtitle** (30 char max) | `Palm reading for entertainment` (30) |
 | **Primary Category** | Entertainment |
 | **Secondary Category** | Lifestyle |
-| **Bundle ID** | `com.zonted.palmaura` |
+| **Bundle ID** | `app.palmaura` |
 | **SKU** | `palmaura-ios-001` |
 | **Content Rights** | Does not contain, show, or access third-party content |
 
@@ -253,7 +253,7 @@ open -a Simulator
   -destination 'platform=iOS Simulator,name=iPhone 17 Pro Max' \
   -configuration Release build
 xcrun simctl install booted /path/to/PalmAura.app
-xcrun simctl launch booted com.zonted.palmaura
+xcrun simctl launch booted app.palmaura
 
 # Capture: drive the app to each hero screen, then snap
 xcrun simctl io booted screenshot ~/Desktop/palmaura-screen-01-home.png
