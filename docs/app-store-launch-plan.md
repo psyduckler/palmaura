@@ -44,7 +44,7 @@ https://palmaura.app
 https://palmaura.app/support.html
 ```
 
-If `support.html` does not yet exist, point Support URL at `https://palmaura.app` and add a `mailto:support@palmaura.app` link there. Apple rejects submissions whose Support URL 404s.
+If `support.html` does not yet exist, point Support URL at `https://palmaura.app` and add a `mailto:hello@palmaura.app` link there. Apple rejects submissions whose Support URL 404s.
 
 ---
 
@@ -102,7 +102,7 @@ PalmAura readings are symbolic entertainment and self-reflection only. They are 
 
 QUESTIONS
 
-Support: support@palmaura.app
+Support: hello@palmaura.app
 Web: palmaura.app
 ```
 
@@ -129,7 +129,7 @@ This first release brings:
 • A library of your past readings
 • Beautiful 9:16 share cards you can save or send
 
-We'd love your feedback: support@palmaura.app.
+We'd love your feedback: hello@palmaura.app.
 ```
 
 For **subsequent maintenance releases**, follow this template:
@@ -326,7 +326,7 @@ Leave blank.
 | **First name** | Bernard |
 | **Last name** | Huang |
 | **Phone number** | _(your contact phone)_ |
-| **Email address** | support@palmaura.app |
+| **Email address** | hello@palmaura.app |
 
 ### Notes for the Apple reviewer
 
@@ -376,7 +376,7 @@ Run before tapping **Submit for Review**.
 
 ### Blocking
 
-- [ ] All 5 required Info.plist usage descriptions present (PR #16):
+- [ ] Required Info.plist privacy/export-compliance keys present:
   - [ ] `NSCameraUsageDescription`
   - [ ] `NSPhotoLibraryUsageDescription`
   - [ ] `NSPhotoLibraryAddUsageDescription`
@@ -441,7 +441,7 @@ If rejected, **do not** argue with App Review on first contact. Read the rejecti
 - [ ] Analytics events flowing (run app from a device that's never opened it, confirm `app_opened` fires)
 - [ ] `palmaura.app` homepage shows the App Store badge / link
 - [ ] `palmaura.app/privacy.html` reachable
-- [ ] `support@palmaura.app` inbox checked
+- [ ] `hello@palmaura.app` inbox checked
 - [ ] First 24h: respond to any 1-star review within 2 hours (Apple weights early reviews heavily)
 
 ---
