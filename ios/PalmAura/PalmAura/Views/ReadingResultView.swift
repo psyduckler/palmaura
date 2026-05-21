@@ -3,6 +3,7 @@ import SwiftUI
 struct ReadingResultView: View {
     let reading: PalmReadingResponse
     let bundle: ReadingBundle?
+    @State private var showShareSheet = false
 
     init(reading: PalmReadingResponse) {
         self.reading = reading
@@ -85,6 +86,25 @@ struct ReadingResultView: View {
                         }
                         .buttonStyle(.plain)
                         .padding(.top, 8)
+                        Button {
+                            showShareSheet = true
+                        } label: {
+                            HStack(spacing: 8) {
+                                Image(systemName: "square.and.arrow.up")
+                                    .font(.system(size: 13, weight: .semibold))
+                                Text("Share this reading")
+                                    .font(DesignSystem.FontToken.caps(10))
+                                    .tracking(3)
+                                    .textCase(.uppercase)
+                            }
+                            .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.86))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                            .padding(.horizontal, 18)
+                            .overlay(Capsule().stroke(DesignSystem.ColorToken.goldCream.opacity(0.35), lineWidth: 1))
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Share this reading")
                     }
                     .padding(.top, 14)
                 }
@@ -94,6 +114,9 @@ struct ReadingResultView: View {
         .navigationBarBackButtonHidden(true)
         .swipeBackEnabled()
         .onAppear { UINotificationFeedbackGenerator().notificationOccurred(.success) }
+        .sheet(isPresented: $showShareSheet) {
+            ShareOptionsSheet(reading: reading)
+        }
     }
 
     private var directAnswerTitle: String {
