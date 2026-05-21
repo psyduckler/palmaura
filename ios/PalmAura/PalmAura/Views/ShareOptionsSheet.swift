@@ -188,12 +188,7 @@ struct ShareOptionsSheet: View {
 
     private func presentSystemShare() {
         guard let renderedImage else { return }
-        // Wrap both image and a URL so users get a richer share menu — the
-        // image alone for camera-roll / messaging / IG, the URL for SMS /
-        // mail / Twitter posts where text + link is the norm.
-        var items: [Any] = [renderedImage]
-        if let url = URL(string: BrandConfig.websiteURL) { items.append(url) }
-        systemSharePresentation = ShareItemsWrapper(items: items)
+        systemSharePresentation = ShareItemsWrapper(items: ShareReportPayload.activityItems(image: renderedImage, reading: reading))
         Analytics.shared.track("share_initiated", properties: ["reading": reading.readingId])
     }
 

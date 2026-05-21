@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		030D46DF6271BAA4DF23851B /* ImagePreprocessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41EDB47AB8DE4AE6BDE1794A /* ImagePreprocessorTests.swift */; };
+		060D8ED224700A0631F51B57 /* ShareReportPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA36F9152095DE093B0C844F /* ShareReportPayload.swift */; };
 		07A83962107C25616D3BE37E /* Analytics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95FA5568901DC7C8816D062D /* Analytics.swift */; };
 		07F2BE08C847A3ADDFE6E6DA /* MysticProfileDescriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A66A0A30036F2FB6A4FD7E7A /* MysticProfileDescriptor.swift */; };
 		08667B571912BDFD50085CF2 /* ContractEncodingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79E369BE5EFD310427760B72 /* ContractEncodingTests.swift */; };
@@ -21,6 +22,7 @@
 		34A3268B240FAD0478B8E003 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1720F2B3C55DB463CFA88037 /* OnboardingView.swift */; };
 		3D45B7B1F05F43D3E108A302 /* PalmCaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DDCED82A71521A213F06E6 /* PalmCaptureView.swift */; };
 		41CEBCA976CE95ECF50C237A /* ReadingResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A41B56D51D9821A8B4B23968 /* ReadingResultView.swift */; };
+		4C8C8C761ECE986FF799E242 /* ShareReportPayloadTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6C4A59DCEC53DECE2F47641 /* ShareReportPayloadTests.swift */; };
 		4CD63657758C124662FC3CFE /* SafariView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F13F64552D9CEC21942FCD75 /* SafariView.swift */; };
 		54991A7A5353D816A69D7DEA /* AppOpeningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1953DFB6C4E9688173108D85 /* AppOpeningView.swift */; };
 		58AEBFB6B73A5463441B644B /* ReadingBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = A861D489AE5C296722AFCB36 /* ReadingBundle.swift */; };
@@ -122,7 +124,9 @@
 		AF459A5F9333106CA5AF9CC2 /* Caveat.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Caveat.ttf; sourceTree = "<group>"; };
 		AFEB3CB059CC4EBA570D575F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		C6BF4B44BF3896F04E926637 /* NavigationCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationCoordinatorTests.swift; sourceTree = "<group>"; };
+		C6C4A59DCEC53DECE2F47641 /* ShareReportPayloadTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareReportPayloadTests.swift; sourceTree = "<group>"; };
 		C9714C26B40A6B6032E21320 /* ReadingHistoryStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingHistoryStoreTests.swift; sourceTree = "<group>"; };
+		CA36F9152095DE093B0C844F /* ShareReportPayload.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareReportPayload.swift; sourceTree = "<group>"; };
 		CCD3B2E2F368F488CA858B59 /* EBGaramond-Italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "EBGaramond-Italic.ttf"; sourceTree = "<group>"; };
 		CF5515FDAB1E983707B4048E /* mystical-loading-phrases.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "mystical-loading-phrases.json"; sourceTree = "<group>"; };
 		D5529B6060B0A6F65C79536A /* PalmCanvasView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PalmCanvasView.swift; sourceTree = "<group>"; };
@@ -164,6 +168,7 @@
 				A8F12EF70C3329DD05F7A2BF /* PalmReadingResponseTests.swift */,
 				C9714C26B40A6B6032E21320 /* ReadingHistoryStoreTests.swift */,
 				1FF2E1CEBD10AC6339C86269 /* ReadingTimestampFormatterTests.swift */,
+				C6C4A59DCEC53DECE2F47641 /* ShareReportPayloadTests.swift */,
 			);
 			path = PalmAuraTests;
 			sourceTree = "<group>";
@@ -276,6 +281,7 @@
 				FABCD888475E0BB7F499D2A5 /* ReadingAPIClient.swift */,
 				793D09B97E76E9DB3972248D /* ReadingHistoryStore.swift */,
 				5FFEF4A235A1EC34F6E0E966 /* ShareCardRenderer.swift */,
+				CA36F9152095DE093B0C844F /* ShareReportPayload.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -389,6 +395,7 @@
 				E3D09EC24C2B30CFC8E50737 /* PalmReadingResponseTests.swift in Sources */,
 				62B00FA68565797D1F08AE44 /* ReadingHistoryStoreTests.swift in Sources */,
 				8B99077D41C2EC0D4AB52F06 /* ReadingTimestampFormatterTests.swift in Sources */,
+				4C8C8C761ECE986FF799E242 /* ShareReportPayloadTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -435,6 +442,7 @@
 				720AB8F41FFB22399CC37088 /* ShareCardRenderer.swift in Sources */,
 				2D69682D5DBD29FC8DE17C3E /* ShareCardView.swift in Sources */,
 				2D217A09A92BB28AB083D748 /* ShareOptionsSheet.swift in Sources */,
+				060D8ED224700A0631F51B57 /* ShareReportPayload.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
