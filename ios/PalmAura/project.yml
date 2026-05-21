@@ -30,6 +30,14 @@ targets:
           - UIInterfaceOrientationPortrait
         NSCameraUsageDescription: PalmAura uses your camera to capture your palm for an entertainment-only reading.
         NSPhotoLibraryUsageDescription: PalmAura uses your photo library to choose a palm photo for an entertainment-only reading.
+        # Required to call UIImageWriteToSavedPhotosAlbum when the user
+        # taps "Save to Photos" on the share card. Without this key iOS
+        # will crash the app on the save call.
+        NSPhotoLibraryAddUsageDescription: PalmAura saves your aura share card to your photo library when you choose Save.
+        # Declares the app uses only standard/exempt encryption (HTTPS via
+        # URLSession). Skips the export-compliance prompt on every
+        # TestFlight upload — required for smooth release-train velocity.
+        ITSAppUsesNonExemptEncryption: false
         UIAppFonts:
           - CormorantGaramond.ttf
           - CormorantGaramond-Italic.ttf

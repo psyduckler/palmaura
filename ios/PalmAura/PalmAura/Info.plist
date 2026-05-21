@@ -20,8 +20,12 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>NSCameraUsageDescription</key>
 	<string>PalmAura uses your camera to capture your palm for an entertainment-only reading.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>PalmAura saves your aura share card to your photo library when you choose Save.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>PalmAura uses your photo library to choose a palm photo for an entertainment-only reading.</string>
 	<key>UIAppFonts</key>
