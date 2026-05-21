@@ -141,6 +141,11 @@
     font-family:"Cormorant Garamond", Georgia, serif; font-size:24px; box-shadow:0 0 22px rgba(243,221,168,.24);
   }
   .choice, .row { display:flex; align-items:center; gap:12px; padding:12px; border-radius:18px; background:rgba(243,221,168,.055); border:1px solid rgba(243,221,168,.2); }
+  .settings-list { border-radius:18px; overflow:hidden; background:rgba(243,221,168,.055); border:1px solid rgba(243,221,168,.18); }
+  .settings-row { display:flex; align-items:center; gap:12px; padding:12px; min-height:54px; }
+  .settings-row b { display:block; font-family:"Cormorant Garamond", Georgia, serif; font-size:17px; font-weight:500; color:var(--gold-soft); }
+  .settings-row small { color:var(--text2); font-size:12px; margin-left:auto; text-align:right; }
+  .settings-divider { height:1px; margin-left:54px; background:rgba(243,221,168,.10); }
   .choice.selected { background:rgba(243,221,168,.1); border-color:rgba(243,221,168,.55); }
   .choice-text b, .row b { display:block; font-family:"Cormorant Garamond", Georgia, serif; font-size:18px; font-weight:500; color:var(--gold-soft); }
   .choice-text small, .row small { color:var(--text2); font-size:13px; }
@@ -206,7 +211,7 @@
         <h1>Native iOS flow, <em>mirrored in HTML.</em></h1>
         <p>This board is rebuilt from the current SwiftUI screens after the reading-focus polish, full-photo review pass, and resilient OrbitLoader animation fix. It keeps the same dark celestial shell, gold typography, rounded cards, camera-in-frame capture step without a left/right hand silhouette, clean palm map, reveal ceremony, and full report structure.</p>
         <div class="meta">
-          <span class="pill">Source: PalmAura main · eb385e1</span>
+          <span class="pill">Source: PalmAura main · updated capture/settings UX</span>
           <span class="pill">Backend: https://palmaura.app/api/read</span>
           <span class="pill">Persistent home/settings nav · no capture hand silhouette</span>
           <span class="pill">Static review artifact · open locally</span>
@@ -266,26 +271,25 @@
       <div class="phone-wrap"><div class="label"><b>05 · Reading focus</b><span>ReadingQuestionView</span></div><div class="phone"><div class="screen"><div class="content">
         <div class="status"><span>9:41</span><span>●●●</span></div><div class="header"><div class="nav-icon">⌂</div><div class="brand">PalmAura <span class="brand-moon">☽<small>WAX</small></span></div><div class="nav-icon">⚙</div></div><div class="subhead">‹ Back</div>
         <div class="center"><div class="display sm" style="margin-top:8px">What should the palm<br><span class="gold"><em>look into?</em></span></div><p class="body">One question for this moment. Your birthday, gender, and dominant hand stay in your saved profile.</p></div>
-        <div class="two-col" style="margin-top:14px"><div class="small-card"><b>♀</b><br><small>Relationship</small></div><div class="small-card"><b>♄</b><br><small>Career</small></div><div class="small-card"><b>♃</b><br><small>Money</small></div><div class="small-card"><b>☽</b><br><small>Family</small></div><div class="small-card"><b>✦</b><br><small>The Path</small></div><div class="small-card" style="background:rgba(243,221,168,.92);color:var(--sky-deep)"><b>✎</b><br><small>Bespoke</small></div></div>
-        <div class="panel" style="margin-top:12px"><div style="display:flex;align-items:flex-start;gap:10px"><b style="font-size:18px">✎</b><div style="flex:1"><div class="caps" style="font-size:8px">Bespoke question</div><p class="body" style="margin:8px 0 0;font-size:15px;color:var(--text)">What specific question should this reading answer?</p></div><span style="color:var(--text2)">200</span></div></div>
+        <div class="two-col" style="margin-top:14px"><div class="small-card"><b>♀</b><br><small>Relationship</small></div><div class="small-card"><b>♄</b><br><small>Career</small></div><div class="small-card"><b>♃</b><br><small>Money</small></div><div class="small-card"><b>☽</b><br><small>Family</small></div><div class="small-card"><b>✦</b><br><small>The Path</small></div><div class="small-card" style="background:rgba(243,221,168,.92);color:var(--sky-deep)"><b>✦</b><br><small>Bespoke</small></div></div>
+        <div class="panel" style="margin-top:12px"><div style="display:flex;align-items:flex-start;gap:10px"><b style="font-size:18px">✦</b><div style="flex:1"><div class="caps" style="font-size:8px">Bespoke question</div><p class="body" style="margin:8px 0 0;font-size:15px;color:var(--text)">What specific question should this reading answer?</p></div><span style="color:var(--text2)">200</span></div></div>
         <div class="chip" style="margin-top:10px;justify-content:flex-start;white-space:normal;line-height:1.3">✦ This question travels with the next reading only. It is not saved to your profile.</div>
         <div class="spacer"></div><button class="button">Open My Palm&nbsp; ›</button>
       </div></div></div></div>
 
       <div class="phone-wrap"><div class="label"><b>06 · Capture</b><span>Camera opens in box · no hand overlay</span></div><div class="phone"><div class="screen"><div class="content">
         <div class="status"><span>9:41</span><span>●●●</span></div><div class="header"><div class="nav-icon">⌂</div><div class="brand">PalmAura <span class="brand-moon">☽<small>WAX</small></span></div><div class="nav-icon">⚙</div></div><div class="subhead">Capture · Your Palm</div>
-        <div><div class="display sm">Lay your hand<br><span class="gold"><em>open.</em></span></div><p class="body">Fingers gently spread. Soft, even light. Hand fills the frame.</p></div>
+        <div class="center"><div class="display sm">Lay your hand<br><span class="gold"><em>open.</em></span></div><p class="body">Fingers gently spread. Soft, even light. Hand fills the frame.</p></div>
         <div class="capture-box" style="margin-top:18px"><div class="camera-feed"></div><i class="ticks tl"></i><i class="ticks tr"></i><i class="ticks bl"></i><i class="ticks br"></i><div class="chip capture-chip">Live · Open Palm</div></div>
-        <div class="spacer"></div><button class="button">Take Photo</button><button class="button ghost" style="margin-top:10px">▢ Choose From Library</button>
+        <div class="spacer"></div><button class="button">Take Photo</button>
       </div></div></div></div>
 
       <div class="phone-wrap"><div class="label"><b>07 · Review photo</b><span>PalmReviewView</span></div><div class="phone"><div class="screen"><div class="content">
         <div class="status"><span>9:41</span><span>●●●</span></div><div class="header"><div class="nav-icon">⌂</div><div class="brand">PalmAura <span class="brand-moon">☽<small>WAX</small></span></div><div class="nav-icon">⚙</div></div><div class="subhead">Review</div>
         <div class="center"><div class="display sm">Is this your<br><span class="gold"><em>hand?</em></span></div><p class="body">We'll only read what we can see clearly.</p></div>
         <div class="photo" style="margin-top:18px;height:360px"><div class="palm-photo"></div><div class="chip" style="position:absolute;left:50%;bottom:14px;transform:translateX(-50%);z-index:2;white-space:nowrap">✦ Your palm fills the frame.</div></div>
-        <button class="button ghost" style="margin-top:12px">Take Another Photo</button>
-        <div class="chip" style="margin-top:14px;justify-content:flex-start;white-space:normal;line-height:1.3">✦ What should I understand about this relationship?</div>
-        <div class="spacer"></div><button class="button">Read My Palm&nbsp; ›</button>
+        <button class="button" style="margin-top:14px">Read My Palm&nbsp; ›</button>
+        <button class="button ghost" style="margin-top:10px">Take Another Photo</button>
       </div></div></div></div>
 
       <div class="phone-wrap"><div class="label"><b>08 · Loading</b><span>LoadingReadingView · OrbitLoader</span></div><div class="phone"><div class="screen"><div class="content center">
@@ -330,15 +334,16 @@
         <div class="chapter"><div class="chapter-head"><span class="mini-glyph">♥</span><span class="caps">Heart Line</span></div><p class="body">Emotional generosity needs a clearer container.</p></div>
       </div></div></div></div>
 
-      <div class="phone-wrap"><div class="label"><b>14 · Settings</b><span>SettingsView</span></div><div class="phone"><div class="screen"><div class="content">
+      <div class="phone-wrap"><div class="label"><b>14 · Settings</b><span>SettingsView</span></div><div class="phone"><div class="screen scroll"><div class="content">
         <div class="status"><span>9:41</span><span>●●●</span></div><div class="header"><div class="nav-icon">⌂</div><div class="brand">PalmAura <span class="brand-moon">☽<small>WAX</small></span></div><div class="nav-icon">⚙</div></div><div class="subhead">Settings</div>
         <div class="row"><div class="glyph">✦</div><div><b>Seeker</b><small>1 reading · Violet energy</small></div></div>
-        <div class="caps" style="margin:16px 0 6px">Personalization</div><div class="panel" style="padding:0"><div class="row"><span class="mini-glyph">♃</span><b>Birthday</b><small style="margin-left:auto">23 Aug, 1990</small></div><div class="row"><span class="mini-glyph">☉</span><b>Dominant hand</b><small style="margin-left:auto">Right-handed</small></div><div class="row"><span class="mini-glyph">⌖</span><b>Location</b><small style="margin-left:auto">Auto · Austin</small></div></div>
+        <div class="caps" style="margin:16px 0 6px">Personalization</div><div class="settings-list"><div class="settings-row"><span class="mini-glyph">♃</span><b>Birthday</b><small>23 Aug, 1990</small></div><div class="settings-divider"></div><div class="settings-row"><span class="mini-glyph">✦</span><b>Energy</b><small>Non-binary</small></div><div class="settings-divider"></div><div class="settings-row"><span class="mini-glyph">☉</span><b>Dominant hand</b><small>Ambidextrous</small></div><div class="settings-divider"></div><div class="settings-row"><span class="mini-glyph">⌖</span><b>Location</b><small>Auto · America/Chicago</small></div><div class="settings-row"><span class="mini-glyph">☽</span><b>Edit profile</b><small>›</small></div></div>
+        <div class="caps" style="margin:14px 0 6px">Account</div><div class="settings-list"><div class="settings-row"><span class="mini-glyph">♃</span><b>Membership</b><small>Lifetime</small></div><div class="settings-row"><span class="mini-glyph">✉</span><b>Support</b><small>›</small></div><div class="settings-divider"></div><div class="settings-row"><span class="mini-glyph">♄</span><b>Privacy &amp; terms</b><small>›</small></div></div>
         <div class="spacer"></div><button class="button ghost">Clear Reading History</button>
       </div></div></div></div>
 
       <div class="phone-wrap"><div class="label"><b>15 · Rejection/error</b><span>Bad image / not palm</span></div><div class="phone"><div class="screen"><div class="content center">
-        <div class="status"><span>9:41</span><span>●●●</span></div><div class="spacer"></div><div class="loader" style="height:250px"></div><p class="body" style="font-size:18px;color:var(--text)">The oracle needs a clearer palm.</p><p class="body">Try again with your open hand filling the frame, fingers gently spread, and softer light.</p><button class="button" style="margin-top:14px">Try Again&nbsp; ›</button><div class="spacer"></div>
+        <div class="status"><span>9:41</span><span>●●●</span></div><div class="spacer"></div><div class="loader" style="height:250px"></div><p class="body" style="font-size:18px;color:var(--text)">The oracle needs a clearer palm.</p><p class="body">Try again with your open hand filling the frame, fingers gently spread, and softer light.</p><button class="button" style="margin-top:14px">Try Again&nbsp; ›</button><button class="button ghost" style="margin-top:10px">Take Another Photo</button><div class="spacer"></div>
       </div></div></div></div>
     </section>
 

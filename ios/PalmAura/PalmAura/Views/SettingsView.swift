@@ -18,14 +18,18 @@ struct SettingsView: View {
                     profileCard
                     section(title: "PERSONALIZATION") {
                         row(glyph: "♃", label: "Birthday",       detail: birthdayDetail)
+                        rowDivider
                         row(glyph: "✦", label: "Energy",         detail: personalization.gender?.displayName ?? "Not set")
+                        rowDivider
                         row(glyph: "☉", label: "Dominant hand",  detail: personalization.handedness?.displayName ?? "Not set")
+                        rowDivider
                         row(glyph: "⌖", label: "Location",       detail: locationDetail)
                         navRow(glyph: "☽", label: "Edit profile") { showEditProfile = true }
                     }
                     section(title: "ACCOUNT") {
                         row(glyph: "♃", label: "Membership", detail: "Lifetime")
                         linkRow(glyph: "✉", label: "Support", url: URL(string: "mailto:support@palmaura.app")!)
+                        rowDivider
                         navRow(glyph: "♄", label: "Privacy & terms") { showPrivacySheet = true }
                     }
 
@@ -203,7 +207,13 @@ struct SettingsView: View {
         }
         .padding(.vertical, 12)
         .padding(.horizontal, 14)
-        .overlay(Divider().background(DesignSystem.ColorToken.goldCream.opacity(0.1)), alignment: .bottom)
+    }
+
+    private var rowDivider: some View {
+        Rectangle()
+            .fill(DesignSystem.ColorToken.goldCream.opacity(0.10))
+            .frame(height: 0.5)
+            .padding(.leading, 58)
     }
 
     private var chevron: some View {

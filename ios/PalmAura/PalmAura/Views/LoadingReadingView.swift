@@ -5,6 +5,8 @@ struct LoadingReadingView: View {
     let pendingPhotoKey: String
     let pendingPhotoURL: URL?
     let onboardingAnswers: OnboardingAnswers
+    var onTakeAnotherPhoto: (() -> Void)? = nil
+    @Environment(\.dismiss) private var dismiss
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var phraseIndex = 0
     @State private var bundle: ReadingBundle?
@@ -58,6 +60,10 @@ struct LoadingReadingView: View {
                             .padding(.horizontal, DesignSystem.Spacing.lg)
                         GoldButton(title: "Try Again  ›") { Task { await generate(allowRetry: true) } }
                             .padding(.horizontal, DesignSystem.Spacing.lg)
+                        GhostButton(title: "Take Another Photo") {
+                            takeAnotherPhoto()
+                        }
+                        .padding(.horizontal, DesignSystem.Spacing.lg)
                     }
                 }
                 .padding(24)
@@ -128,6 +134,13 @@ struct LoadingReadingView: View {
                 Analytics.shared.track("reading_failed")
                 errorMessage = error.localizedDescription
             }
+        }
+    }
+
+    private func takeAnotherPhoto() {
+        dismiss()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+            onTakeAnotherPhoto?()
         }
     }
 

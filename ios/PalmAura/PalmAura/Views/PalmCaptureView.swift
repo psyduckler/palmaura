@@ -15,7 +15,7 @@ struct PalmCaptureView: View {
             VStack(spacing: 0) {
                 ScreenHeader(eyebrow: "Capture · Your Palm", back: true)
 
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .center, spacing: 8) {
                     Text("Lay your hand")
                         .font(DesignSystem.FontToken.display(36))
                         .foregroundStyle(DesignSystem.ColorToken.textPrimary)
@@ -25,10 +25,11 @@ struct PalmCaptureView: View {
                     Text("Fingers gently spread. Soft, even light. Hand fills the frame.")
                         .font(DesignSystem.FontToken.body(15, italic: true))
                         .foregroundStyle(DesignSystem.ColorToken.textSecondary)
+                        .multilineTextAlignment(.center)
                         .lineSpacing(2)
                         .padding(.top, 2)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(maxWidth: .infinity, alignment: .center)
                 .padding(.horizontal, DesignSystem.Spacing.lg)
                 .padding(.top, 8)
                 .padding(.bottom, 18)
@@ -143,20 +144,22 @@ struct PalmCaptureView: View {
             .disabled(!camera.primaryActionEnabled)
             .opacity(camera.primaryActionEnabled ? 1 : 0.5)
 
-            PhotosPicker(selection: $selectedItem, matching: .images) {
-                HStack(spacing: 8) {
-                    Text("❑").font(DesignSystem.FontToken.display(15))
-                    Text("Choose From Library")
-                        .font(DesignSystem.FontToken.caps(10))
-                        .tracking(3)
-                        .textCase(.uppercase)
+            if camera.showsLibraryFallback {
+                PhotosPicker(selection: $selectedItem, matching: .images) {
+                    HStack(spacing: 8) {
+                        Text("❑").font(DesignSystem.FontToken.display(15))
+                        Text("Choose From Library")
+                            .font(DesignSystem.FontToken.caps(10))
+                            .tracking(3)
+                            .textCase(.uppercase)
+                    }
+                    .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.86))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .overlay(Capsule().stroke(DesignSystem.ColorToken.goldCream.opacity(0.35), lineWidth: 1))
                 }
-                .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.86))
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 12)
-                .overlay(Capsule().stroke(DesignSystem.ColorToken.goldCream.opacity(0.35), lineWidth: 1))
+                .buttonStyle(.plain)
             }
-            .buttonStyle(.plain)
         }
     }
 
@@ -261,6 +264,13 @@ private final class PalmCameraController: NSObject, ObservableObject {
         return false
     }
 
+    /// True when there is no usable camera in the current environment (for
+    /// example the simulator). The library fallback stays hidden during the
+    /// normal live-camera path so capture remains the primary behavior.
+    var showsLibraryFallback: Bool {
+        status == .unavailable
+    }
+
     /// Whether the GoldButton's primary action should be tappable. True when
     /// we can capture a photo OR we can retry from a failure.
     var primaryActionEnabled: Bool {
@@ -317,9 +327,9 @@ private final class PalmCameraController: NSObject, ObservableObject {
         case .idle, .requestingAccess, .configuring:
             "Opening the camera inside this frame…"
         case .denied:
-            "Camera access is off. Enable it in Settings, or choose a palm photo from your library."
+            "Camera access is off. Enable it in Settings to take a palm photo."
         case .unavailable:
-            "Camera is not available here. On an iPhone, this frame becomes the live palm viewfinder."
+            "Camera is not available here. Choose a palm photo from your library instead."
         case .failed(let message):
             message
         case .ready, .capturing:
@@ -344,7 +354,7 @@ private final class PalmCameraController: NSObject, ObservableObject {
         case .denied, .restricted:
             setStatus(.denied)
         @unknown default:
-            setStatus(.failed("Camera permission returned an unknown state. Choose from library for now."))
+            setStatus(.failed("Camera permission returned an unknown state. Try camera again."))
         }
     }
 
@@ -391,7 +401,7 @@ private final class PalmCameraController: NSObject, ObservableObject {
             } catch CameraError.unavailable {
                 self.setStatus(.unavailable)
             } catch {
-                self.setStatus(.failed("Camera could not start. Try again, or choose from library."))
+                self.setStatus(.failed("Camera could not start. Try again."))
             }
         }
     }
@@ -436,7 +446,7 @@ extension PalmCameraController: AVCapturePhotoCaptureDelegate {
         }
 
         guard let data = photo.fileDataRepresentation(), let image = UIImage(data: data) else {
-            setStatus(.failed("Photo capture failed. Try again, or choose from library."))
+            setStatus(.failed("Photo capture failed. Try again."))
             return
         }
 

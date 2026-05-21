@@ -35,21 +35,9 @@ struct PalmReviewView: View {
                     photoCard
                         .padding(.horizontal, DesignSystem.Spacing.lg)
 
-                    GhostButton(title: "Take Another Photo") {
-                        dismiss()
-                    }
-                    .padding(.horizontal, DesignSystem.Spacing.lg)
-                    .padding(.top, 12)
-
-                    if let intent = ReadingSessionIntent(answers: onboardingAnswers) {
-                        intentChip(intent)
-                            .padding(.horizontal, DesignSystem.Spacing.lg)
-                            .padding(.top, 14)
-                    }
-
                     actions
                         .padding(.horizontal, DesignSystem.Spacing.lg)
-                        .padding(.top, 18)
+                        .padding(.top, 14)
                 }
                 .padding(.bottom, 30)
             }
@@ -121,28 +109,16 @@ struct PalmReviewView: View {
         .frame(height: 360)
     }
 
-    private func intentChip(_ intent: ReadingSessionIntent) -> some View {
-        HStack(spacing: 10) {
-            Text("✦")
-                .font(DesignSystem.FontToken.display(16))
-                .foregroundStyle(DesignSystem.ColorToken.goldCream)
-                .accessibilityHidden(true)
-            Text(intent.displaySummary)
-                .font(DesignSystem.FontToken.body(13, italic: true))
-                .foregroundStyle(DesignSystem.ColorToken.textPrimary.opacity(0.9))
-                .lineLimit(2)
-            Spacer(minLength: 0)
-        }
-        .padding(.vertical, 10)
-        .padding(.horizontal, 14)
-        .background(Capsule().fill(DesignSystem.ColorToken.goldCream.opacity(0.08)))
-        .overlay(Capsule().stroke(DesignSystem.ColorToken.goldCream.opacity(0.24), lineWidth: 0.5))
-    }
-
     private var actions: some View {
         VStack(spacing: 12) {
             NavigationLink {
-                LoadingReadingView(imageBase64Jpeg: base64, pendingPhotoKey: pendingPhotoKey, pendingPhotoURL: pendingPhotoURL, onboardingAnswers: onboardingAnswers)
+                LoadingReadingView(
+                    imageBase64Jpeg: base64,
+                    pendingPhotoKey: pendingPhotoKey,
+                    pendingPhotoURL: pendingPhotoURL,
+                    onboardingAnswers: onboardingAnswers,
+                    onTakeAnotherPhoto: { dismiss() }
+                )
             } label: {
                 Text(base64.isEmpty ? "Preparing…" : "Read My Palm  ›")
                     .font(DesignSystem.FontToken.caps(11))
@@ -158,6 +134,9 @@ struct PalmReviewView: View {
             .buttonStyle(.plain)
             .disabled(base64.isEmpty)
 
+            GhostButton(title: "Take Another Photo") {
+                dismiss()
+            }
         }
     }
 }
