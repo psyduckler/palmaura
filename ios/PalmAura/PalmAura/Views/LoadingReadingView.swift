@@ -116,7 +116,7 @@ struct LoadingReadingView: View {
                     }
                     let intent = ReadingSessionIntent(answers: onboardingAnswers)
                     ReadingIntentStore.save(intent, for: response.readingId)
-                    LastReadingStore.save(response)
+                    ReadingHistoryStore.save(response)
                     Analytics.shared.track("reading_completed", properties: [
                         "auraColor": response.auraColor.rawValue,
                         "focus": intent?.focus ?? onboardingAnswers.focus.displayName,
