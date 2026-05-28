@@ -196,7 +196,7 @@ struct ShareCardView: View {
 
     private var footer: some View {
         VStack(spacing: 4) {
-            Text("FOR ENTERTAINMENT ONLY")
+            Text("FOR REFLECTION ONLY")
                 .font(.custom("Cinzel-Regular", size: 8).weight(.semibold))
                 .tracking(2.4)
                 .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.55))
