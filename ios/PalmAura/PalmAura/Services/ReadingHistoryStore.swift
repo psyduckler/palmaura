@@ -8,8 +8,8 @@ import Foundation
 ///
 /// Capacity is bounded by `maxReadings`. Older entries are pruned FIFO
 /// (sorted by `createdAt` descending) on every save and at app launch.
-/// Pruning cascades the matching palm photo and session intent so we
-/// don't leak orphan files.
+/// Pruning cascades the matching palm photo, session intent, and
+/// written reflections so we don't leak orphan files.
 ///
 /// Legacy single-slot data from `LastReadingStore` is migrated on first
 /// launch via `migrateFromLastReadingIfNeeded()`. The migration is
@@ -115,19 +115,20 @@ enum ReadingHistoryStore {
         allReadings().first
     }
 
-    /// Delete a single reading and cascade to its photo and session intent.
+    /// Delete a single reading and cascade to its photo, session intent, and reflections.
     /// Idempotent: deleting an unknown id is a no-op.
     static func delete(readingId: String) {
         let path = url(for: readingId)
         try? FileManager.default.removeItem(at: path)
+        ReadingReflectionStore.delete(forReadingId: readingId)
         ReadingIntentStore.clear(for: readingId)
         PalmPhotoStore.delete(key: readingId)
     }
 
-    /// Wipe all reading-history JSON files. Photos and intents are
-    /// cleared by the caller (Settings "Clear Reading History" already
-    /// calls `PalmPhotoStore.clearAll()` + `ReadingIntentStore.clearAll()`
-    /// alongside this), so we avoid double-clearing.
+    /// Wipe all reading-history JSON files. Photos, intents, and reflections are
+    /// cleared by the caller (Settings "Clear Reflection History" already
+    /// calls `PalmPhotoStore.clearAll()` + `ReadingIntentStore.clearAll()` +
+    /// `ReadingReflectionStore.clearAll()` alongside this), so we avoid double-clearing.
     static func clearAll() {
         guard let files = try? FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil) else { return }
         for file in files {
@@ -135,8 +136,8 @@ enum ReadingHistoryStore {
         }
     }
 
-    /// Prune to the `maxReadings` newest entries, cascading photo and
-    /// intent deletion for everything pruned. Safe to call at any time
+    /// Prune to the `maxReadings` newest entries, cascading photo, intent,
+    /// and reflection deletion for everything pruned. Safe to call at any time
     /// — `save(_:)` already calls this, and `PalmAuraApp.init` runs it
     /// at launch as a defensive sweep.
     static func prune() {

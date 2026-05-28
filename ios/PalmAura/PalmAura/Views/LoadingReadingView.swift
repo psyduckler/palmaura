@@ -16,22 +16,19 @@ struct LoadingReadingView: View {
     @State private var hasSubmittedRequest = false
     private let phrases = [
         "Reading the shape of your palm…",
-        "Igniting the tiny constellations in your palm…",
-        "Listening to the mount of Venus…",
+        "Listening to what you brought…",
         "Reading the season around your hand…",
         "Mapping love, mind, life, and fate…",
         "Sensing your current season…",
-        "Asking the moon for a second opinion…",
-        "Drawing on ancient palmistry…",
-        "Channeling the symbols in your palm…",
-        "Dusting stardust off your map…"
+        "Mapping your reflection…",
+        "Preparing your prompts…"
     ]
 
     var body: some View {
         ZStack {
             DarkScreenBackground()
             VStack(spacing: 0) {
-                ScreenHeader(eyebrow: "Reading")
+                ScreenHeader(eyebrow: "Reflecting")
 
                 Spacer(minLength: 24)
 
@@ -126,7 +123,7 @@ struct LoadingReadingView: View {
                     showResult = true
                 } else {
                     Analytics.shared.track(response.status == .notPalm ? "reading_rejected_not_palm" : "reading_rejected_bad_image")
-                    errorMessage = response.rejectionMessage ?? "The oracle needs a clearer palm. Try again with your open hand filling the frame."
+                    errorMessage = response.rejectionMessage ?? "We need a clearer hand photo to reflect from. Try again with your open hand filling the frame."
                 }
             }
         } catch {

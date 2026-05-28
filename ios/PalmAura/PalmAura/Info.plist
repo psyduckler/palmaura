@@ -23,11 +23,11 @@
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>NSCameraUsageDescription</key>
-	<string>PalmAura uses your camera to capture your palm for an entertainment-only reading.</string>
+	<string>PalmAura uses your camera to capture your hand as a visual anchor for a symbolic reflection.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>PalmAura saves your aura share card to your photo library when you choose Save.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>PalmAura uses your photo library to choose a palm photo for an entertainment-only reading.</string>
+	<string>PalmAura uses your photo library to choose a hand photo as a visual anchor for a symbolic reflection.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>CormorantGaramond.ttf</string>

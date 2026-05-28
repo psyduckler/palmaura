@@ -28,10 +28,10 @@ struct HomeView: View {
 
                     // Title block
                     VStack(spacing: 6) {
-                        Text("What answer")
+                        Text("What question")
                             .font(DesignSystem.FontToken.display(44))
                             .foregroundStyle(DesignSystem.ColorToken.textPrimary)
-                        Text("are you seeking?")
+                        Text("are you sitting with?")
                             .font(DesignSystem.FontToken.display(40, italic: true))
                             .foregroundStyle(DesignSystem.ColorToken.goldCream)
                     }
@@ -60,7 +60,7 @@ struct HomeView: View {
                                     .contentShape(Capsule())
                             }
                             .buttonStyle(.plain)
-                            .accessibilityLabel("Start a \(chip.label.lowercased()) reading")
+                            .accessibilityLabel("Start a \(chip.label.lowercased()) reflection")
                             .simultaneousGesture(TapGesture().onEnded {
                                 Analytics.shared.track("home_focus_chip_tapped", properties: ["focus": chip.focus.rawValue])
                             })
@@ -72,7 +72,7 @@ struct HomeView: View {
                         NavigationLink {
                             if hasProfile { ReadingQuestionView() } else { OnboardingView() }
                         } label: {
-                            Text(lastReading == nil ? "Ask the Palm" : "Ask Again")
+                            Text(lastReading == nil ? "Begin Reflection" : "Reflect Again")
                                 .font(DesignSystem.FontToken.caps(11))
                                 .tracking(4)
                                 .textCase(.uppercase)
@@ -93,7 +93,7 @@ struct HomeView: View {
                                     Text("☽")
                                         .font(DesignSystem.FontToken.display(15))
                                         .accessibilityHidden(true)
-                                    Text("Past Readings")
+                                    Text("Past Reflections")
                                         .font(DesignSystem.FontToken.caps(10))
                                         .tracking(3)
                                         .textCase(.uppercase)
@@ -105,7 +105,7 @@ struct HomeView: View {
                                 .contentShape(Capsule())
                             }
                             .buttonStyle(.plain)
-                            .accessibilityHint("Opens the full list of past readings saved on this device")
+                            .accessibilityHint("Opens the full list of past reflections saved on this device")
                         }
                     }
 
@@ -113,7 +113,7 @@ struct HomeView: View {
                     if let lastReading, let bundle = lastBundle {
                         ParchmentPanel {
                             VStack(alignment: .leading, spacing: 14) {
-                                Text("LAST ANSWER")
+                                Text("LAST REFLECTION")
                                     .font(DesignSystem.FontToken.caps(9))
                                     .tracking(DesignSystem.Tracking.caps)
                                     .foregroundStyle(DesignSystem.ColorToken.textTertiary)
@@ -147,13 +147,13 @@ struct HomeView: View {
                     if lastReading == nil {
                         ParchmentPanel {
                             VStack(alignment: .leading, spacing: 12) {
-                                Text("THE RITUAL")
+                                Text("THE PRACTICE")
                                     .font(DesignSystem.FontToken.caps(9))
                                     .tracking(DesignSystem.Tracking.caps)
                                     .foregroundStyle(DesignSystem.ColorToken.textTertiary)
                                 HomeBullet(numeral: "I",   title: "Ask one question",     detail: "Pick a focus and bring the one thing you want the palm to look into.")
                                 HomeBullet(numeral: "II",  title: "Photograph your palm", detail: "Open hand, fingers spread, soft even light.")
-                                HomeBullet(numeral: "III", title: "Receive the answer",   detail: "A private reading, palm map, and full report you can keep or share.")
+                                HomeBullet(numeral: "III", title: "Write your reflection", detail: "A private entry, palm map, and prompts you can revisit in your journal.")
                             }
                         }
                     }

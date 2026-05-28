@@ -20,7 +20,7 @@ struct ReadingResultView: View {
             DarkScreenBackground()
             ScrollView {
                 VStack(alignment: .leading, spacing: 22) {
-                    ScreenHeader(eyebrow: "Your Reading", back: true)
+                    ScreenHeader(eyebrow: "Your Reflection", back: true)
                         .padding(.horizontal, -DesignSystem.Spacing.lg)
 
                     // Title block — moon phase is frozen at reading-time so
@@ -63,6 +63,16 @@ struct ReadingResultView: View {
                     chapter(glyph: "☉", title: "Current Season", body: reading.report.currentSeason)
                     chapter(glyph: "⚹", title: "Ritual", body: reading.report.ritual)
 
+                    VStack(spacing: 12) {
+                        OrnamentRule()
+                        Text("YOUR REFLECTIONS")
+                            .font(DesignSystem.FontToken.caps(10))
+                            .tracking(DesignSystem.Tracking.caps)
+                            .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.78))
+                        ReflectionPromptsCard(readingId: reading.readingId)
+                    }
+                    .padding(.top, 8)
+
                     // Footer
                     VStack(spacing: 12) {
                         OrnamentRule()
@@ -73,7 +83,7 @@ struct ReadingResultView: View {
                             .lineSpacing(2)
                             .padding(.horizontal, 16)
                         NavigationLink { ReadingQuestionView() } label: {
-                            Text("Ask another question")
+                            Text("Begin another reflection")
                                 .font(DesignSystem.FontToken.caps(11))
                                 .tracking(4)
                                 .textCase(.uppercase)
@@ -91,7 +101,7 @@ struct ReadingResultView: View {
                             HStack(spacing: 8) {
                                 Image(systemName: "square.and.arrow.up")
                                     .font(.system(size: 13, weight: .semibold))
-                                Text("Share this reading")
+                                Text("Share this reflection")
                                     .font(DesignSystem.FontToken.caps(10))
                                     .tracking(3)
                                     .textCase(.uppercase)
@@ -103,7 +113,7 @@ struct ReadingResultView: View {
                             .overlay(Capsule().stroke(DesignSystem.ColorToken.goldCream.opacity(0.35), lineWidth: 1))
                         }
                         .buttonStyle(.plain)
-                        .accessibilityLabel("Share this reading")
+                        .accessibilityLabel("Share this reflection")
                     }
                     .padding(.top, 14)
                 }
@@ -135,7 +145,7 @@ struct ReadingResultView: View {
 
     private func intentCard(_ intent: ReadingSessionIntent) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("QUESTION ANSWERED FIRST")
+            Text("QUESTION FOR REFLECTION")
                 .font(DesignSystem.FontToken.caps(9))
                 .tracking(DesignSystem.Tracking.caps)
                 .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.72))

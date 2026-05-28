@@ -6,8 +6,8 @@ options:
 settings:
   base:
     CODE_SIGN_STYLE: Automatic
-    MARKETING_VERSION: "1.0"
-    CURRENT_PROJECT_VERSION: "3"
+    MARKETING_VERSION: "1.1"
+    CURRENT_PROJECT_VERSION: "4"
     TARGETED_DEVICE_FAMILY: "1"
 targets:
   PalmAura:
@@ -29,8 +29,8 @@ targets:
           - UIInterfaceOrientationPortrait
         UISupportedInterfaceOrientations~ipad:
           - UIInterfaceOrientationPortrait
-        NSCameraUsageDescription: PalmAura uses your camera to capture your palm for an entertainment-only reading.
-        NSPhotoLibraryUsageDescription: PalmAura uses your photo library to choose a palm photo for an entertainment-only reading.
+        NSCameraUsageDescription: PalmAura uses your camera to capture your hand as a visual anchor for a symbolic reflection.
+        NSPhotoLibraryUsageDescription: PalmAura uses your photo library to choose a hand photo as a visual anchor for a symbolic reflection.
         # Required to call UIImageWriteToSavedPhotosAlbum when the user
         # taps "Save to Photos" on the share card. Without this key iOS
         # will crash the app on the save call.

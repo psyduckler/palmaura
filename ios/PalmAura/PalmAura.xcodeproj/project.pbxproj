@@ -18,6 +18,7 @@
 		2D217A09A92BB28AB083D748 /* ShareOptionsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5B070BAFB11FD7738871EDD /* ShareOptionsSheet.swift */; };
 		2D69682D5DBD29FC8DE17C3E /* ShareCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BB6B109316EF196B557A7B6 /* ShareCardView.swift */; };
 		2F1A7CA21CE6440D09E418A1 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF35F9B0A99171A580772659 /* HomeView.swift */; };
+		30A80D553238E931D61EBAC5 /* ReadingReflection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111EA6E7C6FA933D85673907 /* ReadingReflection.swift */; };
 		3308DE1307B3BA9EA22019FA /* mystical-loading-phrases.json in Resources */ = {isa = PBXBuildFile; fileRef = CF5515FDAB1E983707B4048E /* mystical-loading-phrases.json */; };
 		3463A8BE7451E02E956ECC77 /* fixture-reading.json in Resources */ = {isa = PBXBuildFile; fileRef = 3EA3030A239CC168858A7FB1 /* fixture-reading.json */; };
 		34A3268B240FAD0478B8E003 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1720F2B3C55DB463CFA88037 /* OnboardingView.swift */; };
@@ -31,6 +32,7 @@
 		62B00FA68565797D1F08AE44 /* ReadingHistoryStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9714C26B40A6B6032E21320 /* ReadingHistoryStoreTests.swift */; };
 		674273DBEEC0A3FA777615B3 /* PalmReadingResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07C6DA2991F59AA384A35613 /* PalmReadingResponse.swift */; };
 		6C313972967FFBB35306AEFF /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF5C572506FA73A211D1CA8 /* AppConfig.swift */; };
+		6D944F61530F315344CBF9D2 /* ReflectionPromptsCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C39297969C0EE8CD9CE0FDD /* ReflectionPromptsCard.swift */; };
 		720AB8F41FFB22399CC37088 /* ShareCardRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FFEF4A235A1EC34F6E0E966 /* ShareCardRenderer.swift */; };
 		72F2F1C92A1EF30C64376BFD /* PalmLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83B1B3C81EE103A0E8DAC0F0 /* PalmLine.swift */; };
 		73008B58CDA2E9AB711B3F3F /* MysticProfileDescriptorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC7B35A4BDF4903640A31BF /* MysticProfileDescriptorTests.swift */; };
@@ -52,6 +54,8 @@
 		B52B1B4D2552DD4EC2D1243E /* PalmMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FB6426BD1CE79A861C2E4BD /* PalmMapView.swift */; };
 		BA501CEB11AA327312177C6C /* ReadingsLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 984F646AE5B1557523F667BE /* ReadingsLibraryView.swift */; };
 		BAD1044A75BAF5E83C811256 /* OnboardingAnswers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F92274F1EDA7CCF79E21D328 /* OnboardingAnswers.swift */; };
+		BECF33D29DAC61D85FC4B53C /* ReadingReflectionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C58BE4825466FF952ADB0E80 /* ReadingReflectionStore.swift */; };
+		BEED1588F70FB8047EBB9FB9 /* ReadingReflectionStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E9E2CBD022E8276016206B7 /* ReadingReflectionStoreTests.swift */; };
 		C1F3417F6A00661EEAAFCAF4 /* Caveat.ttf in Resources */ = {isa = PBXBuildFile; fileRef = AF459A5F9333106CA5AF9CC2 /* Caveat.ttf */; };
 		C2C2B24DBA41D64AC4F1AB31 /* PalmPhotoStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F10588D6E3349643B6DF68 /* PalmPhotoStore.swift */; };
 		C5B48FF9F16B66259B700778 /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34162B1A6590AF545BDEC59D /* DesignSystem.swift */; };
@@ -86,9 +90,11 @@
 		07C6DA2991F59AA384A35613 /* PalmReadingResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PalmReadingResponse.swift; sourceTree = "<group>"; };
 		0AD44802780D3C2497A7ED7F /* CormorantGaramond-Italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "CormorantGaramond-Italic.ttf"; sourceTree = "<group>"; };
 		10F10588D6E3349643B6DF68 /* PalmPhotoStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PalmPhotoStore.swift; sourceTree = "<group>"; };
+		111EA6E7C6FA933D85673907 /* ReadingReflection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingReflection.swift; sourceTree = "<group>"; };
 		1720F2B3C55DB463CFA88037 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		1953DFB6C4E9688173108D85 /* AppOpeningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppOpeningView.swift; sourceTree = "<group>"; };
 		1C5F47F16EFFADB47F8F39B7 /* DisclaimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisclaimerView.swift; sourceTree = "<group>"; };
+		1E9E2CBD022E8276016206B7 /* ReadingReflectionStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingReflectionStoreTests.swift; sourceTree = "<group>"; };
 		1FF2E1CEBD10AC6339C86269 /* ReadingTimestampFormatterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingTimestampFormatterTests.swift; sourceTree = "<group>"; };
 		2308674E5D6BD47EB98C18E9 /* PalmAuraTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = PalmAuraTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		26DCE56240D556B34E783C27 /* ReadingTimestampFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingTimestampFormatter.swift; sourceTree = "<group>"; };
@@ -99,6 +105,7 @@
 		3EA3030A239CC168858A7FB1 /* fixture-reading.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "fixture-reading.json"; sourceTree = "<group>"; };
 		3FB6426BD1CE79A861C2E4BD /* PalmMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PalmMapView.swift; sourceTree = "<group>"; };
 		41EDB47AB8DE4AE6BDE1794A /* ImagePreprocessorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePreprocessorTests.swift; sourceTree = "<group>"; };
+		4C39297969C0EE8CD9CE0FDD /* ReflectionPromptsCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReflectionPromptsCard.swift; sourceTree = "<group>"; };
 		4D9BF0BC06708847ACD048F3 /* RevealSequenceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RevealSequenceView.swift; sourceTree = "<group>"; };
 		50F432167189DA99E25D8766 /* PalmAuraMark.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PalmAuraMark.swift; sourceTree = "<group>"; };
 		595599E4A63503E9695A1037 /* EdgeContextService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EdgeContextService.swift; sourceTree = "<group>"; };
@@ -126,6 +133,7 @@
 		AF459A5F9333106CA5AF9CC2 /* Caveat.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Caveat.ttf; sourceTree = "<group>"; };
 		AFAA84C1DC35A7D9CDE1B63B /* InlineMarkdownFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InlineMarkdownFormatter.swift; sourceTree = "<group>"; };
 		AFEB3CB059CC4EBA570D575F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		C58BE4825466FF952ADB0E80 /* ReadingReflectionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingReflectionStore.swift; sourceTree = "<group>"; };
 		C6BF4B44BF3896F04E926637 /* NavigationCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationCoordinatorTests.swift; sourceTree = "<group>"; };
 		C6C4A59DCEC53DECE2F47641 /* ShareReportPayloadTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareReportPayloadTests.swift; sourceTree = "<group>"; };
 		C9714C26B40A6B6032E21320 /* ReadingHistoryStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingHistoryStoreTests.swift; sourceTree = "<group>"; };
@@ -154,6 +162,7 @@
 			children = (
 				50F432167189DA99E25D8766 /* PalmAuraMark.swift */,
 				D5529B6060B0A6F65C79536A /* PalmCanvasView.swift */,
+				4C39297969C0EE8CD9CE0FDD /* ReflectionPromptsCard.swift */,
 				F13F64552D9CEC21942FCD75 /* SafariView.swift */,
 				5BB6B109316EF196B557A7B6 /* ShareCardView.swift */,
 			);
@@ -172,6 +181,7 @@
 				0601EB8C33A7ACEEE28C92BF /* PalmPhotoStoreTests.swift */,
 				A8F12EF70C3329DD05F7A2BF /* PalmReadingResponseTests.swift */,
 				C9714C26B40A6B6032E21320 /* ReadingHistoryStoreTests.swift */,
+				1E9E2CBD022E8276016206B7 /* ReadingReflectionStoreTests.swift */,
 				1FF2E1CEBD10AC6339C86269 /* ReadingTimestampFormatterTests.swift */,
 				C6C4A59DCEC53DECE2F47641 /* ShareReportPayloadTests.swift */,
 			);
@@ -219,6 +229,7 @@
 				2E996AE0FD915DD66131A862 /* PalmReadingRequest.swift */,
 				07C6DA2991F59AA384A35613 /* PalmReadingResponse.swift */,
 				A861D489AE5C296722AFCB36 /* ReadingBundle.swift */,
+				111EA6E7C6FA933D85673907 /* ReadingReflection.swift */,
 				26DCE56240D556B34E783C27 /* ReadingTimestampFormatter.swift */,
 			);
 			path = Models;
@@ -286,6 +297,7 @@
 				10F10588D6E3349643B6DF68 /* PalmPhotoStore.swift */,
 				FABCD888475E0BB7F499D2A5 /* ReadingAPIClient.swift */,
 				793D09B97E76E9DB3972248D /* ReadingHistoryStore.swift */,
+				C58BE4825466FF952ADB0E80 /* ReadingReflectionStore.swift */,
 				5FFEF4A235A1EC34F6E0E966 /* ShareCardRenderer.swift */,
 				CA36F9152095DE093B0C844F /* ShareReportPayload.swift */,
 			);
@@ -401,6 +413,7 @@
 				FEF994DE316BC2352376669C /* PalmPhotoStoreTests.swift in Sources */,
 				E3D09EC24C2B30CFC8E50737 /* PalmReadingResponseTests.swift in Sources */,
 				62B00FA68565797D1F08AE44 /* ReadingHistoryStoreTests.swift in Sources */,
+				BEED1588F70FB8047EBB9FB9 /* ReadingReflectionStoreTests.swift in Sources */,
 				8B99077D41C2EC0D4AB52F06 /* ReadingTimestampFormatterTests.swift in Sources */,
 				4C8C8C761ECE986FF799E242 /* ShareReportPayloadTests.swift in Sources */,
 			);
@@ -440,9 +453,12 @@
 				58AEBFB6B73A5463441B644B /* ReadingBundle.swift in Sources */,
 				E8FCC5B4C428496E827ED448 /* ReadingHistoryStore.swift in Sources */,
 				A2CF0FE27A4DA8D63F163BB0 /* ReadingQuestionView.swift in Sources */,
+				30A80D553238E931D61EBAC5 /* ReadingReflection.swift in Sources */,
+				BECF33D29DAC61D85FC4B53C /* ReadingReflectionStore.swift in Sources */,
 				41CEBCA976CE95ECF50C237A /* ReadingResultView.swift in Sources */,
 				7D5BF46C068EA57309177288 /* ReadingTimestampFormatter.swift in Sources */,
 				BA501CEB11AA327312177C6C /* ReadingsLibraryView.swift in Sources */,
+				6D944F61530F315344CBF9D2 /* ReflectionPromptsCard.swift in Sources */,
 				DDA92775B7A6C34DD2637CFD /* RevealSequenceView.swift in Sources */,
 				9638472F6319110026869817 /* RootView.swift in Sources */,
 				4CD63657758C124662FC3CFE /* SafariView.swift in Sources */,
@@ -534,7 +550,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -553,7 +569,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -635,7 +651,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -648,7 +664,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";

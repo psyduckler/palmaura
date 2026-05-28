@@ -5,8 +5,8 @@ enum BrandConfig {
     static let socialHandle = "@PalmAuraApp"
     static let supportEmail = "hello@palmaura.app"
 
-    static let shortDisclaimer = "For entertainment only"
-    static let entertainmentDisclaimer = "PalmAura readings are symbolic entertainment and self-reflection only. They are not medical, legal, financial, psychological, or life-critical advice."
+    static let shortDisclaimer = "For reflection and self-knowledge"
+    static let entertainmentDisclaimer = "PalmAura entries are symbolic self-reflection only. They are not medical, legal, financial, psychological, or life-critical advice."
 
     /// Convert an integer (e.g. a year) to its Roman-numeral representation.
     /// Used for keepsake-style date stamps in result and settings screens.

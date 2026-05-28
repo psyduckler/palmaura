@@ -1,13 +1,13 @@
 import SwiftUI
 
-/// Past-readings library. Lists every reading saved on this device,
+/// Past-reflections library. Lists every entry saved on this device,
 /// newest first, capped at `ReadingHistoryStore.maxReadings`. Each row
-/// opens the full `ReadingResultView` for that reading; long-press
+/// opens the full `ReadingResultView` for that entry; long-press
 /// reveals a delete affordance.
 ///
 /// Surfaced from:
-/// - `HomeView` "Past Readings" button (when at least one reading exists)
-/// - `SettingsView` "Library of readings" navRow (always available)
+/// - `HomeView` "Past Reflections" button (when at least one entry exists)
+/// - `SettingsView` "Library of reflections" navRow (always available)
 struct ReadingsLibraryView: View {
     @State private var readings: [PalmReadingResponse] = []
     @State private var pendingDeletionId: String?
@@ -17,7 +17,7 @@ struct ReadingsLibraryView: View {
             DarkScreenBackground()
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 16) {
-                    ScreenHeader(eyebrow: "Past Readings", back: true)
+                    ScreenHeader(eyebrow: "Past Reflections", back: true)
                         .padding(.horizontal, -DesignSystem.Spacing.lg)
 
                     intro
@@ -40,7 +40,7 @@ struct ReadingsLibraryView: View {
         .swipeBackEnabled()
         .onAppear(perform: reload)
         .alert(
-            "Delete this reading?",
+            "Delete this reflection?",
             isPresented: Binding(
                 get: { pendingDeletionId != nil },
                 set: { if !$0 { pendingDeletionId = nil } }
@@ -50,7 +50,7 @@ struct ReadingsLibraryView: View {
             Button("Cancel", role: .cancel) { pendingDeletionId = nil }
             Button("Delete", role: .destructive) { performDelete(readingId: id) }
         } message: { _ in
-            Text("The reading, palm photo, and session question are removed from this device. This can't be undone.")
+            Text("The entry, palm photo, session question, and written reflections are removed from this device. This can't be undone.")
         }
     }
 
@@ -63,10 +63,10 @@ struct ReadingsLibraryView: View {
                 .tracking(DesignSystem.Tracking.caps)
                 .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.72))
                 .accessibilityHidden(true)
-            Text("Your past readings")
+            Text("Your reflection journal")
                 .font(DesignSystem.FontToken.display(30))
                 .foregroundStyle(DesignSystem.ColorToken.textPrimary)
-            Text("Up to \(ReadingHistoryStore.maxReadings) readings stay on this device. Long-press a reading to delete it.")
+            Text("Up to \(ReadingHistoryStore.maxReadings) entries stay on this device. Long-press an entry to delete it.")
                 .font(DesignSystem.FontToken.body(13, italic: true))
                 .foregroundStyle(DesignSystem.ColorToken.textSecondary)
                 .multilineTextAlignment(.center)
@@ -80,10 +80,10 @@ struct ReadingsLibraryView: View {
         ParchmentPanel {
             VStack(spacing: 14) {
                 GlyphCircle(glyph: "☽", size: 48, selected: true)
-                Text("No readings yet.")
+                Text("No reflections yet.")
                     .font(DesignSystem.FontToken.display(22))
                     .foregroundStyle(DesignSystem.ColorToken.textPrimary)
-                Text("Once you ask the palm, every reading lands here.")
+                Text("Once you begin a reflection, every entry lands here.")
                     .font(DesignSystem.FontToken.body(14, italic: true))
                     .foregroundStyle(DesignSystem.ColorToken.textSecondary)
                     .multilineTextAlignment(.center)
@@ -97,6 +97,7 @@ struct ReadingsLibraryView: View {
     @ViewBuilder
     private func row(for reading: PalmReadingResponse) -> some View {
         let bundle = ReadingBundle.restore(reading: reading)
+        let reflectionCount = ReadingReflectionStore.count(forReadingId: reading.readingId)
         NavigationLink {
             ReadingResultView(bundle: bundle)
         } label: {
@@ -116,6 +117,13 @@ struct ReadingsLibraryView: View {
                         .foregroundStyle(DesignSystem.ColorToken.textSecondary)
                         .lineLimit(2)
                         .multilineTextAlignment(.leading)
+                    if reflectionCount > 0 {
+                        Text(reflectionBadge(count: reflectionCount))
+                            .font(DesignSystem.FontToken.caps(8))
+                            .tracking(1.8)
+                            .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.78))
+                            .padding(.top, 2)
+                    }
                 }
                 Spacer(minLength: 0)
                 Text("›")
@@ -133,13 +141,13 @@ struct ReadingsLibraryView: View {
             .contentShape(RoundedRectangle(cornerRadius: DesignSystem.Radius.cardLg, style: .continuous))
         }
         .buttonStyle(.plain)
-        .accessibilityHint("Opens the full reading")
+        .accessibilityHint("Opens the full reflection")
         .contextMenu {
             Button(role: .destructive) {
                 Analytics.shared.track("reading_history_delete_prompt", properties: ["readingId": reading.readingId])
                 pendingDeletionId = reading.readingId
             } label: {
-                Label("Delete reading", systemImage: "trash")
+                Label("Delete reflection", systemImage: "trash")
             }
         }
     }
@@ -219,6 +227,10 @@ struct ReadingsLibraryView: View {
             return "\(dateString)  ·  \(focus)"
         }
         return dateString
+    }
+
+    private func reflectionBadge(count: Int) -> String {
+        count == 1 ? "✎ 1 REFLECTION" : "✎ \(count) REFLECTIONS"
     }
 
     private func glyph(for aura: AuraColor) -> String {

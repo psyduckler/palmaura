@@ -27,7 +27,7 @@ struct DisclaimerView: View {
                     }
                     .multilineTextAlignment(.center)
 
-                    Text("PalmAura readings are symbolic entertainment and self-reflection only. They are not medical, legal, financial, psychological, or life-critical advice.")
+                    Text("PalmAura entries are symbolic self-reflection only. They are not medical, legal, financial, psychological, or life-critical advice.")
                         .font(DesignSystem.FontToken.body(16, italic: true))
                         .foregroundStyle(DesignSystem.ColorToken.textPrimary.opacity(0.88))
                         .multilineTextAlignment(.center)
@@ -38,9 +38,9 @@ struct DisclaimerView: View {
                     OrnamentRule().padding(.horizontal, 40).padding(.top, 6)
 
                     VStack(alignment: .leading, spacing: 14) {
-                        bullet(glyph: "☉", body: "Bring your own judgement to every reading.")
-                        bullet(glyph: "☽", body: "Your photo is processed once, then discarded.")
-                        bullet(glyph: "✦", body: "Your birthday and preferences live only on this device.")
+                        bullet(glyph: "☉", body: "Bring your own judgement to every reflection.")
+                        bullet(glyph: "☽", body: "Your photo and question are used to generate one symbolic entry.")
+                        bullet(glyph: "✦", body: "Your written reflections stay in your private on-device journal.")
                     }
                     .padding(20)
                     .background(DesignSystem.ColorToken.goldCream.opacity(0.055))

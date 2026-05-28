@@ -29,7 +29,7 @@ struct SettingsView: View {
                         navRow(glyph: "☽", label: "Edit profile") { showEditProfile = true }
                     }
                     section(title: "KEEPSAKES") {
-                        navRow(glyph: "✦", label: "Library of readings") { showLibrary = true }
+                        navRow(glyph: "✦", label: "Library of reflections") { showLibrary = true }
                     }
                     section(title: "ACCOUNT") {
                         row(glyph: "♃", label: "Membership", detail: "Lifetime")
@@ -66,15 +66,16 @@ struct SettingsView: View {
         } message: {
             Text("Your birthday, energy, dominant hand, and location override will be cleared. The app will ask again on your next reading.")
         }
-        .alert("Clear reading history?", isPresented: $showClearHistoryAlert) {
+        .alert("Clear reflection history?", isPresented: $showClearHistoryAlert) {
             Button("Cancel", role: .cancel) {}
             Button("Clear", role: .destructive) {
                 ReadingHistoryStore.clearAll()
                 PalmPhotoStore.clearAll()
                 ReadingIntentStore.clearAll()
+                ReadingReflectionStore.clearAll()
             }
         } message: {
-            Text("Your saved readings, palm photos, palm maps, and session question history will be cleared from this device.")
+            Text("Your saved entries, palm photos, palm maps, written reflections, and session question history will be cleared from this device.")
         }
     }
 
@@ -134,7 +135,7 @@ struct SettingsView: View {
             Button(role: .destructive) {
                 showClearHistoryAlert = true
             } label: {
-                Text("Clear Reading History")
+                Text("Clear Reflection History")
                     .font(DesignSystem.FontToken.caps(9))
                     .tracking(2.5)
                     .foregroundStyle(DesignSystem.ColorToken.goldCream.opacity(0.7))

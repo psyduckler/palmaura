@@ -26,7 +26,7 @@ struct RevealSequenceView: View {
         ZStack {
             DarkScreenBackground()
             VStack(spacing: 0) {
-                ScreenHeader(eyebrow: "Your Reading", back: false)
+                ScreenHeader(eyebrow: "Your Reflection", back: false)
 
                 Spacer(minLength: 6)
 
@@ -94,7 +94,7 @@ struct RevealSequenceView: View {
     }
 
     private var answerEyebrow: String {
-        bundle.sessionIntent?.question == nil ? "The answer begins" : "Question answered"
+        bundle.sessionIntent?.question == nil ? "Your reflection begins" : "Reflection prompt"
     }
 
     private var answerTitle: String {
@@ -130,7 +130,7 @@ struct RevealSequenceView: View {
                 HStack(spacing: 8) {
                     Image(systemName: "square.and.arrow.up")
                         .font(.system(size: 13, weight: .semibold))
-                    Text("Share")
+                    Text("Share reflection")
                         .font(DesignSystem.FontToken.caps(10))
                         .tracking(3)
                         .textCase(.uppercase)
@@ -141,7 +141,7 @@ struct RevealSequenceView: View {
                 .overlay(Capsule().stroke(DesignSystem.ColorToken.goldCream.opacity(0.35), lineWidth: 1))
             }
             .buttonStyle(.plain)
-            .accessibilityLabel("Share this reading")
+            .accessibilityLabel("Share this reflection")
 
             Button {
                 coordinator?.goHome()
